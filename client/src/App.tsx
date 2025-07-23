@@ -3,6 +3,9 @@ import { useRoutes } from 'react-router-dom';
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import './i18n/i18n'; // initialize i18n
+import { useTranslation } from 'react-i18next';
+
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CreativeEditorSDKComponent as CreativeEditorSDK } from './CreativeEditorSDK';
@@ -35,6 +38,12 @@ import { CartProvider } from "@/hooks/useCart";
 
 function Router() {
   
+  // const { t, i18n } = useTranslation();
+
+  // const changeLanguage = (lng) => {
+  //   i18n.changeLanguage(lng);
+  // };
+
   const { user, isAuthenticated, isLoading } = useAuth();
   const paths = [ "/" ,"home" , "artists","product","portfolio","designs",
                   "become-an-artist","shop","cart","create",
@@ -95,6 +104,7 @@ function AuthenticatedApp({ user }: { user: any }) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      
       <Navbar />
       <main className="flex-1">
         <Switch>

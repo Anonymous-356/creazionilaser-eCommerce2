@@ -1135,13 +1135,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const settingData = req.body;
 
-       Object.entries(settingData).map(([key, value]) => {
-        console.log(key,value);
-        //db.insert(settings).values({key : key ,value : value});
+      Object.entries(settingData).map(([key, value]) => {
+       
+        db.insert(settings).values({key : value});
+        
       });
       
-      //await db.insert(settings).values({key : '',value : ''});
-
       res.json([]);
     } catch (error) {
       console.error("Error fetching enquiries:", error);

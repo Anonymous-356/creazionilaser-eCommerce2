@@ -1,4 +1,6 @@
 import { useState } from "react";
+import '../i18n/i18n'; // initialize i18n
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,12 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const { t, i18n } = useTranslation();
+  
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };  
+
   // Fetch admin data
   const { data: stats } = useQuery({
     queryKey: ["/api/admin/stats"],
@@ -87,25 +95,25 @@ export default function AdminDashboard() {
   });
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: BarChart3 },
-    { id: "users", label: "Users",icon: Users,listItems:[
-        {id: "users", label: "Users",icon: Users},
-        {id: "artists", label: "Artists",icon: Users} 
+    { id: "overview", label: t("Overview"), icon: BarChart3 },
+    { id: "users", label: t("Users"),icon: Users,listItems:[
+        {id: "users", label: t("Users"),icon: Users},
+        {id: "artists", label: t("Artists"),icon: Users} 
       ]
     },
-    { id: "categories", label: "Categories", icon: Package ,listItems:[
-        {id : "categories", label : "Categories",icon: Package },
-        {id : "subcategories", label : "Sub Categories",icon: Package }
+    { id: "categories", label: t("Categories"), icon: Package ,listItems:[
+        {id : "categories", label : t("Categories"),icon: Package },
+        {id : "subcategories", label : t("Sub Categories"),icon: Package }
       ] 
     },
-    { id: "products", label: "Products", icon: Package },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "enquiries", label: "Enquiries", icon: Package ,listItems:[
-        {id : "enquiries", label : "Enquiries",icon: Phone },
-        {id : "quotes", label : "Custom Quotes",icon: MessageSquareQuote }
+    { id: "products", label: t("Products"), icon: Package },
+    { id: "orders", label: t("Orders"), icon: ShoppingCart },
+    { id: "enquiries", label: t("Enquiries"), icon: Package ,listItems:[
+        {id : "enquiries", label : t("Enquiries"),icon: Phone },
+        {id : "quotes", label : t("Custom Quotes"),icon: MessageSquareQuote }
       ] 
     },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "settings", label: t("Settings"), icon: Settings },
   ];
 
   return (
@@ -123,7 +131,7 @@ export default function AdminDashboard() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-          <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+          <h1 className="text-xl font-bold text-white">{t("Admin Panel")}</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -226,7 +234,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <Badge variant="default" className="mt-3 w-full justify-center bg-blue-600 hover:bg-blue-700">
-              Administrator
+              {t("Administrator")}
             </Badge>
           </div>
         </div>
@@ -252,7 +260,7 @@ export default function AdminDashboard() {
           </div>
           <div className="hidden md:flex items-center space-x-4">
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">Welcome back!</p>
+              <p className="text-sm font-medium text-gray-900">{t("Welcome back!")}</p>
               <p className="text-xs text-gray-600">{(user as any)?.firstName} {(user as any)?.lastName}</p>
             </div>
             <Button 
@@ -261,8 +269,29 @@ export default function AdminDashboard() {
               onClick={() => window.location.href = '/api/auth/logout'}
               className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
             >
-              Logout
+              {t("Logout")}
             </Button>
+            <div className="">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+                    lang
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[4rem]">
+                  <DropdownMenuItem asChild>
+                    <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
+                      En
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
+                      It
+                    </button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 
@@ -285,13 +314,16 @@ export default function AdminDashboard() {
 }
 
 function OverviewTab({ stats }: { stats?: any }) {
+
+  const { t, i18n } = useTranslation();
+  
   return (
     <div className="space-y-6">
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg">
-            <CardTitle className="text-sm font-medium text-blue-800">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">{t("Total Users")}</CardTitle>
             <Users className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent className="pt-4">
@@ -304,7 +336,7 @@ function OverviewTab({ stats }: { stats?: any }) {
 
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-green-50 to-green-100 rounded-t-lg">
-            <CardTitle className="text-sm font-medium text-green-800">Products</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-800">{t("Products")}</CardTitle>
             <Package className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent className="pt-4">
@@ -317,7 +349,7 @@ function OverviewTab({ stats }: { stats?: any }) {
 
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-purple-50 to-purple-100 rounded-t-lg">
-            <CardTitle className="text-sm font-medium text-purple-800">Total Orders</CardTitle>
+            <CardTitle className="text-sm font-medium text-purple-800">{t("Total Orders")}</CardTitle>
             <ShoppingCart className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent className="pt-4">
@@ -330,7 +362,7 @@ function OverviewTab({ stats }: { stats?: any }) {
 
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-lg">
-            <CardTitle className="text-sm font-medium text-orange-800">Artist Designs</CardTitle>
+            <CardTitle className="text-sm font-medium text-orange-800">{t("Artist Designs")}</CardTitle>
             <BarChart3 className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent className="pt-4">
@@ -345,29 +377,29 @@ function OverviewTab({ stats }: { stats?: any }) {
       {/* Recent activity */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest platform activities and updates</CardDescription>
+          <CardTitle>{t("Recent Activity")}</CardTitle>
+          <CardDescription>{t("Latest platform activities and updates")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-start space-x-4">
               <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
               <div>
-                <p className="text-sm font-medium">New user registered</p>
+                <p className="text-sm font-medium">{t("New user registered")}</p>
                 <p className="text-xs text-gray-500">2 minutes ago</p>
               </div>
             </div>
             <div className="flex items-start space-x-4">
               <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
               <div>
-                <p className="text-sm font-medium">Product added to catalog</p>
+                <p className="text-sm font-medium">{t("Product added to catalog")}</p>
                 <p className="text-xs text-gray-500">15 minutes ago</p>
               </div>
             </div>
             <div className="flex items-start space-x-4">
               <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
               <div>
-                <p className="text-sm font-medium">New artist design uploaded</p>
+                <p className="text-sm font-medium">{t("New artist design uploaded")}</p>
                 <p className="text-xs text-gray-500">1 hour ago</p>
               </div>
             </div>
@@ -383,16 +415,15 @@ function UsersTab({ users }: { users?: any[] }) {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
-
+  const { t, i18n } = useTranslation();
+  
   const userRoles = [
-    {id : 'customer',name : 'Customer'},
-    {id : 'artist',name : 'Artist'}
+    {id : 'customer',name : t('Customer')},
+    {id : 'artist',name : t('Artist')}
   ]
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: any) => {
-      console.log(userData);
-      console.log('functioning...');
       return await apiRequest("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -403,11 +434,11 @@ function UsersTab({ users }: { users?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
       setIsCreateOpen(false);
-      toast({ title: "User created successfully" });
+      toast({ title: t("User created successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to create user",
+        title: t("Failed to create user"),
         description: error.message,
         variant: "destructive"
       });
@@ -416,8 +447,6 @@ function UsersTab({ users }: { users?: any[] }) {
 
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, ...userData }: any) => {
-      console.log(userData);
-      console.log('funcitoning...');
       return await apiRequest(`/api/admin/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -428,11 +457,11 @@ function UsersTab({ users }: { users?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
       setEditingUser(null);
-      toast({ title: "User updated successfully" });
+      toast({ title: t("user updated successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to update user",
+        title: "failed to update user",
         description: error.message,
         variant: "destructive"
       });
@@ -448,11 +477,11 @@ function UsersTab({ users }: { users?: any[] }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: "user block successfully" });
+      toast({ title: t("user block successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to block user",
+        title: t("failed to block user"),
         description: error.message,
         variant: "destructive"
       });
@@ -464,20 +493,20 @@ function UsersTab({ users }: { users?: any[] }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>User Management</CardTitle>
-          <CardDescription>Manage platform users and their permissions</CardDescription>
+          <CardTitle>{t("User Management")}</CardTitle>
+          <CardDescription>{t("Manage platform users and their permissions")}</CardDescription>
         </div>
 
          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add User
+              {t("Add User")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogDescription>Adding a new user to your platform!</DialogDescription>
+              <DialogDescription>{t("Adding a new user to your platform!")}</DialogDescription>
             </DialogHeader>
             <UserForm 
               userRoles={userRoles}
@@ -490,8 +519,8 @@ function UsersTab({ users }: { users?: any[] }) {
         <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit User</DialogTitle>
-              <DialogDescription>Update User information</DialogDescription>
+              <DialogTitle>{t("Edit User")}</DialogTitle>
+              <DialogDescription>{t("Update User information")}</DialogDescription>
             </DialogHeader>
             {editingUser && (
               <UserForm 
@@ -509,11 +538,11 @@ function UsersTab({ users }: { users?: any[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Type")}</TableHead>
+                <TableHead>{t("Joined")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -574,7 +603,8 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const { t, i18n } = useTranslation();
+  
   const [formData, setFormData] = useState({
     fname: user?.firstName || "",
     lname: user?.lastName || "",
@@ -591,8 +621,8 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
     if(!user){
       if (!formData.fname || !formData.lname || !formData.email || !formData.password || !formData.confirmPassword) {
         toast({
-          title: "Missing fields",
-          description: "Please fill in all fields.",
+          title: t("Missing fields"),
+          description: t("Please fill in all fields."),
           variant: "destructive",
         });
         return;
@@ -601,8 +631,8 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
     else{
       if (!formData.fname || !formData.lname || !formData.email) {
           toast({
-            title: "Missing fields",
-            description: "Please fill in all fields.",
+            title: t("Missing fields"),
+            description: t("Please fill in all fields."),
             variant: "destructive",
           });
           return;
@@ -611,8 +641,8 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
 
     if (!user && formData.password.length < 6) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters long.",
+        title: t("Password too short"),
+        description: t("Password must be at least 6 characters long."),
         variant: "destructive",
       });
       return;
@@ -620,8 +650,8 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
 
     if (!user && formData.password !== formData.confirmPassword) {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
+        title: t("Passwords don't match"),
+        description: t("Please make sure your passwords match."),
         variant: "destructive",
       });
       return;
@@ -635,7 +665,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="fname">First Name</Label>
+        <Label htmlFor="fname">{t("First Name")}</Label>
         <Input
           id="fname"
           value={formData.fname}
@@ -646,7 +676,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
       </div>
       
       <div>
-        <Label htmlFor="lname">Last Name</Label>
+        <Label htmlFor="lname">{t("Last Name")}</Label>
         <Input
           id="lname"
           value={formData.lname}
@@ -663,7 +693,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
         />
       </div>
       <div>
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("Email")}</Label>
         <Input
           id="email"
           type="email"
@@ -677,7 +707,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
 
           <>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("Password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -703,7 +733,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
               </div>
             </div>
             <div>
-              <Label htmlFor="cPassword">Confirm Password</Label>
+              <Label htmlFor="cPassword">{t("Confirm Password")}</Label>
               <div className="relative">
                 <Input
                   id="cPassword"
@@ -762,7 +792,8 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingArtist, setEditingArtist] = useState<any>(null);
-
+  const { t, i18n } = useTranslation();
+ 
   // const createArtistMutation = useMutation({
   //   mutationFn: async (artistData: any) => {
   //     return await apiRequest("/api/admin/artists", {
@@ -803,7 +834,7 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to update Artist",
+        title: t("Failed to update Artist"),
         description: error.message,
         variant: "destructive"
       });
@@ -821,11 +852,11 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/artists"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/artists"] });
-      toast({ title: "artist blocked successfully" });
+      toast({ title: t("artist blocked successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to block artist",
+        title: t("failed to block artist"),
         description: error.message,
         variant: "destructive"
       });
@@ -848,7 +879,7 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to verify artist",
+        title: t("failed to verify artist"),
         description: error.message,
         variant: "destructive"
       });
@@ -859,8 +890,8 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Artist Management</CardTitle>
-          <CardDescription>Manage platform Artist and their permissions</CardDescription>
+          <CardTitle>{t("Artist Management")}</CardTitle>
+          <CardDescription>{t("Manage platform Artist and their permissions")}</CardDescription>
         </div>
 
          {/* <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -885,8 +916,8 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
         <Dialog open={!!editingArtist} onOpenChange={() => setEditingArtist(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Artist</DialogTitle>
-              <DialogDescription>Update Artist information</DialogDescription>
+              <DialogTitle>{t("Edit Artist")}</DialogTitle>
+              <DialogDescription>{t("Update Artist information")}</DialogDescription>
             </DialogHeader>
             {editingArtist && (
               <ArtistForm 
@@ -904,11 +935,11 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Speciality</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Speciality")}</TableHead>
+                <TableHead>{t("Status")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -924,10 +955,10 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
                     {artist.isVerified}
                     { 
                       artist.isVerified === true ? (
-                        <Badge className="lg-rounded" variant="default" size="sm"> Verified </Badge>
+                        <Badge className="lg-rounded" variant="default" size="sm">{t("Verified")}</Badge>
                       )
                       : artist.isVerified === false && (
-                        <Badge className="lg-rounded" variant="destructive" size="sm"> Pending </Badge>
+                        <Badge className="lg-rounded" variant="destructive" size="sm">{t("Pending")} </Badge>
                       )
                     }
                   </TableCell>
@@ -991,6 +1022,8 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
     userType: artist?.userType || "",
   });
 
+  const { t, i18n } = useTranslation();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
@@ -1001,7 +1034,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="fname">Full name</Label>
+        <Label htmlFor="fname">{t("Full name")}</Label>
         <Input
           id="fname"
           type="text"
@@ -1012,32 +1045,8 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
         />
       </div>
       
-      {/* <div>
-        <Label htmlFor="lname">Last Name</Label>
-        <Input
-          id="lname"
-          type="text"
-          value={formData.lname}
-          disabled
-          onChange={(e) => setFormData({ ...formData, lname: e.target.value })}
-        />
-      </div> */}
-
-      {/* <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          disabled
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
-        
-      </div> */}
-
       <div>
-        <Label htmlFor="usertype">User Type</Label>
+        <Label htmlFor="usertype">{t("User Type")}</Label>
         <Input
           id="userType"
           type="text"
@@ -1049,7 +1058,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
       </div>
 
        <div>
-        <Label htmlFor="speciality">Speciality</Label>
+        <Label htmlFor="speciality">{t("Speciality")}</Label>
         <Textarea
           id="speciality"
           value={formData.specialty}
@@ -1059,7 +1068,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
       </div>
 
        <div>
-        <Label htmlFor="biography">Biography</Label>
+        <Label htmlFor="biography">{t("Biography")}</Label>
         <Textarea
           id="biography"
           value={formData.biography}
@@ -1069,7 +1078,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? (artist ? "Updating..." : "Creating...") : (artist ? "Update Artist" : "Create Artist")}
+        {isLoading ? (artist ? t("Updating...") : t("Creating...") ) : (artist ? t("Update Artist") : t("Create Artist") )}
       </Button>
     </form>
   );
@@ -1080,6 +1089,8 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const { t, i18n } = useTranslation();
+
 
   const createProductMutation = useMutation({
     mutationFn: async (productData: any) => {
@@ -1093,7 +1104,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/products"] });
       setIsCreateOpen(false);
-      toast({ title: "Product created successfully" });
+      toast({ title: t("product created successfully") });
     },
     onError: (error: any) => {
       toast({ 
@@ -1116,7 +1127,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/products"] });
       setEditingProduct(null);
-      toast({ title: "Product updated successfully" });
+      toast({ title: "product updated successfully" });
     },
     onError: (error: any) => {
       toast({ 
@@ -1136,7 +1147,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/products"] });
-      toast({ title: "Product deleted successfully" });
+      toast({ title: t("product deleted successfully") });
     },
     onError: (error: any) => {
       toast({ 
@@ -1151,21 +1162,21 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Product Management</CardTitle>
-          <CardDescription>Manage your product catalog and inventory</CardDescription>
+          <CardTitle>{t("Product Management")}</CardTitle>
+          <CardDescription>{t("Manage your product catalog and inventory")}</CardDescription>
         </div>
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Product
+              {t("Add Product")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Product</DialogTitle>
-              <DialogDescription>Add a new product to your catalog</DialogDescription>
+              <DialogTitle>{t("Create New Product")}</DialogTitle>
+              <DialogDescription>{t("Add a new product to your catalog")}</DialogDescription>
             </DialogHeader>
             <ProductForm 
               categories={categories} 
@@ -1180,8 +1191,8 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
         <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Product</DialogTitle>
-              <DialogDescription>Update product information</DialogDescription>
+              <DialogTitle>{t("Edit Product")}</DialogTitle>
+              <DialogDescription>{t("Update product information")}</DialogDescription>
             </DialogHeader>
             {editingProduct && (
               <ProductForm 
@@ -1201,10 +1212,10 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Category")}</TableHead>
+                <TableHead>{t("Price")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1261,7 +1272,8 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
   isLoading: boolean;
 })  {
  
-  console.log(product);
+
+  const { t, i18n } = useTranslation();
 
   const [formData, setFormData] = useState({
     name: product?.name || "",
@@ -1285,7 +1297,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">Product Name</Label>
+        <Label htmlFor="name">{t("Product Name")}</Label>
         <Input
           id="name"
           value={formData.name}
@@ -1296,7 +1308,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
       
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("Description")}</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -1306,7 +1318,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="category">Category</Label>
+        <Label htmlFor="category">{t("Category")}</Label>
         <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
@@ -1322,7 +1334,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="subcategory">Sub Category</Label>
+        <Label htmlFor="subcategory">{t("Sub Category")}</Label>
         <Select value={formData.subcategoryId} onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select subcategory" />
@@ -1338,7 +1350,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="basePrice">Price ($)</Label>
+        <Label htmlFor="basePrice">{t("Price ($)")}</Label>
         <Input
           id="basePrice"
           type="number"
@@ -1351,7 +1363,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="imageUrl">Image URL</Label>
+        <Label htmlFor="imageUrl">{t("Image URL")}</Label>
         <Input
           id="imageUrl"
           type="url"
@@ -1362,7 +1374,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? (product ? "Updating..." : "Creating...") : (product ? "Update Product" : "Create Product")}
+        {isLoading ? (product ? t("updating") : t("creating")) : (product ? t("Update Product") : "Create Product")}
       </Button>
     </form>
   );
@@ -1370,20 +1382,22 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
 
 function QuotesTab({ quotes }: { quotes?: any[] }) {
 
+  const { t, i18n } = useTranslation();
+
   return (
     <Card>
       <CardHeader>
-        <CardDescription>View and manage custom quotes.</CardDescription>
+        <CardDescription>{t("View and manage custom quotes")}</CardDescription>
       </CardHeader>
       <CardContent> 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Title")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Date")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1414,20 +1428,23 @@ function QuotesTab({ quotes }: { quotes?: any[] }) {
 }
 
 function EnquiriesTab({ enquiries }: { enquiries?: any[] }) {
+
+  const { t, i18n } = useTranslation();
+
   return (
     <Card>
       <CardHeader>
-        <CardDescription className="">View and manage customer enquiries</CardDescription>
+        <CardDescription className="">{t("View and manage customer enquiries")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Title")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Date")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1458,23 +1475,26 @@ function EnquiriesTab({ enquiries }: { enquiries?: any[] }) {
 }
 
 function OrdersTab({ orders }: { orders?: any[] }) {
+
+  const { t, i18n } = useTranslation();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Order Management</CardTitle>
-        <CardDescription>View and manage customer orders</CardDescription>
+        <CardTitle>{t("Order Management")}</CardTitle>
+        <CardDescription>{t("View and manage customer orders")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order #</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Order")} #</TableHead>
+                <TableHead>{t("Customer")}</TableHead>
+                <TableHead>{t("Total")}</TableHead>
+                <TableHead>{t("Status")}</TableHead>
+                <TableHead>{t("Date")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1515,6 +1535,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
+  const { t, i18n } = useTranslation();
 
   const createCategoryMutation = useMutation({
     mutationFn: async (categoryData: any) => {
@@ -1528,11 +1549,11 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
       setIsCreateOpen(false);
-      toast({ title: "Category created successfully" });
+      toast({ title: t("category created successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to create category",
+        title: t("failed to create category"),
         description: error.message,
         variant: "destructive"
       });
@@ -1551,11 +1572,11 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
       setEditingCategory(null);
-      toast({ title: "Category updated successfully" });
+      toast({ title: t("category updated successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to update category",
+        title: ("failed to update category"),
         description: error.message,
         variant: "destructive"
       });
@@ -1571,7 +1592,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
-      toast({ title: "Category deleted successfully" });
+      toast({ title: t("category deleted successfully") });
     },
     onError: (error: any) => {
       let errorMessage = error.message;
@@ -1584,7 +1605,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       }
       
       toast({ 
-        title: "Cannot Delete Category",
+        title: t("cannot Delete Category"),
         description: errorMessage,
         variant: "destructive"
       });
@@ -1595,21 +1616,21 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Category Management</CardTitle>
-          <CardDescription>Organize your products with categories</CardDescription>
+          <CardTitle>{t("Category Management")}</CardTitle>
+          <CardDescription>{t("Organize your products with categories")}</CardDescription>
         </div>
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Category
+              {t("Add Category")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Category</DialogTitle>
-              <DialogDescription>Add a new product category</DialogDescription>
+              <DialogTitle>{t("Create New Category")}</DialogTitle>
+              <DialogDescription>{t("Add a new product category")}</DialogDescription>
             </DialogHeader>
             <CategoryForm 
 
@@ -1622,8 +1643,8 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
         <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescription>Edit existing product category</DialogDescription>
+              <DialogTitle>{t("Edit Category")}</DialogTitle>
+              <DialogDescription>{t("Edit existing product category")}</DialogDescription>
             </DialogHeader>
             {editingCategory && (
               <CategoryForm 
@@ -1642,10 +1663,10 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Description")}</TableHead>
+                <TableHead>{t("Slug")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow> 
             </TableHeader>
             <TableBody>
@@ -1700,6 +1721,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
   isLoading: boolean;
 }) {
 
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState({
     name: category?.name || "",
     description: category?.description || "",
@@ -1729,7 +1751,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">Category Name</Label>
+        <Label htmlFor="name">{t("Category Name")}</Label>
         <Input
           id="name"
           value={formData.name}
@@ -1740,7 +1762,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
       </div>
       
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("Description")}</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -1750,7 +1772,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
       </div>
 
       <div>
-        <Label htmlFor="slug">URL Slug</Label>
+        <Label htmlFor="slug">{t("URL Slug")}</Label>
         <Input
           id="slug"
           value={formData.slug}
@@ -1760,7 +1782,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
         <p className="text-xs text-gray-500 mt-1">Used in URLs, auto-generated if left empty</p>
       </div>
        <div>
-        <Label htmlFor="imageUrl">Image Url</Label>
+        <Label htmlFor="imageUrl">{t("Image Url")}</Label>
         <Input
           id="imageUrl"
           value={formData.imageUrl}
@@ -1769,7 +1791,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
         />
       </div>
        <div>
-        <Label htmlFor="sortOrder">Sort Order (Optional)</Label>
+        <Label htmlFor="sortOrder">{t("Sort Order (Optional)")}</Label>
         <Input
           id="sortOrder"
           value={formData.sortOrder}
@@ -1779,7 +1801,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? (category ? "Updating..." : "Creating...") : (category ? "Update Category" : "Create Category")}
+        {isLoading ? (category ? t("updating") : t("creating")) : (category ? t("Update Category") : t("Create Category") )}
       </Button>
     </form>
   );
@@ -1790,6 +1812,7 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingSubCategory, setEditingSubCategory] = useState<any>(null);
+  const { t, i18n } = useTranslation();
 
   const createSubCategoryMutation = useMutation({
     mutationFn: async (subcategoryData: any) => {
@@ -1803,11 +1826,11 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
       queryClient.invalidateQueries({ queryKey: ["/api/admin/subcategories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/subcategories"] });
       setIsCreateOpen(false);
-      toast({ title: "subCategory created successfully" });
+      toast({ title: t("subCategory created successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to create subcategory",
+        title: t("failed to create subcategory"),
         description: error.message,
         variant: "destructive"
       });
@@ -1826,11 +1849,11 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
       queryClient.invalidateQueries({ queryKey: ["/api/admin/subcategories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/subcategories"] });
       setEditingSubCategory(null);
-      toast({ title: "subCategory updated successfully" });
+      toast({ title: t("subCategory updated successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "Failed to update subcategory",
+        title: t("failed to update subcategory"),
         description: error.message,
         variant: "destructive"
       });
@@ -1846,7 +1869,7 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/subcategories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/subcategories"] });
-      toast({ title: "Sub Category deleted successfully" });
+      toast({ title: t("sub Category deleted successfully") });
     },
     onError: (error: any) => {
       let errorMessage = error.message;
@@ -1859,7 +1882,7 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
       }
       
       toast({ 
-        title: "Cannot Delete subCategory",
+        title: t("cannot Delete subCategory"),
         description: errorMessage,
         variant: "destructive"
       });
@@ -1870,21 +1893,21 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Sub Category Management</CardTitle>
-          <CardDescription>Organize your products with subcategories</CardDescription>
+          <CardTitle>{t("Sub Category Management")}</CardTitle>
+          <CardDescription>{t("Organize your products with subcategories")}</CardDescription>
         </div>
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Sub Category
+              {t("Add Sub Category")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Sub Category</DialogTitle>
-              <DialogDescription>Add a new product subcategory</DialogDescription>
+              <DialogTitle>{t("Create New Sub Category")}</DialogTitle>
+              <DialogDescription>{t("Add a new product subcategory")}</DialogDescription>
             </DialogHeader>
             <SubCategoryForm 
               categories ={categories}
@@ -1897,8 +1920,8 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
         <Dialog open={!!editingSubCategory} onOpenChange={() => setEditingSubCategory(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit subCategory</DialogTitle>
-              <DialogDescription>Edit existing product subcategory</DialogDescription>
+              <DialogTitle>{t("Edit subCategory")}</DialogTitle>
+              <DialogDescription>{t("Edit existing product subcategory")}</DialogDescription>
             </DialogHeader>
             {editingSubCategory && (
               <SubCategoryForm 
@@ -1918,10 +1941,10 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Description")}</TableHead>
+                <TableHead>{t("Slug")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
               </TableRow> 
             </TableHeader>
             <TableBody>
@@ -1986,6 +2009,8 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
     sortOrder: subcategory?.sortOrder || "",
   });
 
+  const { t, i18n } = useTranslation();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
@@ -2008,7 +2033,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">Subcategory Name</Label>
+        <Label htmlFor="name">{t("Subcategory Name")}</Label>
         <Input
           id="name"
           value={formData.name}
@@ -2019,7 +2044,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
       </div>
       
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("Description")}</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -2029,7 +2054,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
       </div>
 
       <div>
-        <Label htmlFor="slug">URL Slug</Label>
+        <Label htmlFor="slug">{t("URL Slug")}</Label>
         <Input
           id="slug"
           value={formData.slug}
@@ -2040,7 +2065,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
       </div>
 
       <div>
-        <Label htmlFor="category">Category</Label>
+        <Label htmlFor="category">{t("Category")}</Label>
         <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
@@ -2056,7 +2081,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
       </div>
 
        <div>
-        <Label htmlFor="imageUrl">Image Url</Label>
+        <Label htmlFor="imageUrl">{t("Image Url")}</Label>
         <Input
           id="imageUrl"
           value={formData.imageUrl}
@@ -2065,7 +2090,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
         />
       </div>
        <div>
-        <Label htmlFor="sortOrder">Sort Order (Optional)</Label>
+        <Label htmlFor="sortOrder">{t("Sort Order (Optional)")}</Label>
         <Input
           id="sortOrder"
           value={formData.sortOrder}
@@ -2075,7 +2100,7 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? (subcategory ? "Updating..." : "Creating...") : (subcategory ? "Update Sub Category" : "Create Sub Category")}
+        {isLoading ? (subcategory ? t("updating") : t("creating") ) : (subcategory ? t("Update Sub Category") : t("Create Sub Category") )}
       </Button>
     </form>
   );
@@ -2086,6 +2111,7 @@ function SettingsTab() {
   const { toast } = useToast();
   const [selectedFaviconFile, setSelectedFaviconFile] = useState<File | null>(null);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+  const { t, i18n } = useTranslation();
 
   const createSaveSettingsMutation = useMutation({
         
@@ -2103,7 +2129,7 @@ function SettingsTab() {
         onSuccess: () => {
           toast({
             title: "Success",
-            description: "Save settings successfully!",
+            description: t("Save settings successfully!"),
           });
           queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
          
@@ -2132,8 +2158,8 @@ function SettingsTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Branding</CardTitle>
-          <CardDescription>Mange your branding from here.</CardDescription>
+          <CardTitle>{t("Branding")}</CardTitle>
+          <CardDescription>{t("Mange your branding from here")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form onSubmit={handleSaveSettings} className="space-y-4">
@@ -2142,7 +2168,7 @@ function SettingsTab() {
             
               <div>
 
-                  <Label htmlFor="favicon">Favicon Icon</Label>
+                  <Label htmlFor="favicon">{t("Favicon Icon")}</Label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <input
                       id="favicon"
@@ -2163,7 +2189,7 @@ function SettingsTab() {
               </div>
               
               <div>
-                <Label htmlFor="logo">Logo Icon</Label>
+                <Label htmlFor="logo">{t("Logo Icon")}</Label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     id="logo"
@@ -2186,15 +2212,15 @@ function SettingsTab() {
 
             <div className="grid grid-cols-1 md:grid-cols-1">
               <div>
-                <h1 className="text-2xl"><b>Platform Settings</b></h1>
-                <span className="text-gray-400">This is here major settings are updated.</span>
+                <h1 className="text-2xl"><b>{t("Platform Settings")}</b></h1>
+                <span className="text-gray-400">{t("This is here major settings are updated")}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               <div>
-                <Label htmlFor="commission">Artist Commission (%)</Label>
+                <Label htmlFor="commission">{t("Artist Commission")} (%)</Label>
                 <Input 
                   id="commission" 
                   name="commission" 
@@ -2204,7 +2230,7 @@ function SettingsTab() {
               </div>
               
               <div>
-                <Label htmlFor="tax">Tax Rate (%)</Label>
+                <Label htmlFor="tax">{t("Tax Rate")} (%)</Label>
                 <Input 
                   id="tax" 
                   name="tax" 
@@ -2215,7 +2241,7 @@ function SettingsTab() {
               </div>
 
               <div>
-                <Label htmlFor="shipping">Default Shipping ($)</Label>
+                <Label htmlFor="shipping">{t("Default Shipping")} ($)</Label>
                 <Input 
                   id="shipping" 
                   name="shipping" 
@@ -2252,32 +2278,32 @@ function SettingsTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Notification Settings</CardTitle>
-          <CardDescription>Manage your notification preferences</CardDescription>
+          <CardTitle>{t("Notification Settings")}</CardTitle>
+          <CardDescription>{t("Manage your notification preferences")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">New Orders</p>
-              <p className="text-sm text-gray-500">Get notified when new orders are placed</p>
+              <p className="font-medium">{t("New Orders")}</p>
+              <p className="text-sm text-gray-500">{t("Get notified when new orders are placed")}</p>
             </div>
-            <Button variant="outline" size="sm">Enable</Button>
+            <Button variant="outline" size="sm">{t("Enable")}</Button>
           </div>
           
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">New Users</p>
-              <p className="text-sm text-gray-500">Get notified when users register</p>
+              <p className="font-medium">{t("New Users")}</p>
+              <p className="text-sm text-gray-500">{t("Get notified when users register")}</p>
             </div>
-            <Button variant="outline" size="sm">Enable</Button>
+            <Button variant="outline" size="sm">{t("Enable")}</Button>
           </div>
           
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">Artist Uploads</p>
-              <p className="text-sm text-gray-500">Get notified when artists upload designs</p>
+              <p className="font-medium">{t("Artist Uploads")}</p>
+              <p className="text-sm text-gray-500">{t("Get notified when artists upload designs")}</p>
             </div>
-            <Button variant="outline" size="sm">Enable</Button>
+            <Button variant="outline" size="sm">{t("Enable")}</Button>
           </div>
         </CardContent>
       </Card>

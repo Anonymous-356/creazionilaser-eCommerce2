@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import '../i18n/i18n'; // initialize i18n
+import { useTranslation } from 'react-i18next';
+
 import { 
   ShoppingCart,
   ShoppingBag,
@@ -34,6 +37,13 @@ import { apiRequest } from "@/lib/queryClient";
 
 export default function Navbar() {
 
+
+  const { t, i18n } = useTranslation();
+  
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAuthenticated } = useAuth();
@@ -98,6 +108,14 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex items-center">
+            <div className="mt-4">
+              <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
+                English
+              </button>
+              <button onClick={() => changeLanguage('es')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">
+                Spanish
+              </button>
+            </div>
             <Link href="/">
               <img
                   src="/uploads/86c865afac2283f69423030f427ef09a"
@@ -255,7 +273,7 @@ export default function Navbar() {
               <div className="hidden sm:flex items-center space-x-2">
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
-                    Sign In
+                    welcome
                   </Button>
                 </Link>
                 <Link href="/signup">
@@ -333,6 +351,14 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex items-center space-x-2">
+            <div className="mt-4">
+              <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
+                English
+              </button>
+              <button onClick={() => changeLanguage('es')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">
+                Spanish
+              </button>
+            </div>
             <img
                 src="/uploads/86c865afac2283f69423030f427ef09a"
                 alt="Logo Image"
@@ -399,7 +425,7 @@ export default function Navbar() {
 
               <Link href="/login">
                 <Button variant="primary" size="sm">
-                  Sign In
+                  {t('welcome')}
                 </Button>
               </Link>
               <Link href="/signup">
