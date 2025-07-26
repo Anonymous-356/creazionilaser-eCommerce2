@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingCart,HeartPlus, Star } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface DesignCardProps {
   design: {

@@ -158,7 +158,7 @@ export class DatabaseStorage implements IStorage {
   async getAllArtists(): Promise<Artist[]> {
 
   const allArtists = await db.select({
-        id: users.id,
+        userId: users.id,
         artistId : artists.id,
         specialty : artists.specialty,
         biography : artists.bio,

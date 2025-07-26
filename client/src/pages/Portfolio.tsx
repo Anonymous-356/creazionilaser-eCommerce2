@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card,CardHeader,CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Car } from "lucide-react";
+import { Search, Filter, Car,CircleUser } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import DesignCard from "@/components/DesignCard";
-
+import { useTranslation } from 'react-i18next';
 
 export default function Portfolio() {
 
+  const { t, i18n } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArtist, setSelectedArtist] = useState<string>("all");
@@ -86,17 +87,24 @@ export default function Portfolio() {
           <Card>
             <CardHeader className="flex justify-space items-center">
               <div className="bg-white rounded-full p-1 shadow-lg" >
-                <img src={artist?.imageUrl} alt="Artist Profile Image" className="h-32 object-cover rounded-full w-full" />
+                {artist?.imageUrl ? (
+
+                <img src={artist?.imageUrl } alt="Artist Profile Image" className="h-32 object-cover rounded-full w-full" />
+
+                ):(
+                  <CircleUser  className="h-32 object-cover rounded-full w-full"/>
+                )}
+                
               </div>
-              <CardTitle>Artist Profile</CardTitle>
+              <CardTitle>{t("artistPortfolioPageTopTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="pt-8">
-              <p className="text-lg text-gray-600">Artist : {artist?.firstName+' '+artist?.lastName}</p>
-              <p className="text-lg text-gray-600">Since : {new Date(artist?.createdAt).toLocaleDateString()}</p>
-              <p className="text-lg text-gray-600">Speciality : {artist?.speciality}</p>
-              <p className="text-lg text-gray-600">Biography : {artist?.biography}</p>
-              <p className="text-lg text-gray-600">Total Designs : {designs?.length}</p>
-              <p className="text-lg text-gray-600">Portfolio Link : <a href={artist?.portfolio} target="blank" className="text-blue-700 underline" download={artist?.portfolio}>Download Me</a></p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioTitle")} : {artist?.firstName+' '+artist?.lastName}</p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioSince")} : {new Date(artist?.createdAt).toLocaleDateString()}</p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioSpeciality")} : {artist?.speciality}</p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioBiography")} : {artist?.biography}</p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioTotalDesigns")} : {designs?.length}</p>
+              <p className="text-lg text-gray-600">{t("artistPortfolioPortfolioLink")} : <a href={artist?.portfolio} target="blank" className="text-blue-700 underline" download={artist?.portfolio}>Download Me</a></p>
             </CardContent>
           </Card>
         </div>
@@ -106,10 +114,10 @@ export default function Portfolio() {
     </div>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="mb-16 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Showcase Artworks</h1>
+      <div className="mb-16 mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("artistPortfolioPageSecTitle")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+          {t("artistPortfolioPageDesc")}
         </p>
       </div>
 
@@ -127,30 +135,16 @@ export default function Portfolio() {
 
         <div className="flex md:items-end justify-end">
 
-          <p className="text-gray-600 mb-2 mr-2">Sort By Dummy : </p>
-
-          {/* <Select value={selectedArtist} onValueChange={setSelectedArtist}>
-            <SelectTrigger className="w-full md:w-48 md:mr-2">
-              <SelectValue placeholder="All Artists" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Artists</SelectItem>
-              {Array.isArray(artists) && artists.map((artist: any) => (
-                <SelectItem key={artist.specialty} value={artist.id}>
-                  {artist.first_name+' '+artist.last_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select> */}
+          <p className="text-gray-600 mb-2 mr-2">{t("sortby")} : </p>
 
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder={t("sortby")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
+              <SelectItem value="name">{t("SortByAlphabets")}</SelectItem>
+            <SelectItem value="price-low">{t("SortByLowToHigh")}</SelectItem>
+            <SelectItem value="price-high">{t("SortByHighToLow")}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -164,9 +158,9 @@ export default function Portfolio() {
           <div className="text-gray-400 mb-4">
             <Search className="h-16 w-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No design found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t("NoRecordFound")}</h3>
           <p className="text-gray-600 mb-4">
-            Try adjusting your search or filter criteria
+            {t("NoRecordFoundTagline")}
           </p>
           <Button 
             onClick={() => {
@@ -174,7 +168,7 @@ export default function Portfolio() {
               setSelectedArtist("all");
             }}
           >
-            Clear Filters
+            {t("clearFilterCTA")}
           </Button>
         </div>
       ) : (

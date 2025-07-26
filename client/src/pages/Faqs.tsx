@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Search, Filter,CircleArrowDown } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Faqs() {
 
+  const { t, i18n } = useTranslation();
   const { data: artists = [],isLoading } = useQuery({
     queryKey: ["/api/artists"],
   });
@@ -51,9 +53,9 @@ export default function Faqs() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-16 max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("faqsMainTitle")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+          {t("faqsMainDesc")}
         </p>
       </div>
     </div>
@@ -62,7 +64,7 @@ export default function Faqs() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">List of FAQs</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("faqsListTitle")}</h2>
             {/* <p className="text-xl text-gray-600">From design to delivery in 4 simple steps</p> */}
           </div>
 

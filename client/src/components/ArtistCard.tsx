@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ExternalLink, Instagram, Globe } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from 'react-i18next';
 
 interface ArtistCardProps {
   artist: {
@@ -19,6 +20,8 @@ interface ArtistCardProps {
 
 export default function ArtistCard({ artist }: ArtistCardProps) {
 
+  const { t, i18n } = useTranslation();
+
   // Fetch user details for the artist
   const { data: userDetails } = useQuery({
     queryKey: [`/api/users/${artist.userId}`],
@@ -27,9 +30,9 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
 
   // Fetch designs by this artist
   const { data: designs = [] } = useQuery({
-    queryKey: ["/api/designs", artist.id],
+    queryKey: ["/api/designs", artist.artistId],
     queryFn: async () => {
-      const response = await fetch(`/api/designs?artist=${artist.id}`);
+      const response = await fetch(`/api/designs?artist=${artist.artistId}`);
       if (!response.ok) throw new Error('Failed to fetch designs');
       return response.json();
     },
@@ -67,13 +70,13 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
           </div>
           {artist.isVerified ? (
             <Badge className="absolute top-4 right-4 bg-green-500">
-              Verified
+              {t("Verified")}
             </Badge>
           )
           :
           (
              <Badge className="absolute top-4 right-4 bg-red-500">
-              Unverified
+              {t("Unverified")}
             </Badge>
           )}
         </div>
@@ -102,29 +105,12 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium ml-1">{mockRating}</span>
               </div>
-              <span className="text-sm text-gray-500">({mockReviews} reviews)</span>
+              <span className="text-sm text-gray-500">({mockReviews} {t("featuredArtistCardReviewTxt")})</span>
             </div>
             <span className="text-sm text-gray-500">
-              {designs.length} design{designs.length !== 1 ? 's' : ''}
+              {designs.length} {t("featuredArtistCardDesignTxt")}{designs.length !== 1 ? 's' : ''}
             </span>
           </div>
-
-          {/* Design Samples */}
-          {/* <div className="flex space-x-2 mb-4">
-            {designs.slice(0, 3).map((design: any, index: number) => (
-              <img
-                key={design.id}
-                src={design.imageUrl || `https://images.unsplash.com/photo-${1600000000000 + index}?w=60&h=60&fit=crop`}
-                alt="Design sample"
-                className="w-12 h-12 rounded object-cover border border-gray-200"
-              />
-            ))}
-            {designs.length > 3 && (
-              <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-xs text-gray-500">+{designs.length - 3}</span>
-              </div>
-            )}
-          </div> */}
 
           {/* Social Links */}
           {(socialLinks.website || socialLinks.instagram) && (
@@ -158,11 +144,11 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={() => {
               // Navigate to artist profile or designs
-              window.location.href = `/portfolio/?artist=${artist.id}`;
+              window.location.href = `/portfolio/?artist=${artist.artistId}`;
             }}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            View Portfolio
+            {t("featuredArtistCardCTA")}
           </Button>
         </div>
       </CardContent>
