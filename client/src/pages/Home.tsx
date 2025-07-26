@@ -6,8 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Star, ArrowRight, Users, Palette, ShoppingBag, Zap } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import ArtistCard from "@/components/ArtistCard";
+import { useTranslation } from 'react-i18next';
 
 export default function Home() {
+
+  const { t, i18n } = useTranslation();
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
 
@@ -40,11 +43,10 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Custom Products, <span className="text-accent">Endless Creativity</span>
+                {t("loggedInHomeMainTitle")}<span className="text-accent">{t("loggedInHomeMainTitleLastPart")}</span>
               </h1>
               <p className="text-xl mb-8 text-blue-100">
-                Transform your ideas into unique products with our DTF printing, laser engraving, 
-                and vinyl cutting services. Join thousands of artists and creators in our community.
+                {t("loggedInHomeMainDesc")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -52,7 +54,7 @@ export default function Home() {
                   className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   onClick={() => setLocation("/create")}
                 >
-                  Create Your Product
+                  {t("loggedInHomeMainCustomize")}
                 </Button>
                 <Button 
                   size="lg" 
@@ -60,7 +62,7 @@ export default function Home() {
                   className="border-white text-white hover:bg-white text-gray-900"
                   onClick={() => setLocation("/artists")}
                 >
-                  Discover Artists
+                  {t("loggedInHomeMainArtists")}
                 </Button>
               </div>
             </div>
@@ -79,8 +81,8 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-xl text-gray-600">Choose from our wide range of customizable products</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("loggedInHomeShopTitle")}</h2>
+            <p className="text-xl text-gray-600">{t("loggedInHomeShopDesc")}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 animate-stagger">
@@ -99,7 +101,7 @@ export default function Home() {
                   <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-gray-500">Browse designs</p>
+                  <p className="text-sm text-gray-500">{t("loggedInHomeShopRedirectHook")}</p>
                 </CardContent>
               </Card>
             ))}
@@ -111,16 +113,16 @@ export default function Home() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">From design to delivery in 4 simple steps</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("HowITWorksTitle")}</h2>
+            <p className="text-xl text-gray-600">{t("HowITWorksDesc")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-stagger">
             {[
-              { step: 1, title: "Choose Product", desc: "Select from our wide range of customizable products", icon: ShoppingBag, color: "bg-primary" },
-              { step: 2, title: "Customize Design", desc: "Upload your artwork or choose from our artist gallery", icon: Palette, color: "bg-secondary" },
-              { step: 3, title: "Preview & Order", desc: "See exactly how your product will look before ordering", icon: Zap, color: "bg-accent" },
-              { step: 4, title: "Fast Delivery", desc: "Receive your custom product in 3-7 business days", icon: Users, color: "bg-green-500" },
+              { step: 1, title: t("HowITWorksStepFirstTitle"), desc: t("HowITWorksStepFirstDesc"), icon: ShoppingBag, color: "bg-primary" },
+              { step: 2, title: t("HowITWorksStepSecondTitle"), desc: t("HowITWorksStepSecondDesc"), icon: Palette, color: "bg-secondary" },
+              { step: 3, title: t("HowITWorksStepThirdTitle"), desc: t("HowITWorksStepThirdDesc"), icon: Zap, color: "bg-accent" },
+              { step: 4, title: t("HowITWorksStepFourthTitle"), desc: t("HowITWorksStepFourthDesc"), icon: Users, color: "bg-green-500" },
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className={`${item.color} text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4`}>
@@ -135,9 +137,9 @@ export default function Home() {
           <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {[
-                { icon: "🖨️", title: "DTF Printing", desc: "Direct-to-Film printing for vibrant, durable designs on fabric" },
-                { icon: "✂️", title: "Laser Engraving", desc: "Precision laser cutting and engraving for wood, metal, and acrylic" },
-                { icon: "📋", title: "Vinyl Cutting", desc: "High-quality vinyl cutting for stickers, decals, and labels" },
+                { icon: "🖨️", title: t("HowITWorksPrintTitle"), desc: t("HowITWorksPrintDesc") },
+                { icon: "✂️", title: t("HowITWorksEngraveTitle"), desc: t("HowITWorksEngraveDesc") },
+                { icon: "📋", title: t("HowITWorksCutTitle"), desc: t("HowITWorksCutDesc") },
               ].map((service) => (
                 <div key={service.title} className="text-center">
                   <div className="text-4xl mb-4">{service.icon}</div>
@@ -154,8 +156,8 @@ export default function Home() {
       <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Artists</h2>
-            <p className="text-xl text-gray-600">Discover amazing artwork from our creative community</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("featuredArtistSectionTitle")}</h2>
+            <p className="text-xl text-gray-600">{t("featuredArtistSectionDesc")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-stagger">
@@ -170,7 +172,7 @@ export default function Home() {
               onClick={() => setLocation("/artists")}
               className="bg-primary hover:bg-primary/90"
             >
-              View All Artists
+              {t("loggedInHomeArtistBtn")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -181,8 +183,8 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-gray-600">Join thousands of happy customers</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("loggedInHomeFeedbackTitle")}</h2>
+            <p className="text-xl text-gray-600">{t("loggedInHomeFeedbackDesc")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-stagger">
@@ -237,9 +239,9 @@ export default function Home() {
       {/* Call to Action */}
       <section className="py-16 hero-gradient text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create Something Amazing?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("loggedInHomeCreateTitle")}</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join our community of creators and bring your ideas to life with professional-quality custom products.
+            {t("loggedInHomeCreateDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -247,7 +249,7 @@ export default function Home() {
               className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
               onClick={() => setLocation("/create")}
             >
-              Start Designing Now
+              {t("loggedInHomeCreateBtnLeft")}
             </Button>
             {!artist &&(
               <Button 
@@ -256,7 +258,7 @@ export default function Home() {
                 className="border-white text-white hover:bg-white text-gray-900"
                 onClick={() => setLocation("/become-an-artist")}
               >
-                Become an Artist
+                {t("loggedInHomeCreateBtnRight")}
               </Button>
             )}
             

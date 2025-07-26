@@ -7,8 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import { useTranslation } from 'react-i18next';
 
 export default function Shop() {
+
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
@@ -68,9 +71,9 @@ export default function Shop() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Shop Products</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("shopPageTitle")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of customizable products
+          {t("shopPageDesc")}
         </p>
       </div>
 
@@ -79,7 +82,7 @@ export default function Shop() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search products..."
+            placeholder={t("shopPageSearchBarPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -88,10 +91,10 @@ export default function Shop() {
 
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-full md:w-48">
-            <SelectValue placeholder="All Categories" />
+            <SelectValue placeholder={t("shopPageSortByCategory")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">{t("shopPageSortByCategory")}</SelectItem>
             {Array.isArray(categories) && categories.map((category: any) => (
               <SelectItem key={category.slug} value={category.slug}>
                 {category.name}
@@ -102,10 +105,10 @@ export default function Shop() {
 
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-full md:w-48">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder={t("shopPageSortByPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name">Name A-Z</SelectItem>
+            <SelectItem value="name">{t("shopPageSortByName")}</SelectItem>
             <SelectItem value="price-low">Price: Low to High</SelectItem>
             <SelectItem value="price-high">Price: High to Low</SelectItem>
           </SelectContent>

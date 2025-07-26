@@ -5,8 +5,10 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingCart, Star,ImagePlus } from "lucide-react";
 import { useLocation , Link} from "wouter";
+import { useTranslation } from 'react-i18next';
 
 interface ProductCardProps {
+
   product: {
     id: number;
     name: string;
@@ -19,6 +21,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
  
+  const { t, i18n } = useTranslation();
   const [ , setLocation] = useLocation();
   const { addToCart } = useCart();
   const { toast } = useToast();
@@ -57,7 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               }}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
-              Quick Add
+              {t("productCardQuickAddCTA")}
             </Button>
           </div>
         </div>
@@ -119,14 +122,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                 handleAddToCart();
               }}
             >
-              Add to Cart
+              {t("productCardAddToCartCTA")}
               <ShoppingCart className="h-4 w-4 mr-2" />
             </Button>
             <Button 
               className="w-full mt-3 bg-primary hover:bg-primary/90"
               onClick={() => setLocation('/create')}
             >
-              Customize
+              {t("productCardCustomizeCTA")}
               <ImagePlus className="h-4 w-4 mr-2" />
             </Button>
           </div>
