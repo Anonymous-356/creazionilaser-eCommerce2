@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Signup() {
 
+  const { t, i18n } = useTranslation();
   const [, setLocation] = useLocation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -97,29 +99,29 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{t("signUpFormTitle")}</CardTitle>
           <CardDescription className="text-center">
-            Join our creative community today
+            {t("signUpFormDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
+                <Label htmlFor="firstName">{t("signUpFormInputFirstName")}</Label>
                 <Input
                   id="firstName"
-                  placeholder="First name"
+                  placeholder={t("signUpFormPlaceholderFirstName")}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
+                <Label htmlFor="lastName">{t("signUpFormInputLastName")}</Label>
                 <Input
                   id="lastName"
-                  placeholder="Last name"
+                  placeholder={t("signUpFormPlaceholderLastName")}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
@@ -127,23 +129,23 @@ export default function Signup() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("signUpFormInputEmail")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("signUpFormPlaceholderEmail")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("signUpFormInputPassword")}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
+                  placeholder={t("signUpFormPlaceholderPassword")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -164,12 +166,12 @@ export default function Signup() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Label htmlFor="confirmPassword">{t("signUpFormInputConfirmPass")}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
+                  placeholder={t("signUpFormPlaceholderConfirmPass")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -194,14 +196,14 @@ export default function Signup() {
               className="w-full"
               disabled={signupMutation.isPending}
             >
-              {signupMutation.isPending ? "Creating account..." : "Create account"}
+              {signupMutation.isPending ? t("signUpFormBtnBefore") : t("signUpFormBtn")}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+            {t("signUpFormExistAccount")}{" "}
             <Link href="/login">
               <Button variant="link" className="p-0 h-auto font-semibold">
-                Sign in
+                {t("signUpFormLink")}
               </Button>
             </Link>
           </div>

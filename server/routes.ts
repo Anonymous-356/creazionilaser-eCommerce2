@@ -99,6 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create user (first user becomes admin)
       const userCount = await db.select({ count: sql`count(*)` }).from(users);
       const isFirstUser = (userCount[0]?.count || 0) === 0;
+      const currentDate = new Date();
       
       const user = await storage.createUser({
         email,
@@ -106,6 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName,
         password: hashedPassword,
         userType: isFirstUser ? 'admin' : 'customer',
+        createdAt: currentDate,
       });
 
       // Auto-login the user after successful signup
@@ -426,6 +428,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to update artist:", error);
       res.status(500).json({ message: "Failed to udpate artist." });
+    }
+
+  });
+
+  app.get('/api/users/me', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
+  });
+
+  app.put("/api/users/:id/", isAuthenticated,upload.single('image'), async (req, res) => {
+
+    try {
+
+      console.log('Functioning...');
+
+      const currentDate = new Date();
+      const userId = parseInt(req.params.id);
+
+      const [user] = await db.update(users)
+      .set({
+        firstName : req.body.firstName,
+        lastName : req.body.firstName,
+        email : req.body.email,
+        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
+        updatedAt : currentDate,
+      })
+      .where(eq(users.id , userId))  
+      .returning();
+
+      console.log("Updated user profile successfully:");
+      res.json({ message: "Updated user profile successfully", user });
+    } catch (error) {
+      console.log('Not Functioning...');
+      console.error("Failed to update user:", error);
+      res.status(500).json({ message: "Failed to udpate user." });
     }
 
   });

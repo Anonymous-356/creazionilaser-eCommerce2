@@ -10,16 +10,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { User,Truck, Package, Palette, Upload, Eye } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import e from "express";
 
 export default function Profile() {
-  
+
+  const { t, i18n } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
+  console.log(user);
+
   const [isUpdatingArtist, setIsUpdatingArtist] = useState(false);
+  const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFileUser, setUploadedFileUser] = useState<File | null>(null);
 
   const { data : artist} = useQuery({
     queryKey: ["/api/artists/me"],
@@ -33,9 +39,13 @@ export default function Profile() {
     enabled: isAuthenticated,
   });
 
-  //const [firstName,setFirstName] = useState(artist?.firstName);
-
-  console.log(artist);
+  const [userFormData,setUserFormData] = useState({
+    userId : user?.Id,
+    firstName : user?.firstName,
+    lastName : user?.lastName  || "",
+    email : user?.email,
+    imageUrl : user?.profileImageUrl,
+  });
   
   const [formData,setFormData] = useState({
     userId : artist?.userId,
@@ -57,6 +67,33 @@ export default function Profile() {
       return response.json();
     },
     enabled: !!artist?.artistId,
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch(`/api/users/${user?.id}`,{
+          method: "PUT",
+          body: data,
+          credentials: "include",
+        });
+        if (!response.ok) throw new Error("Failed to update user profile");
+        return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "User profile updated successfully!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      setIsUpdatingUser(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const updateArtistMutation = useMutation({
@@ -113,6 +150,14 @@ export default function Profile() {
     },
   });
 
+  const handleUpdateUser = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!uploadedFileUser) return;
+    const formData = new FormData(e.currentTarget);
+    formData.append("image", uploadedFileUser);
+    updateUserMutation.mutate(formData);
+  };
+
   const handleUpdateArtist = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!uploadedFile) return;
@@ -151,8 +196,8 @@ export default function Profile() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Account</h1>
-        <p className="text-gray-600">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("profilePageMainTitle")}</h1>
+        <p className="text-gray-600">{t("profilePageMainDesc")}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex">
@@ -162,15 +207,15 @@ export default function Profile() {
             <TabsList className="grid h-full w-72 mr-4 grid-cols-1">
                 <TabsTrigger value="profile">
                   <User className="h-4 w-4 mr-2" />
-                  Profile 
+                  {t("profilePageSideBarTab3")} 
                 </TabsTrigger>
                 <TabsTrigger  value="shipping">
                   <Truck className="h-4 w-4 mr-2" />
-                  Shipping 
+                  {t("profilePageSideBarTab4")} 
                 </TabsTrigger>
                 <TabsTrigger value="orders">
                   <Package className="h-4 w-4 mr-2" />
-                  My Orders
+                  {t("profilePageSideBarTab5")}
                 </TabsTrigger>
             </TabsList>
 
@@ -179,11 +224,11 @@ export default function Profile() {
             <TabsList className="grid h-full w-72 mr-4 grid-cols-1">
                 <TabsTrigger value="artist">
                   <Palette className="h-4 w-4 mr-2" />
-                  Artist Profile
+                  {t("profilePageSideBarTab1")}
                 </TabsTrigger>
                 <TabsTrigger value="designs" disabled={!artist}>
                   <Eye className="h-4 w-4 mr-2" />
-                  My Designs
+                  {t("profilePageSideBarTab2")}
                 </TabsTrigger>  
             </TabsList>
             
@@ -195,38 +240,90 @@ export default function Profile() {
               <TabsContent value="profile" className="w-full">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Account Information</CardTitle>
+                    <CardTitle>{t("profileUserTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          value={user?.firstName || ""}
-                          disabled
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input
-                          id="lastName"
-                          value={user?.lastName || ""}
-                          disabled
-                        />
-                      </div>
-                    </div>
+
                     <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        value={user?.email || ""}
-                        disabled
-                      />
+                        <form onSubmit={handleUpdateUser} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="firstName">{t("profileUserFirstName")}</Label>
+                                <Input
+                                  id="firstName"
+                                  name="firstName"
+                                  value={userFormData?.firstName || ""}
+                                  onChange={(e) => setUserFormData({ ...userFormData, firstName: e.target.value })}
+                                  placeholder={t("profileUserFirstNamePlaceholder")}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="lastName">{t("profileUserLastName")}</Label>
+                                <Input
+                                  id="lastName"
+                                  name="lastName"
+                                  value={userFormData?.lastName || ""}
+                                  onChange={(e) => setUserFormData({ ...userFormData, lastName: e.target.value })}
+                                  placeholder={t("profileUserLastNamePlaceholder")}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label htmlFor="email">{t("profileUserEmail")}</Label>
+                              <Input
+                                id="email"
+                                name="email"
+                                value={userFormData?.email || ""}
+                                onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
+                                placeholder={t("profileUserEmailPlaceholder")}
+                              />
+                            </div>
+                            <div>
+                                <Label htmlFor="image-url">{t("profileArtistImage")}</Label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                  <input
+                                    name="existingProfileImage"
+                                    type="hidden"
+                                    className="hidden"
+                                    value={userFormData?.imageUrl || ""}
+                                  />
+                                  <input
+                                    id="image-url"
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => setUploadedFileUser(e.target.files?.[0] || null)}
+                                  />
+                                  <img 
+                                  src={userFormData?.imageUrl || "" }
+                                  alt="Existing Profile Image" 
+                                  className="h-16 w-16" />
+                                  <label htmlFor="image-url" className="cursor-pointer">
+                                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                                    <p className="text-gray-600">
+                                      {uploadedFileUser ? uploadedFileUser.name : t("profileUserImagePlaceholder")}
+                                    </p>
+                                  </label>
+                                </div>
+                            </div>
+                            <div className="flex space-x-4 justify-end items-end">
+                              <Button 
+                                type="submit" 
+                                disabled={updateUserMutation.isPending}
+                              >
+                                {updateUserMutation.isPending ? t("profileUserBtnSubmitting") : t("profileUserBtnSubmit")}
+                              </Button>
+                              <Button 
+                                type="button" 
+                                variant="outline"
+                                onClick={() => setIsUpdatingUser(false)}
+                              >
+                                {t("profileUserBtnCancel")}
+                              </Button>
+                            </div>
+                        </form>
                     </div>
-                    <p className="text-sm text-gray-500">
-                      Account information is managed through your Replit account.
-                    </p>
+                    
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -234,14 +331,14 @@ export default function Profile() {
               <TabsContent value="orders" className="w-full">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Order History</CardTitle>
+                    <CardTitle>{t("profileUserOrdersTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {orders.length === 0 ? (
                       <div className="text-center py-8">
                         <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                        <p className="text-gray-600">Your order history will appear here</p>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileUserOrdersNoRecordTagline")}</h3>
+                        <p className="text-gray-600">{t("profileUserOrdersNoRecordElaborate")}</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -270,14 +367,14 @@ export default function Profile() {
               <TabsContent value="shipping" className="w-full">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Shipping</CardTitle>
+                    <CardTitle>{t("profileUserShippingTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {orders.length === 0 ? (
                       <div className="text-center py-8">
                         <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                        <p className="text-gray-600">Your order history will appear here</p>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileUserShippingNoRecordTagline")}</h3>
+                        <p className="text-gray-600">{t("profileUserShippingNoRecordElaborate")}</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -315,17 +412,18 @@ export default function Profile() {
               <TabsContent value="artist" className="w-full">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Artist Profile</CardTitle>
+                    <CardTitle>{t("profileArtistTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     
                       <div>
+
                         <form onSubmit={handleUpdateArtist} className="space-y-4">
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                              <Label htmlFor="firstName">First Name</Label>
+                              <Label htmlFor="firstName">{t("profileArtistFirstName")}</Label>
                               <Input
                                 type="hidden"
                                 name="userId"
@@ -337,18 +435,18 @@ export default function Profile() {
                                 name="firstName"
                                 value={formData.firstName}
                                 onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                placeholder="First Name"
+                                placeholder={t("profileArtistFirstNamePlaceholder")}
                                 required
                               />
                             </div>
                             <div>
-                              <Label htmlFor="lastName">Last Name</Label>
+                              <Label htmlFor="lastName">{t("profileArtistLastName")}</Label>
                               <Input
                                 id="lastName"
                                 name="lastName"
                                 value={formData.lastName}
                                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                placeholder="Last Name"
+                                placeholder={t("profileArtistLastNamePlaceholder")}
                                 required
                               />
                             </div>
@@ -358,26 +456,26 @@ export default function Profile() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                              <Label htmlFor="email">Email</Label>
+                              <Label htmlFor="email">{t("profileArtistEmail")}</Label>
                               <Input
                                 id="email"
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                placeholder="User Email"
+                                placeholder={t("profileArtistEmailPlaceholder")}
                                 required
                               />
                             </div>
                             <div>
-                              <Label htmlFor="specialty">Specialty</Label>
+                              <Label htmlFor="specialty">{t("profileArtistSpecialty")}</Label>
                               <Input
                                 id="specialty"
                                 type="text"
                                 name="specialty"
                                 value={formData.specialty}
                                 onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                                placeholder="e.g., Digital Illustration, Typography"
+                                placeholder={t("profileArtistSpecialtyPlaceholder")}
                                 required
                               />
                             </div>
@@ -385,20 +483,20 @@ export default function Profile() {
                           </div>
 
                           <div>
-                            <Label htmlFor="bio">Bio</Label>
+                            <Label htmlFor="bio">{t("profileArtistBio")}</Label>
                             <Textarea
                               id="bio"
                               type="textarea"
                               name="bio"
                               value={formData.bio}
                               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                              placeholder="Tell us about yourself and your art..."
+                              placeholder={t("profileArtistBioPlaceholder")}
                               required
                             />
                           </div>
                           
                           <div>
-                            <Label htmlFor="image-url">Upload Profile Image</Label>
+                            <Label htmlFor="image-url">{t("profileArtistImage")}</Label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                               <input
                                 name="existingProfileImage"
@@ -420,7 +518,7 @@ export default function Profile() {
                               <label htmlFor="image-url" className="cursor-pointer">
                                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                                 <p className="text-gray-600">
-                                  {uploadedFile ? uploadedFile.name : "Click to upload design"}
+                                  {uploadedFile ? uploadedFile.name : t("profileArtistImagePlaceholder")}
                                 </p>
                               </label>
                             </div>
@@ -428,25 +526,25 @@ export default function Profile() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="website">Website (Optional)</Label>
+                              <Label htmlFor="website">{t("profileArtistWebsite")}</Label>
                               <Input
                                 id="website"
                                 name="website"
                                 type="text"
                                 value={formData.website}
                                 onChange={(e) => setFormData({ ...formData, website : e.target.value })}
-                                placeholder="www.google.com"
+                                placeholder={t("profileArtistWebsitePlaceholder")}
                               />
                             </div>
                             <div>
-                              <Label htmlFor="instagram">Instagram (Optional)</Label>
+                              <Label htmlFor="instagram">{t("profileArtistInstagram")}</Label>
                               <Input
                                 id="instagram"
                                 name="instagram"
                                 type="text"
                                 value={formData.instagram}
                                 onChange={(e) => setFormData({ ...formData, instagram : e.target.value })}
-                                placeholder="@yourusername"
+                                placeholder={t("profileArtistInstagramPlaceholder")}
                               />
                             </div>
                           </div>
@@ -456,14 +554,14 @@ export default function Profile() {
                               type="submit" 
                               disabled={updateArtistMutation.isPending}
                             >
-                              {updateArtistMutation.isPending ? "Updating..." : "Update Profile"}
+                              {updateArtistMutation.isPending ? t("profileArtistBtnSubmitting") : t("profileArtistBtnSubmit")}
                             </Button>
                             <Button 
                               type="button" 
                               variant="outline"
                               onClick={() => setIsUpdatingArtist(false)}
                             >
-                              Cancel
+                              {t("profileArtistBtnCancel")}
                             </Button>
                           </div>
 
@@ -480,46 +578,46 @@ export default function Profile() {
                   {/* Upload New Design */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Upload New Design</CardTitle>
+                      <CardTitle>{t("profileMyDesignMainTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent>
 
                       <form onSubmit={handleUploadDesign} className="space-y-4">
                         
                         <div>
-                          <Label htmlFor="design-title">Title</Label>
+                          <Label htmlFor="design-title">{t("profileMyDesignTitle")}</Label>
                           <Input
                             id="design-title"
                             name="title"
-                            placeholder="Enter design title"
+                            placeholder={t("profileMyDesignTitlePlaceholder")}
                             required
                           />
                         </div>
                         
                         <div>
-                          <Label htmlFor="design-description">Description</Label>
+                          <Label htmlFor="design-description">{t("profileMyDesignDesc")}</Label>
                           <Textarea
                             id="design-description"
                             name="description"
-                            placeholder="Describe your design..."
+                            placeholder={t("profileMyDesignDescPlaceholder")}
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor="design-price">Price ($)</Label>
+                          <Label htmlFor="design-price">{t("profileMyDesignPrice")}</Label>
                           <Input
                             id="design-price"
                             name="price"
                             type="number"
                             step="0.01"
                             min="0"
-                            placeholder="0.00"
+                            placeholder={t("profileMyDesignPricePlaceholder")}
                             required
                           />
                         </div>
                         
                         <div>
-                          <Label htmlFor="design-file">Design File</Label>
+                          <Label htmlFor="design-file">{t("profileMyDesignUpload")}</Label>
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                             <input
                               id="design-file"
@@ -532,7 +630,7 @@ export default function Profile() {
                             <label htmlFor="design-file" className="cursor-pointer">
                               <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                               <p className="text-gray-600">
-                                {selectedFile ? selectedFile.name : "Click to upload design"}
+                                {selectedFile ? selectedFile.name : t("profileMyDesignUploadPlaceholder")}
                               </p>
                             </label>
                           </div>
@@ -544,7 +642,7 @@ export default function Profile() {
                             type="submit" 
                             disabled={uploadDesignMutation.isPending || !selectedFile}
                           >
-                            {uploadDesignMutation.isPending ? "Uploading..." : "Upload Design"}
+                            {uploadDesignMutation.isPending ? t("profileMyDesignSubmitingBtn") : t("profileMyDesignSubmitBtn")}
                           </Button>
                         
                         </div>
@@ -557,14 +655,14 @@ export default function Profile() {
                   {/* My Designs */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>My Designs ({designs.length})</CardTitle>
+                      <CardTitle>{t("profileMyDesignTotalCount")} ({designs.length})</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {designs.length === 0 ? (
                         <div className="text-center py-8">
                           <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">No designs yet</h3>
-                          <p className="text-gray-600">Upload your first design to get started</p>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileMyDesignNoRecordTitle")}</h3>
+                          <p className="text-gray-600">{t("profileMyDesignNoRecordDesc")}</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
@@ -578,7 +676,7 @@ export default function Profile() {
                               <div className="p-3 flex justify-between">
                                 <h4 className="font-medium">{design.title}</h4>
                                 <p className="text-xs text-gray-500 mt-1">
-                                  {design.downloadCount} downloads
+                                  {design.downloadCount} {t("profileMyDesignDownloadCount")}
                                 </p>   
                               </div>
                             </div>
