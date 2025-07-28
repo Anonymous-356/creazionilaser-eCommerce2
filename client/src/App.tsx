@@ -102,7 +102,7 @@ function AuthenticatedApp({ user }: { user: any }) {
           <Route path="/" component={isAdmin ? AdminDashboard : Home} />
           <Route path="/home" component={Home} />
           <Route path="/shop" component={Shop} />
-          <Route path="/create" component={CreativeEditorSDK} />
+          <Route path="/create" component={Create} />
           <Route path="/artists" component={Artists} />
           <Route path="/designs" component={Designs} />
           <Route path="/product" component={Product} />
