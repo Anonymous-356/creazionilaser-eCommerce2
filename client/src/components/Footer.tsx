@@ -48,7 +48,7 @@ export default function Footer() {
                 <Twitter className="h-5 w-5" />
               </a>
               <a 
-                href="mailto:support@artcraftstudio.com" 
+                href="mailto:support@creazioniLaser.com.com" 
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-800"
                 aria-label="Email"
               >
