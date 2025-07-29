@@ -188,6 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/auth/logout', (req, res) => {
+    console.log('functioning...');
     req.session?.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Could not log out" });
@@ -1181,7 +1182,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
        Object.entries(settingData).map(([key, value]) => {
         console.log(key,value);
-        //db.insert(settings).values({key : key ,value : value});
+        db.insert(settings).values({
+                                key: key ,
+                                value : value,
+                              });
       });
       
       //await db.insert(settings).values({key : '',value : ''});

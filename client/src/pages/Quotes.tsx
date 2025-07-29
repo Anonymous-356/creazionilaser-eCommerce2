@@ -273,7 +273,7 @@ export default function Quotes() {
             
             <div className="space-y-4">
     
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold">30%</div>
                   <div className="text-sm text-blue-100">{t("ShareArtCommissionDesc")}</div>

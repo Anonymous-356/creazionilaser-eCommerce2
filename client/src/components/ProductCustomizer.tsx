@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from 'react-i18next';
 
 interface ProductCustomizerProps {
   product?: {
@@ -30,6 +31,8 @@ export default function ProductCustomizer({
   color,
   size,
 }: ProductCustomizerProps) {
+
+const { t, i18n } = useTranslation();  
 const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
           <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-2xl">📦</span>
           </div>
-          <p className="text-gray-500">Select a product to see preview</p>
+          <p className="text-gray-500">{t("createPagePreviewTagline")}</p>
         </div>
       </div>
     );
@@ -133,12 +136,12 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
             <h3 className="text-xl font-semibold">{product.name}</h3>
             {design && (
               <p className="text-sm text-gray-600 mt-1">
-                with "{design.title}" design
+                with "{design.title}" {t("createPageCustomDesignTxt")}
               </p>
             )}
             {uploadedFile && (
               <p className="text-sm text-gray-600 mt-1">
-                with custom upload: {uploadedFile.name}
+                {t("createPageCustomFile")}: {uploadedFile.name}
               </p>
             )}
           </div>
@@ -148,7 +151,7 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
             </div>
             {designPrice > 0 && (
               <div className="text-sm text-gray-500">
-                Product: ${basePrice.toFixed(2)} + Design: ${designPrice.toFixed(2)}
+                {t("createPageCustomProductTxt")}: ${basePrice.toFixed(2)} + {t("createPageCustomDesignTxt")}: ${designPrice.toFixed(2)}
               </div>
             )}
           </div>
@@ -157,13 +160,13 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
         {/* Customization Summary */}
         {(customText || size || color || design || uploadedFile) && (
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
-            <h4 className="font-medium text-sm text-gray-700 mb-2">Customizations:</h4>
+            <h4 className="font-medium text-sm text-gray-700 mb-2">{t("createPagePreviewCustomizationTitle")}:</h4>
             <ul className="space-y-1 text-sm text-gray-600">
-              {design && <li>• Design: {design.title} (+${design.price})</li>}
-              {uploadedFile && <li>• Custom file: {uploadedFile.name}</li>}
-              {customText && <li>• Text: "{customText}"</li>}
-              {size && <li>• Size: {size}</li>}
-              {color && <li>• Color: {color}</li>}
+              {design && <li>• {t("createPageCustomDesign")}: {design.title} (+${design.price})</li>}
+              {uploadedFile && <li>• {t("createPageCustomFile")}: {uploadedFile.name}</li>}
+              {customText && <li>• {t("createPageCustomText")}: "{customText}"</li>}
+              {size && <li>• {t("createPageCustomSize")}: {size}</li>}
+              {color && <li>• {t("createPageCustomColor")}: {color}</li>}
             </ul>
           </div>
         )}
@@ -171,16 +174,16 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
         {/* Production Info */}
         <div className="text-sm text-gray-600 space-y-1">
           <p className="flex justify-between">
-            <span>Production time:</span>
-            <span>2-3 business days</span>
+            <span>{t("createPageCustomProductionTime")}:</span>
+            <span>2-3 {t("createPagePreviewProcessDuration")}</span>
           </p>
           <p className="flex justify-between">
-            <span>Shipping:</span>
-            <span>3-5 business days</span>
+            <span>{t("createPageCustomShipping")}:</span>
+            <span>3-5 {t("createPagePreviewProcessDuration")}</span>
           </p>
           <p className="flex justify-between">
-            <span>Total delivery:</span>
-            <span className="font-medium">5-8 business days</span>
+            <span>{t("createPageCustomTotalDelivery")}:</span>
+            <span className="font-medium">5-8 {t("createPagePreviewProcessDuration")}</span>
           </p>
         </div>
       </div>

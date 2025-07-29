@@ -15,19 +15,19 @@ export default function Faqs() {
   });
 
   const faqsLeft = [
-      {question : 'My First FAQ',answer : 'This is an answer for first question'},
-      {question : 'My second FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Third FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Fourth FAQ',answer : 'This is an answer for first question'},
-      {question : 'My fifth FAQ',answer : 'This is an answer for first question'},
+      {question : t("faqsListQuestionOne"),answer : t("faqsListAnswerOne")},
+      {question : t("faqsListQuestionTwo"),answer : t("faqsListAnswerTwo")},
+      {question : t("faqsListQuestionThree"),answer : t("faqsListAnswerThree")},
+      {question : t("faqsListQuestionFour"),answer : t("faqsListAnswerFour")},
+      {question : t("faqsListQuestionFive"),answer : t("faqsListAnswerFive")},
   ]
 
   const faqsRight = [
-      {question : 'My Sixth FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Seven FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Eight FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Nine FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Ten FAQ',answer : 'This is an answer for first question'},
+      {question : t("faqsListQuestionSix"),answer : t("faqsListAnswerSix")},
+      {question : t("faqsListQuestionSeven"),answer : t("faqsListAnswerSeven")},
+      {question : t("faqsListQuestionEight"),answer : t("faqsListAnswerEight")},
+      {question : t("faqsListQuestionNine"),answer : t("faqsListAnswerNine")},
+      {question : t("faqsListQuestionTen"),answer : t("faqsListAnswerTen")},
   ]
 
   if (isLoading) {

@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import ProductCustomizer from "@/components/ProductCustomizer";
 import { Upload, Palette, Type, Eye } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Create() {
-
+  
+  const { t, i18n } = useTranslation();
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedDesign, setSelectedDesign] = useState<any>(null);
   const [customText, setCustomText] = useState("");
@@ -43,8 +45,8 @@ export default function Create() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Customize Your Product</h1>
-        <p className="text-xl text-gray-600">Experience our intuitive design tool</p>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("createPageMainTitle")}</h1>
+        <p className="text-xl text-gray-600">{t("createPageMainTagline")}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -54,20 +56,20 @@ export default function Create() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Palette className="h-5 w-5 mr-2" />
-                Customize Your Design
+                {t("createPageCustomizeFormTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Product Selection */}
               <div>
-                <Label htmlFor="product-select">Product Type</Label>
+                <Label htmlFor="product-select">{t("createPageInputProductType")}</Label>
                 <Select onValueChange={(value) => {
                   const product = products.find((p: any) => p.id.toString() === value);
                   setSelectedProduct(product);
                   setSelectedSize(""); // Reset size when product changes
                 }}>
                   <SelectTrigger id="product-select">
-                    <SelectValue placeholder="Choose a product" />
+                    <SelectValue placeholder={t("createPageInputProductTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((product: any) => (
@@ -81,7 +83,7 @@ export default function Create() {
 
               {/* File Upload */}
               <div>
-                <Label htmlFor="file-upload">Upload Design</Label>
+                <Label htmlFor="file-upload">{t("createPageInputUploadDesign")}</Label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                   <input
                     id="file-upload"
@@ -93,7 +95,7 @@ export default function Create() {
                   <label htmlFor="file-upload" className="cursor-pointer">
                     <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                     <p className="text-gray-600">
-                      {uploadedFile ? uploadedFile.name : "Drag and drop your file here or click to browse"}
+                      {uploadedFile ? uploadedFile.name : t("createPageInputUploadDesignPlaceholder")}
                     </p>
                     <p className="text-sm text-gray-500 mt-2">PNG, JPG, SVG up to 10MB</p>
                   </label>
@@ -102,7 +104,7 @@ export default function Create() {
 
               {/* Design Gallery */}
               <div>
-                <Label>Or Choose from Artist Gallery</Label>
+                <Label>{t("createPageInputChooseFGallery")}</Label>
                 <div className="grid grid-cols-3 gap-3 max-h-60 overflow-y-auto">
                   {designs.slice(0, 9).map((design: any) => (
                     <div
@@ -132,10 +134,10 @@ export default function Create() {
 
               {/* Text Input */}
               <div>
-                <Label htmlFor="custom-text">Add Text (Optional)</Label>
+                <Label htmlFor="custom-text">{t("createPageInputAddText")}</Label>
                 <Input
                   id="custom-text"
-                  placeholder="Enter your text..."
+                  placeholder={t("createPageInputAddTextPlaceholder")}
                   value={customText}
                   onChange={(e) => setCustomText(e.target.value)}
                 />
@@ -144,13 +146,13 @@ export default function Create() {
               {/* Color Selection */}
               {customizationOptions.colors && (
                 <div>
-                  <Label>Color</Label>
+                  <Label>{t("createPageInputCustomColor")}</Label>
                   <div className="flex space-x-2">
                     {customizationOptions.colors.map((color: string) => (
                       <button
                         key={color}
                         className={`w-10 h-10 rounded-full border-2 transition-colors ${
-                          selectedColor === color ? 'border-gray-400' : 'border-transparent hover:border-gray-300'
+                          selectedColor === color || color === 'white' ? 'border-gray-400' : 'border-transparent hover:border-gray-300'
                         }`}
                         style={{ backgroundColor: color === 'white' ? '#ffffff' : color }}
                         onClick={() => setSelectedColor(color)}
@@ -163,10 +165,10 @@ export default function Create() {
               {/* Size Selection */}
               {customizationOptions.sizes && (
                 <div>
-                  <Label htmlFor="size-select">Size</Label>
+                  <Label htmlFor="size-select">{t("createPageInputCustomSize")}</Label>
                   <Select value={selectedSize} onValueChange={setSelectedSize}>
                     <SelectTrigger id="size-select">
-                      <SelectValue placeholder="Choose size" />
+                      <SelectValue placeholder={t("createPageInputCustomSizePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {customizationOptions.sizes.map((size: string) => (
@@ -188,7 +190,7 @@ export default function Create() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Eye className="h-5 w-5 mr-2" />
-                Live Preview
+                {t("createPagePreviewTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -210,10 +212,10 @@ export default function Create() {
                     </span>
                   </div>
 
-                  <div className="text-sm text-gray-600 space-y-1">
+                  {/* <div className="text-sm text-gray-600 space-y-1">
                     <p>Production time: 2-3 business days</p>
                     <p>Shipping: 3-5 business days</p>
-                  </div>
+                  </div> */}
 
                   <Button 
                     className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
