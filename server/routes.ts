@@ -188,7 +188,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/auth/logout', (req, res) => {
-    console.log('functioning...');
     req.session?.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Could not log out" });
@@ -824,26 +823,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  //app.put("/api/admin/artists/:id/:isPartialUpdate", isAdmin, async (req, res) => {
-
-  //   try {
-
-  //     const artistId = parseInt(req.params.id);
-  //     const dataSet = req.body.isBlocked ? {isBlocked : parseInt(req.body.isBlocked)} : {isVerified : req.body.isVerified } ;
-
-  //     await db.update(artists)
-  //       .set(dataSet)
-  //       .where(eq(artists.id, artistId))
-
-  //     console.log("Successfully updated artist info....");
-  //     res.json({ message: "Successfully updated artist info.", artistId });
-
-  //   } catch (error) {
-  //     console.error("Failed to update artist:", error);
-  //     res.status(500).json({ message: "Failed to update artist." });
-  //   }
-  // });
-
   app.get('/api/admin/products', isAdmin, async (req, res) => {
     try {
       const allProducts = await db.select({
@@ -1180,12 +1159,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const settingData = req.body;
 
-       Object.entries(settingData).map(([key, value]) => {
-        console.log(key,value);
-        db.insert(settings).values({
-                                key: key ,
-                                value : value,
-                              });
+      if (!Array.isArray(settings)) {
+        return res.status(400).json({ message: 'Invalid data format' });
+      }
+
+      // const insertStmt = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
+
+      // const insertMany = db.transaction((items) => {
+      //   for (const item of items) {
+      //     if (item.key && item.value) {
+      //       insertStmt.run(item.key, item.value);
+      //     }
+      //   }
+      // });
+
+      // insertMany(settings);
+
+      // Object.entries(settingData).map(([Key,value]) =>{
+      //   values[] = {key,value}
+      // });
+
+       Object.entries(settingData).map(([key , value]) => {
+        
+         //values = { key : key , value : value }
+
+        //db.insert(settings).values(values);
+
       });
       
       //await db.insert(settings).values({key : '',value : ''});
