@@ -74,10 +74,7 @@
   "Price ($)": "Prezzo (€)",
   "Image URL": "URL Immagine",
   "Verified": "Verificato",
-<<<<<<< HEAD
-=======
   "Unverified": "Non verificato",
->>>>>>> refs/remotes/origin/main
   "Pending": "In sospeso",
   "updating": "Aggiornamento...",
   "creating": "Creazione...",
@@ -145,9 +142,6 @@
   "failed to update subcategory": "Aggiornamento sottocategoria fallito",
   "sub Category deleted successfully": "Sottocategoria eliminata con successo",
   "cannot Delete subCategory": "Impossibile eliminare la sottocategoria",
-<<<<<<< HEAD
-  "Save settings successfully!": "Impostazioni salvate con successo!"
-=======
   "Save settings successfully!": "Impostazioni salvate con successo!",
   "FormCancelBtn": "Annulla",
   "FormSubmitBtn": "Invia",
@@ -560,5 +554,4 @@
   "footerSectionPolicy": "Informativa sulla Privacy",
   "footerSectionTermsCondt": "Termini di Servizio"
 
->>>>>>> refs/remotes/origin/main
 }
