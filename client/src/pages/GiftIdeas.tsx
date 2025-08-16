@@ -102,10 +102,10 @@ export default function GiftIdeas() {
         
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Become An Artist</h1>
         <p className="text-lg text-gray-600 mb-8">
-          ArtCraftStudio is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
+          CreazioniLaser.com is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
           We’d love to explore a collaboration where we feature your artwork on our platform, handling marketing, sales, and logistics while you focus on creating. Here’s what we offer:
         </p>
-        <h3 className="text-2xl md:text-2xl font-bold text-gray-900 mb-4">Why Partner with ArtCraftStudio?</h3>
+        <h3 className="text-2xl md:text-2xl font-bold text-gray-900 mb-4">Why Partner with CreazioniLaser.com?</h3>
         <ul className="mb-8">
           <li><b>Expanded Reach:</b>Tap into our growing community of art lovers and collectors.</li>
           <li><b>Seamless Sales : </b>We manage listings, promotions, payments, and shipping (if applicable).</li>

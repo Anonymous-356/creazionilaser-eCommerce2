@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
 import DesignCard from "@/components/DesignCard";
+import { useTranslation } from 'react-i18next';
 
 export default function Designs() {
 
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArtist, setSelectedArtist] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
@@ -73,25 +75,15 @@ export default function Designs() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-16 max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Elegant Artworks</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("artworkTitle")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+          {t("artworkDesc")}
         </p>
       </div>
 
       {/* Filters */}
       <div className="mb-8 space-y-4 md:space-y-0 md:flex md:items-center justify-between md:space-x-4">
         
-        {/* <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div> */}
-
        {/* Results count */}
         <div className="flex md:items-start justify-start">
           <p className="text-gray-600">
@@ -101,17 +93,17 @@ export default function Designs() {
 
         <div className="flex md:items-end justify-end">
 
-          <p className="text-gray-600 mb-2 mr-2">Sort By Artist : </p>
+          <p className="text-gray-600 mb-2 mr-2">{t("artworkSortTitle")} : </p>
 
           <Select value={selectedArtist} onValueChange={setSelectedArtist}>
             <SelectTrigger className="w-full md:w-48 md:mr-2">
-              <SelectValue placeholder="All Artists" />
+              <SelectValue placeholder={t("artworkSortByName")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Artists</SelectItem>
+              <SelectItem value="all">{t("artworkSortByName")}</SelectItem>
               {Array.isArray(artists) && artists.map((artist: any) => (
-                <SelectItem key={artist.specialty} value={artist.id}>
-                  {artist.first_name+' '+artist.last_name}
+                <SelectItem key={artist.specialty} value={artist.artistId}>
+                  {artist.firstName+' '+artist.lastName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -122,9 +114,9 @@ export default function Designs() {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
+              <SelectItem value="name">{t("SortByAlphabets")}</SelectItem>
+              <SelectItem value="price-low">{t("SortByLowToHigh")}</SelectItem>
+              <SelectItem value="price-high">{t("SortByHighToLow")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -137,9 +129,9 @@ export default function Designs() {
           <div className="text-gray-400 mb-4">
             <Search className="h-16 w-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No design found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t("NoRecordFound")}</h3>
           <p className="text-gray-600 mb-4">
-            Try adjusting your search or filter criteria
+            {t("NoRecordFoundTagline")}
           </p>
           <Button 
             onClick={() => {

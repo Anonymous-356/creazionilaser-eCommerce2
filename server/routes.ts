@@ -99,6 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create user (first user becomes admin)
       const userCount = await db.select({ count: sql`count(*)` }).from(users);
       const isFirstUser = (userCount[0]?.count || 0) === 0;
+      const currentDate = new Date();
       
       const user = await storage.createUser({
         email,
@@ -106,6 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName,
         password: hashedPassword,
         userType: isFirstUser ? 'admin' : 'customer',
+        createdAt: currentDate,
       });
 
       // Auto-login the user after successful signup
@@ -426,6 +428,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to update artist:", error);
       res.status(500).json({ message: "Failed to udpate artist." });
+    }
+
+  });
+
+  app.get('/api/users/me', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
+  });
+
+  app.put("/api/users/:id/", isAuthenticated,upload.single('image'), async (req, res) => {
+
+    try {
+
+      console.log('Functioning...');
+
+      const currentDate = new Date();
+      const userId = parseInt(req.params.id);
+
+      const [user] = await db.update(users)
+      .set({
+        firstName : req.body.firstName,
+        lastName : req.body.firstName,
+        email : req.body.email,
+        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
+        updatedAt : currentDate,
+      })
+      .where(eq(users.id , userId))  
+      .returning();
+
+      console.log("Updated user profile successfully:");
+      res.json({ message: "Updated user profile successfully", user });
+    } catch (error) {
+      console.log('Not Functioning...');
+      console.error("Failed to update user:", error);
+      res.status(500).json({ message: "Failed to udpate user." });
     }
 
   });
@@ -779,26 +823,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  //app.put("/api/admin/artists/:id/:isPartialUpdate", isAdmin, async (req, res) => {
-
-  //   try {
-
-  //     const artistId = parseInt(req.params.id);
-  //     const dataSet = req.body.isBlocked ? {isBlocked : parseInt(req.body.isBlocked)} : {isVerified : req.body.isVerified } ;
-
-  //     await db.update(artists)
-  //       .set(dataSet)
-  //       .where(eq(artists.id, artistId))
-
-  //     console.log("Successfully updated artist info....");
-  //     res.json({ message: "Successfully updated artist info.", artistId });
-
-  //   } catch (error) {
-  //     console.error("Failed to update artist:", error);
-  //     res.status(500).json({ message: "Failed to update artist." });
-  //   }
-  // });
-
   app.get('/api/admin/products', isAdmin, async (req, res) => {
     try {
       const allProducts = await db.select({
@@ -1135,10 +1159,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const settingData = req.body;
 
+<<<<<<< HEAD
       Object.entries(settingData).map(([key, value]) => {
        
         db.insert(settings).values({key : value});
         
+=======
+      if (!Array.isArray(settings)) {
+        return res.status(400).json({ message: 'Invalid data format' });
+      }
+
+      // const insertStmt = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
+
+      // const insertMany = db.transaction((items) => {
+      //   for (const item of items) {
+      //     if (item.key && item.value) {
+      //       insertStmt.run(item.key, item.value);
+      //     }
+      //   }
+      // });
+
+      // insertMany(settings);
+
+      // Object.entries(settingData).map(([Key,value]) =>{
+      //   values[] = {key,value}
+      // });
+
+       Object.entries(settingData).map(([key , value]) => {
+        
+         //values = { key : key , value : value }
+
+        //db.insert(settings).values(values);
+
+>>>>>>> refs/remotes/origin/main
       });
       
       res.json([]);

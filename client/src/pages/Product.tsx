@@ -6,9 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingCart, Star,ImagePlus } from "lucide-react";
 import { useLocation , Link} from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function Product() {
 
+  const { t, i18n } = useTranslation();
   const searchParams = new URLSearchParams(window.location.search);
   const productId = searchParams.get('product');
 
@@ -71,14 +73,14 @@ export default function Product() {
         <div className="">
           <Card>
             <CardHeader className="">
-              <CardTitle>Product Details</CardTitle>
+              <CardTitle>{t("productDetailsPageTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="pt-8">
-              <p className="text-lg text-gray-900"><b>Title :</b> {product?.name}</p>
-              <p className="text-lg text-gray-900"><b>Description :</b> {product?.description}</p>
-              <p className="text-lg text-gray-900"><b>Base Price :</b> {product?.basePrice}</p>
-              <p className="text-lg text-gray-900"><b>Date :</b> {new Date(product?.createdAt).toLocaleDateString()}</p>
-              <p className="text-lg text-gray-900"><b>Customization Options:</b>
+              <p className="text-lg text-gray-900"><b>{t("productDetailsTitle")} :</b> {product?.name}</p>
+              <p className="text-lg text-gray-900"><b>{t("productDetailsDesc")} :</b> {product?.description}</p>
+              <p className="text-lg text-gray-900"><b>{t("productDetailsBasePrice")} :</b> {product?.basePrice}</p>
+              <p className="text-lg text-gray-900"><b>{t("productDetialsCustomizationOptions")} :</b> {new Date(product?.createdAt).toLocaleDateString()}</p>
+              <p className="text-lg text-gray-900"><b>{t("productDetailsDate")}:</b>
                  {/* { product?.customizationOptions && (
                    product?.customizationOptions.quantities.map(option => {
                     <span>{option}</span>
@@ -93,14 +95,14 @@ export default function Product() {
                     handleAddToCart();
                   }}
                 >
-                  Add to Cart
+                  {t("productCardAddToCartCTA")}
                   <ShoppingCart className="h-4 w-4 mr-2" />
                 </Button>
                 <Button 
                   className="w-full mt-3 bg-primary hover:bg-primary/90"
                   onClick={() => setLocation('/create')}
                 >
-                  Customize
+                  {t("productCardCustomizeCTA")}
                   <ImagePlus className="h-4 w-4 mr-2" />
                 </Button>
               </div>  
@@ -113,7 +115,7 @@ export default function Product() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-16 max-w-4xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Product Description</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("produtcDetailsPageDesc")}</h1>
         <p className="text-lg text-gray-600">
           Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
         </p>

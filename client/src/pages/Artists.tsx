@@ -10,9 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function Artists() {
 
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -55,9 +57,9 @@ export default function Artists() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Artists</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("featuredArtistSectionTitle")}</h1>
         <p className="text-xl text-gray-600 mb-8">
-          Discover amazing artwork from our creative community
+          {t("featuredArtistSectionDesc")}
         </p>
        
       </div>
@@ -68,7 +70,7 @@ export default function Artists() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search artists by speciality..."
+            placeholder={t("featuredArtistSectionSearchBar")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -82,7 +84,7 @@ export default function Artists() {
             onClick={() => setLocation("/become-an-artist")}
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            Become an Artist
+            {t("featuredArtistSectionBtn")}
           </Button>
         )}
 
@@ -94,13 +96,13 @@ export default function Artists() {
           <Card>
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-primary mb-2">{artists.length}</div>
-              <div className="text-gray-600">Our Artists Community</div>
+              <div className="text-gray-600">{t("featuredArtistSectionInfoCommunity")}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-secondary mb-2">1.2K+</div>
-              <div className="text-gray-600">Elegant Artwork Collection</div>
+              <div className="text-gray-600">{t("featuredArtistSectionInfoCollection")}</div>
             </CardContent>
           </Card>
           <Card>
@@ -108,7 +110,7 @@ export default function Artists() {
               <div className="text-3xl font-bold text-accent mb-2">4.8</div>
               <div className="text-gray-600 flex items-center justify-center">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                Average Rating
+                {t("featuredArtistSectionInfoRating")}
               </div>
             </CardContent>
           </Card>
@@ -132,30 +134,30 @@ export default function Artists() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-stagger">
           {filteredArtists.map((artist: any) => (
-            <ArtistCard key={artist.id} artist={artist} />
+            <ArtistCard key={artist.artistId} artist={artist} />
           ))}
         </div>
       )}
 
       {/* Call to Action */}
       <div className="mt-16 text-center bg-gradient-to-r from-primary to-secondary text-white rounded-2xl p-12">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Share Your Art?</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("ShareArtTitle")}</h2>
         <p className="text-lg text-blue-100 mb-6">
-          Join our community of artists and start earning from your creativity
+          {t("ShareArtDesc")}
         </p>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold">30%</div>
-              <div className="text-sm text-blue-100">Commission Rate</div>
+              <div className="text-sm text-blue-100">{t("ShareArtCommissionDesc")}</div>
             </div>
             <div>
               <div className="text-2xl font-bold">24/7</div>
-              <div className="text-sm text-blue-100">Support</div>
+              <div className="text-sm text-blue-100">{t("ShareArtSupportDesc")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold">Free</div>
-              <div className="text-sm text-blue-100">To Join</div>
+              <div className="text-2xl font-bold">{t("ShareArtJoinTitle")}</div>
+              <div className="text-sm text-blue-100">{t("ShareArtJoinDesc")}</div>
             </div>
           </div>
           {isAuthenticated && !artist &&(
@@ -165,7 +167,7 @@ export default function Artists() {
               className="border-white text-white text-gray-900 hover:bg-white hover:text-primary"
               onClick={() => setLocation("/become-an-artist")}
             >
-              Join Now
+              {t("ShareArtBtn")}
             </Button>
           )}
         </div>

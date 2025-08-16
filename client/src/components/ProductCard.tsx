@@ -5,8 +5,10 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingCart, Star,ImagePlus } from "lucide-react";
 import { useLocation , Link} from "wouter";
+import { useTranslation } from 'react-i18next';
 
 interface ProductCardProps {
+
   product: {
     id: number;
     name: string;
@@ -19,6 +21,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
  
+  const { t, i18n } = useTranslation();
   const [ , setLocation] = useLocation();
   const { addToCart } = useCart();
   const { toast } = useToast();
@@ -57,12 +60,12 @@ export default function ProductCard({ product }: ProductCardProps) {
               }}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
-              Quick Add
+              {t("productCardQuickAddCTA")}
             </Button>
           </div>
         </div>
         
-        <div className="p-4">
+        <div className="py-4 px-2">
           <div className="flex items-start justify-between mb-2">
             <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
               <Link href={`/product/?product=${product.id}`} target="_blank">{product.name}</Link>
@@ -113,20 +116,20 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Button 
-              className="w-full mt-3 bg-primary hover:bg-primary/90"
+              className="w-full mt-3 bg-primary hover:bg-primary/90 text-[0.8rem]"
               onClick={(e) => {
                 e.stopPropagation();
                 handleAddToCart();
               }}
             >
-              Add to Cart
-              <ShoppingCart className="h-4 w-4 mr-2" />
+              {t("productCardAddToCartCTA")}
+              <ShoppingCart className="h-4 w-4" />
             </Button>
             <Button 
               className="w-full mt-3 bg-primary hover:bg-primary/90"
               onClick={() => setLocation('/create')}
             >
-              Customize
+              {t("productCardCustomizeCTA")}
               <ImagePlus className="h-4 w-4 mr-2" />
             </Button>
           </div>

@@ -13,9 +13,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation,Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function HowITworks() {
 
+    const { t, i18n } = useTranslation();
     const { isAuthenticated } = useAuth();
     const [, setLocation] = useLocation();
     const { toast } = useToast();
@@ -100,14 +102,12 @@ export default function HowITworks() {
 
       <div className="mb-16 mt-6">
         
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">About Us</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("aboutMainTitle")}</h1>
         <p className="text-lg text-gray-600 mb-8">
-          ArtCraftStudio is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
-          We’d love to explore a collaboration where we feature your artwork on our platform, handling marketing, sales, and logistics while you focus on creating. Here’s what we offer:
+          {t("aboutMainDesc")}
         </p>
-        <h3 className="text-2xl md:text-2xl font-bold text-gray-900 mb-4">Why Choose ArtCraftStudio?</h3>
-        <p className="text-lg text-gray-600 mb-8">ArtCraftStudio is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
-          We’d love to explore a collaboration where we feature your artwork on our platform, handling marketing, sales, and logistics while you focus on creating. Here’s what we offer:</p>
+        <h3 className="text-2xl md:text-2xl font-bold text-gray-900 mb-4">{t("aboutArtcraftTitle")}</h3>
+        <p className="text-lg text-gray-600 mb-8">{t("aboutArtcraftDesc")}</p>
           
       </div>
 
@@ -117,16 +117,16 @@ export default function HowITworks() {
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-          <p className="text-xl text-gray-600">From design to delivery in 4 simple steps</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("HowITWorksTitle")}</h2>
+          <p className="text-xl text-gray-600">{t("HowITWorksDesc")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-stagger">
           {[
-            { step: 1, title: "Choose Product", desc: "Select from our wide range of customizable products", icon: ShoppingBag, color: "bg-primary" },
-            { step: 2, title: "Customize Design", desc: "Upload your artwork or choose from our artist gallery", icon: Palette, color: "bg-secondary" },
-            { step: 3, title: "Preview & Order", desc: "See exactly how your product will look before ordering", icon: Zap, color: "bg-accent" },
-            { step: 4, title: "Fast Delivery", desc: "Receive your custom product in 3-7 business days", icon: Users, color: "bg-green-500" },
+            { step: 1, title: t("HowITWorksStepFirstTitle"), desc: t("HowITWorksStepFirstDesc"), icon: ShoppingBag, color: "bg-primary" },
+              { step: 2, title: t("HowITWorksStepSecondTitle"), desc: t("HowITWorksStepSecondDesc"), icon: Palette, color: "bg-secondary" },
+              { step: 3, title: t("HowITWorksStepThirdTitle"), desc: t("HowITWorksStepThirdDesc"), icon: Zap, color: "bg-accent" },
+              { step: 4, title: t("HowITWorksStepFourthTitle"), desc: t("HowITWorksStepFourthDesc"), icon: Users, color: "bg-green-500" },
           ].map((item) => (
             <div key={item.step} className="text-center">
               <div className={`${item.color} text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4`}>
@@ -141,9 +141,9 @@ export default function HowITworks() {
         <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {[
-              { icon: "🖨️", title: "DTF Printing", desc: "Direct-to-Film printing for vibrant, durable designs on fabric" },
-              { icon: "✂️", title: "Laser Engraving", desc: "Precision laser cutting and engraving for wood, metal, and acrylic" },
-              { icon: "📋", title: "Vinyl Cutting", desc: "High-quality vinyl cutting for stickers, decals, and labels" },
+              { icon: "🖨️", title: t("HowITWorksPrintTitle"), desc: t("HowITWorksPrintDesc") },
+                { icon: "✂️", title: t("HowITWorksEngraveTitle"), desc: t("HowITWorksEngraveDesc") },
+                { icon: "📋", title: t("HowITWorksCutTitle"), desc: t("HowITWorksCutDesc") },
             ].map((service) => (
               <div key={service.title} className="text-center">
                 <div className="text-4xl mb-4">{service.icon}</div>
@@ -161,9 +161,9 @@ export default function HowITworks() {
       {/* Call to Action */}
       <div className="mt-16 text-center bg-gradient-to-r from-primary to-secondary text-white rounded-2xl p-12">
         
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Share Your Artwork?</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("ShareArtTitle")}</h2>
         <p className="text-lg text-blue-100 mb-6">
-          Join our community of artists and start earning from your creativity
+          {t("ShareArtDesc")}
         </p>
         
         <div className="space-y-4">
@@ -171,15 +171,15 @@ export default function HowITworks() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold">30%</div>
-              <div className="text-sm text-blue-100">Commission Rate</div>
+              <div className="text-sm text-blue-100">{t("ShareArtCommissionDesc")}</div>
             </div>
             <div>
               <div className="text-2xl font-bold">24/7</div>
-              <div className="text-sm text-blue-100">Support</div>
+              <div className="text-sm text-blue-100">{t("ShareArtSupportDesc")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold">Free</div>
-              <div className="text-sm text-blue-100">To Join</div>
+              <div className="text-2xl font-bold">{t("ShareArtJoinTitle")}</div>
+              <div className="text-sm text-blue-100">{t("ShareArtJoinDesc")}</div>
             </div>
           </div>
           
@@ -190,12 +190,12 @@ export default function HowITworks() {
               className="border-white text-gray-900 hover:bg-white hover:text-primary"
               onClick={() => setIsCreatingArtist(true)}
             >
-              Get Started Now
+              {t("ShareArtBtn")}
             </Button>
           ) : !isAuthenticated ? ( 
             <Link href="/signup">
               <Button size="lg" className="mt-4 min-w-[200px]">
-                Get Started Now
+                {t("ShareArtBtn")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

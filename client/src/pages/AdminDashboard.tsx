@@ -1,6 +1,10 @@
 import { useState } from "react";
 import '../i18n/i18n'; // initialize i18n
 import { useTranslation } from 'react-i18next';
+<<<<<<< HEAD
+=======
+import { useLocation } from "wouter";
+>>>>>>> refs/remotes/origin/main
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -38,7 +42,8 @@ import {
   Eye,
   EyeOff,
   Upload,
-  CheckCheck
+  CheckCheck,
+  Languages
 } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -50,6 +55,13 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [ isLoading,setLocation] = useLocation();
+
+  const { t, i18n } = useTranslation();
+  
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };  
 
   const { t, i18n } = useTranslation();
   
@@ -92,6 +104,18 @@ export default function AdminDashboard() {
 
   const { data: orders } = useQuery({
     queryKey: ["/api/admin/orders"],
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("/api/auth/logout", {
+        method: "POST",
+      });
+    },
+    onSuccess: () => {
+      setLocation("/");
+      window.location.reload(); // Refresh to clear auth state
+    },
   });
 
   const sidebarItems = [
@@ -266,7 +290,8 @@ export default function AdminDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => window.location.href = '/api/auth/logout'}
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
               className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
             >
               {t("Logout")}
@@ -275,7 +300,11 @@ export default function AdminDashboard() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+<<<<<<< HEAD
                     lang
+=======
+                    <Languages />
+>>>>>>> refs/remotes/origin/main
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[4rem]">

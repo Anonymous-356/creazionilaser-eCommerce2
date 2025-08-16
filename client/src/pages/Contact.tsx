@@ -13,9 +13,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation,Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function Contact() {
 
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [ setLocation] = useLocation();
   const [isCreatingEnquiry, setIsCreatingEnquiry] = useState(true);
@@ -97,9 +99,9 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
           <div className="mb-16 max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("contactMainTitle")}</h1>
             <p className="text-lg text-gray-600">
-              Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+              {t("contactMainDesc")}
             </p>
           </div>
 
@@ -113,8 +115,8 @@ export default function Contact() {
               <div className="py-16 space-y-6 inline-block">
                   
                   <div className="">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Need to enquire?</h1>
-                    <p className="text-xl text-gray-600">Need to enquire for any kind of purpose or for problem you may face using this platform feel free to reach out to us one of our representative will reach out to you as soon as possible.Experience our widest artwork eCommerce marketplace by simply filling this for to become a verified Artist.Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type</p>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("contactEnquiryTitle")}</h1>
+                    <p className="text-xl text-gray-600">{t("contactEnquiryDesc")}</p>
                   </div>
               
               </div>
@@ -125,7 +127,7 @@ export default function Contact() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Palette className="h-5 w-5 mr-2" />
-                      Enquire Now
+                      {t("EnquiryFormTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -134,49 +136,49 @@ export default function Contact() {
                       <form onSubmit={handleEnquiryQuote} className="space-y-4">
       
                         <div>
-                          <Label htmlFor="title">Full Name</Label>
+                          <Label htmlFor="title">{t("EnquiryFormInputFullName")}</Label>
                           <Input
                             id="title"
                             name="title"
                             value={formData.title}
                               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="e.g., Title"
+                            placeholder={t("EnquiryFormPlaceholderFullName")}
                             required
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor="email">Email</Label>
+                          <Label htmlFor="email">{t("EnquiryFormInputEmail")}</Label>
                           <Input
                             id="email"
                             name="email"
                             value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            placeholder="e.g., Google@gmail.com"
+                            placeholder={t("EnquiryFormPlaceholderEmail")}
                             required
                           />
                         </div>
       
                         <div>
-                          <Label htmlFor="subject">Subject</Label>
+                          <Label htmlFor="subject">{t("EnquiryFormInputSubject")}</Label>
                           <Input
                             id="subject"
                             name="subject"
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            placeholder="e.g., Subject"
+                            placeholder={t("EnquiryFormPlaceholderSubject")}
                             required
                           />
                         </div>
       
                         <div>
-                          <Label htmlFor="message">Message</Label>
+                          <Label htmlFor="message">{t("EnquiryFormInputMessage")}</Label>
                           <Textarea
                             id="message"
                             name="message"
                             value={formData.message}
                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                            placeholder="Start typing your message here..."
+                            placeholder={t("EnquiryFormPlaceholderMessage")}
                             required
                           />
                         </div>
@@ -187,13 +189,13 @@ export default function Contact() {
                             variant="outline"
                             onClick={() => setIsCreatingEnquiry(false)}
                           >
-                            Cancel
+                            {t("FormCancelBtn")}
                           </Button>
                           <Button 
                             type="submit" 
                             disabled={createEnquiryMutation.isPending}
                           >
-                            {createEnquiryMutation.isPending ? "Submitting..." : "Submit"}
+                            {createEnquiryMutation.isPending ? t("FormSubmitBtn") : t("FormSubmitBtn")}
                           </Button>
                         </div>
       
@@ -211,16 +213,16 @@ export default function Contact() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">From design to delivery in 4 simple steps</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("HowITWorksTitle")}</h2>
+            <p className="text-xl text-gray-600">{t("HowITWorksDesc")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-stagger">
             {[
-              { step: 1, title: "Choose Product", desc: "Select from our wide range of customizable products", icon: ShoppingBag, color: "bg-primary" },
-              { step: 2, title: "Customize Design", desc: "Upload your artwork or choose from our artist gallery", icon: Palette, color: "bg-secondary" },
-              { step: 3, title: "Preview & Order", desc: "See exactly how your product will look before ordering", icon: Zap, color: "bg-accent" },
-              { step: 4, title: "Fast Delivery", desc: "Receive your custom product in 3-7 business days", icon: Users, color: "bg-green-500" },
+              { step: 1, title: t("HowITWorksStepFirstTitle"), desc: t("HowITWorksStepFirstDesc"), icon: ShoppingBag, color: "bg-primary" },
+              { step: 2, title: t("HowITWorksStepSecondTitle"), desc: t("HowITWorksStepSecondDesc"), icon: Palette, color: "bg-secondary" },
+              { step: 3, title: t("HowITWorksStepThirdTitle"), desc: t("HowITWorksStepThirdDesc"), icon: Zap, color: "bg-accent" },
+              { step: 4, title: t("HowITWorksStepFourthTitle"), desc: t("HowITWorksStepFourthDesc"), icon: Users, color: "bg-green-500" },
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className={`${item.color} text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4`}>
@@ -235,9 +237,9 @@ export default function Contact() {
           <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {[
-                { icon: "🖨️", title: "DTF Printing", desc: "Direct-to-Film printing for vibrant, durable designs on fabric" },
-                { icon: "✂️", title: "Laser Engraving", desc: "Precision laser cutting and engraving for wood, metal, and acrylic" },
-                { icon: "📋", title: "Vinyl Cutting", desc: "High-quality vinyl cutting for stickers, decals, and labels" },
+                { icon: "🖨️", title: t("HowITWorksPrintTitle"), desc: t("HowITWorksPrintDesc") },
+                { icon: "✂️", title: t("HowITWorksEngraveTitle"), desc: t("HowITWorksEngraveDesc") },
+                { icon: "📋", title: t("HowITWorksCutTitle"), desc: t("HowITWorksCutDesc") },
               ].map((service) => (
                 <div key={service.title} className="text-center">
                   <div className="text-4xl mb-4">{service.icon}</div>

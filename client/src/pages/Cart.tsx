@@ -11,9 +11,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { ShoppingCart, Minus, Plus, Trash2, Package } from "lucide-react";
 import { useState } from "react";
 import { json } from "stream/consumers";
+import { useTranslation } from 'react-i18next';
 
 export default function Cart() {
   
+  const { t, i18n } = useTranslation();
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -99,12 +101,12 @@ export default function Cart() {
         <Card>
           <CardContent className="p-8 text-center">
             <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+            <h2 className="text-2xl font-bold mb-4">{t("cartPageTitle")}</h2>
             <p className="text-gray-600 mb-6">
-              Add some products to your cart to get started.
+              {t("cartPageDesc")}
             </p>
             <Button onClick={() => window.location.href = "/shop"}>
-              Continue Shopping
+              {t("cartPageBtn")}
             </Button>
           </CardContent>
         </Card>
@@ -115,8 +117,8 @@ export default function Cart() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Shopping Cart</h1>
-        <p className="text-gray-600">{cartItems.length} item(s) in your cart</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("cartPageMainTitle")}</h1>
+        <p className="text-gray-600">{cartItems.length} {t("cartPageMainCounts")}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -188,20 +190,20 @@ export default function Cart() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle>{t("cartPageSummaryTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
+                <span>{t("cartPageSubtotal")}</span>
                 <span>${getTotalPrice().toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping:</span>
+                <span>{t("cartPageShipping")}</span>
                 <span>$9.99</span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-semibold">
-                  <span>Total:</span>
+                  <span>{t("cartPageTotal")}</span>
                   <span>${(getTotalPrice() + 9.99).toFixed(2)}</span>
                 </div>
               </div>
@@ -209,7 +211,7 @@ export default function Cart() {
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                 onClick={() => setIsCheckingOut(true)}
               >
-                Proceed to Checkout
+                {t("cartPageProceedBtnCTA")}
               </Button>
             </CardContent>
           </Card>
@@ -219,13 +221,13 @@ export default function Cart() {
             <CardContent className="p-6">
               <div className="flex items-center mb-3">
                 <Package className="h-5 w-5 text-primary mr-2" />
-                <h3 className="font-semibold">Production & Shipping</h3>
+                <h3 className="font-semibold">{t("cartPageProcessDeatailsTitle")}</h3>
               </div>
               <div className="space-y-2 text-sm text-gray-600">
-                <p>• Production time: 2-3 business days</p>
-                <p>• Shipping: 3-5 business days</p>
-                <p>• Free shipping on orders over $50</p>
-                <p>• Quality guarantee</p>
+                <p>• {t("cartPageProductionTime")}</p>
+                <p>• {t("cartPageShippingTime")}</p>
+                <p>• {t("cartPageFreeShippingCriteria")}</p>
+                <p>• {t("cartPageQualityGuarantee")}</p>
               </div>
             </CardContent>
           </Card>
@@ -237,45 +239,45 @@ export default function Cart() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
             <CardHeader>
-              <CardTitle>Checkout</CardTitle>
+              <CardTitle>{t("cartCheckoutFormTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCheckout} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" required placeholder="e.g,Full Name" />
+                  <Label htmlFor="name">{t("cartCheckoutFormInputName")}</Label>
+                  <Input id="name" name="name" required placeholder={t("cartCheckoutFormInputNamePlaceholder")} />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required placeholder="e.g,Google@gmail.com" />
+                  <Label htmlFor="email">{t("cartCheckoutFormInputEmail")}</Label>
+                  <Input id="email" name="email" type="email" required placeholder={t("cartCheckoutFormInputEmailPlaceholder")} />
                 </div>
                 <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea id="address" name="address" required placeholder="e.g,Address" />
+                  <Label htmlFor="address">{t("cartCheckoutFormInputAddress")}</Label>
+                  <Textarea id="address" name="address" required placeholder={t("cartCheckoutFormInputAddressPlaceholder")} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" name="city" required placeholder="e.g,City" />
+                    <Label htmlFor="city">{t("cartCheckoutFormInputCity")}</Label>
+                    <Input id="city" name="city" required placeholder={t("cartCheckoutFormInputCityPlaceholder")} />
                   </div>
                   <div>
-                    <Label htmlFor="zipCode">ZIP Code</Label>
-                    <Input id="zipCode" name="zipCode" required placeholder="e.g,Zip Code"/>
+                    <Label htmlFor="zipCode">{t("cartCheckoutFormInputZipcode")}</Label>
+                    <Input id="zipCode" name="zipCode" required placeholder={t("cartCheckoutFormInputZipcodePlaceholder")}/>
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="country">Country</Label>
-                  <Input id="country" name="country" defaultValue="United States" required placeholder="e.g,Country" />
+                  <Label htmlFor="country">{t("cartCheckoutFormInputCountry")}</Label>
+                  <Input id="country" name="country" defaultValue="United States" required placeholder={t("cartCheckoutFormInputCountryPlaceholder")} />
                 </div>
 
                 <div>
-                  <Label htmlFor="additionalNotes">Additional Notes (Optional)</Label>
-                  <Textarea id="additionalNotes" name="additionalNotes" placeholder="Start typing your additional notes here..." />
+                  <Label htmlFor="additionalNotes">{t("cartCheckoutFormInputAdditionalNotes")}</Label>
+                  <Textarea id="additionalNotes" name="additionalNotes" placeholder={t("cartCheckoutFormInputAdditionalNotesPlaceholder")} />
                 </div>
                 
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-lg font-semibold mb-4">
-                    <span>Total:</span>
+                    <span>{t("cartPageTotal")}</span>
                     <span>${(getTotalPrice() + 9.99).toFixed(2)}</span>
                   </div>
                 </div>
@@ -286,14 +288,14 @@ export default function Cart() {
                     className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
                     disabled={createOrderMutation.isPending}
                   >
-                    {createOrderMutation.isPending ? "Processing..." : "Place Order"}
+                    {createOrderMutation.isPending ? t("cartCheckoutSubmittingBtn") : t("cartCheckoutSubmitBtn")}
                   </Button>
                   <Button 
                     type="button" 
                     variant="outline"
                     onClick={() => setIsCheckingOut(false)}
                   >
-                    Cancel
+                    {t("cartCheckoutCancelBtn")}
                   </Button>
                 </div>
               </form>

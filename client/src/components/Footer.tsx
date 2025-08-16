@@ -1,11 +1,13 @@
 import { Link } from "wouter";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from 'react-i18next';
 
 export default function Footer() {
 
 
   const { user, isAuthenticated } = useAuth();
+  const { t, i18n } = useTranslation();
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -21,9 +23,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-gray-300 mb-6 max-w-md">
-              Transform your creativity into custom products with our advanced DTF printing, 
-              laser engraving, and vinyl cutting services. Join our artist community and 
-              start selling your designs today.
+              {t("footerSectionDesc")}
             </p>
             <div className="flex space-x-4">
               <a 
@@ -48,7 +48,7 @@ export default function Footer() {
                 <Twitter className="h-5 w-5" />
               </a>
               <a 
-                href="mailto:support@artcraftstudio.com" 
+                href="mailto:info@creazionilaser.com" 
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-800"
                 aria-label="Email"
               >
@@ -61,31 +61,31 @@ export default function Footer() {
           <div>
             { isAuthenticated && (
               <>
-                <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+                <h4 className="text-lg font-semibold mb-4">{t("footerQuickLinksTitle")}</h4>
                 <ul className="space-y-2 text-gray-300">
                   <li>
                     <Link href="/shop">
-                      <span className="hover:text-primary transition-colors cursor-pointer">Shop</span>
+                      <span className="hover:text-primary transition-colors cursor-pointer">{t("footerQuickLinksShop")}</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/artists">
-                      <span className="hover:text-primary transition-colors cursor-pointer">Artists</span>
+                      <span className="hover:text-primary transition-colors cursor-pointer">{t("footerQuickLinksArtists")}</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/designs">
-                      <span className="hover:text-primary transition-colors cursor-pointer">Artists Gallery</span>
+                      <span className="hover:text-primary transition-colors cursor-pointer">{t("footerQuickLinksArtistG")}</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/create">
-                      <span className="hover:text-primary transition-colors cursor-pointer">Customize Product</span>
+                      <span className="hover:text-primary transition-colors cursor-pointer">{t("footerQuickLinksCreate")}</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/become-an-artist">
-                      <span className="hover:text-primary transition-colors cursor-pointer">Become An Artist</span>
+                      <span className="hover:text-primary transition-colors cursor-pointer">{t("footerQuickLinksArtist")}</span>
                     </Link>
                   </li>
                   
@@ -96,31 +96,31 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Support</h4>
+            <h4 className="text-lg font-semibold mb-4">{t("footerSupportTitle")}</h4>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <a href="/faqs" className="hover:text-primary transition-colors">
-                  FAQs
+                  {t("footerSupportFaqs")}
                 </a>
               </li>
               <li>
                 <a href="/gift-ideas" className="hover:text-primary transition-colors">
-                  Gift Ideas
+                  {t("footerSupportIdeas")}
                 </a>
               </li>
               <li>
                 <a href="/contact" className="hover:text-primary transition-colors">
-                  Contact Us
+                  {t("footerSupportContact")}
                 </a>
               </li>
               <li>
                 <a href="/how-it-works" className="hover:text-primary transition-colors">
-                  How it Works
+                  {t("footerSupportHowITWorks")}
                 </a>
               </li>
               <li>
                 <a href="/custom-quotes" className="hover:text-primary transition-colors">
-                  Custom Quotes
+                  {t("footerSupportQuotes")}
                 </a>
               </li>
             </ul>
@@ -130,20 +130,20 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            &copy; 2024 ArtCraft Studio. All rights reserved.
+            {t("footerSectionCompanyRights")}
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a 
               href="/privacy-policy" 
               className="text-gray-400 hover:text-primary text-sm transition-colors"
             >
-              Privacy Policy
+              {t("footerSectionPolicy")}
             </a>
             <a 
               href="/terms-&-condition" 
               className="text-gray-400 hover:text-primary text-sm transition-colors"
             >
-              Terms of Service
+              {t("footerSectionTermsCondt")}
             </a>
           </div>
         </div>

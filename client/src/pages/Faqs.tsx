@@ -5,27 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Search, Filter,CircleArrowDown } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Faqs() {
 
+  const { t, i18n } = useTranslation();
   const { data: artists = [],isLoading } = useQuery({
     queryKey: ["/api/artists"],
   });
 
   const faqsLeft = [
-      {question : 'My First FAQ',answer : 'This is an answer for first question'},
-      {question : 'My second FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Third FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Fourth FAQ',answer : 'This is an answer for first question'},
-      {question : 'My fifth FAQ',answer : 'This is an answer for first question'},
+      {question : t("faqsListQuestionOne"),answer : t("faqsListAnswerOne")},
+      {question : t("faqsListQuestionTwo"),answer : t("faqsListAnswerTwo")},
+      {question : t("faqsListQuestionThree"),answer : t("faqsListAnswerThree")},
+      {question : t("faqsListQuestionFour"),answer : t("faqsListAnswerFour")},
+      {question : t("faqsListQuestionFive"),answer : t("faqsListAnswerFive")},
   ]
 
   const faqsRight = [
-      {question : 'My Sixth FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Seven FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Eight FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Nine FAQ',answer : 'This is an answer for first question'},
-      {question : 'My Ten FAQ',answer : 'This is an answer for first question'},
+      {question : t("faqsListQuestionSix"),answer : t("faqsListAnswerSix")},
+      {question : t("faqsListQuestionSeven"),answer : t("faqsListAnswerSeven")},
+      {question : t("faqsListQuestionEight"),answer : t("faqsListAnswerEight")},
+      {question : t("faqsListQuestionNine"),answer : t("faqsListAnswerNine")},
+      {question : t("faqsListQuestionTen"),answer : t("faqsListAnswerTen")},
   ]
 
   if (isLoading) {
@@ -51,9 +53,9 @@ export default function Faqs() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-16 max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("faqsMainTitle")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+          {t("faqsMainDesc")}
         </p>
       </div>
     </div>
@@ -62,7 +64,7 @@ export default function Faqs() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">List of FAQs</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("faqsListTitle")}</h2>
             {/* <p className="text-xl text-gray-600">From design to delivery in 4 simple steps</p> */}
           </div>
 

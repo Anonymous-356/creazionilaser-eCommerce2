@@ -23,6 +23,7 @@ import {
   ImagePlus,
   GalleryThumbnails,
   Handshake, 
+  Languages,
   LogOut,
 } from "lucide-react";
 import {
@@ -68,22 +69,22 @@ export default function Navbar() {
   });
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Shop", href: "/shop" },
-    { name: "About Us", href: "/how-it-works" },
-    { name: "Artist Gallery", href: "#",listItems: [
-          {name: "Discover Artists", href: "/artists"},
-          {name: "Explore Designs", href: "/designs"},
-          {name: "Become An Artist", href: "/become-an-artist"}     
+    { name: t("headerNavLinkHome"), href: "/" },
+    { name: t("headerNavLinkShop"), href: "/shop" },
+    { name: t("headerNavLinkAbout"), href: "/how-it-works" },
+    { name: t("headerNavLinkArtistGallery"), href: "#",listItems: [
+          {name: t("headerSubNavLinkDiscoverArtist"), href: "/artists"},
+          {name: t("headerSubNavLinkExploreDesign"), href: "/designs"},
+          {name: t("headerSubNavLinkBecomeArtist"), href: "/become-an-artist"}     
       ]
     },
-    { name: "Customize Your Product", href: "/create"},
-    { name: "Services", href: "#",listItems: [
-          {name: "FAQs", href: "/faqs"},
-          {name: "Gift Ideas", href: "#"} ,
-          {name: "Contact Us", href: "/contact"},
-          {name: "How it Works", href: "/how-it-works"},
-          {name: "Custom Quotes", href: "/custom-quotes"}
+    { name: t("headerNavLinkCustomizeProduct"), href: "/create"},
+    { name: t("headerNavLinkServices"), href: "#",listItems: [
+          {name: t("headerSubNavLinkFaqs"), href: "/faqs"},
+          {name: t("headerSubNavLinkIdeas"), href: "#"} ,
+          {name: t("headerSubNavLinkContact"), href: "/contact"},
+          {name: t("headerSubNavLinkHowWorks"), href: "/how-it-works"},
+          {name: t("headerSubNavLinkQuotes"), href: "/custom-quotes"}
       ]
     },
     ...((user as any)?.userType === 'admin' ? [{ name: "Admin", href: "/admin" }] : []),
@@ -103,10 +104,12 @@ export default function Navbar() {
     isAuthenticated ? 
 
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <nav className="flex justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+          <div className="flex items-center h-16">
 
           {/* Logo */}
+<<<<<<< HEAD
           <div className="flex items-center">
             <div className="mt-4">
               <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
@@ -116,6 +119,8 @@ export default function Navbar() {
                 Spanish
               </button>
             </div>
+=======
+>>>>>>> refs/remotes/origin/main
             <Link href="/">
               <img
                   src="/uploads/86c865afac2283f69423030f427ef09a"
@@ -125,8 +130,9 @@ export default function Navbar() {
             </Link>
           </div>
 
+          
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-2">
             {navigation.map((item) => (
 
               
@@ -145,7 +151,7 @@ export default function Navbar() {
                 </span>
               </Link>
 
-              : (item.name === 'Artist Gallery') ?
+              : (item.name === 'Artist Gallery' || item.name === 'Galleria Artisti') ?
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -174,7 +180,7 @@ export default function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              : (item.name === 'Services') ?
+              : (item.name === 'Services' || item.name === 'Servizi') ?
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -211,7 +217,7 @@ export default function Navbar() {
           </div>
 
           {/* Search & Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1">
 
             {/* Desktop Search */}
             {/* <div className="hidden md:block">
@@ -243,45 +249,95 @@ export default function Navbar() {
 
             {/* User Menu */}
             {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <User className="h-5 w-5" />
-                    <span className="ml-2 hidden sm:inline">
-                      {(user as any)?.firstName || "User"}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => logoutMutation.mutate()}
-                    disabled={logoutMutation.isPending}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <User className="h-5 w-5" />
+                      {/* <span className="ml-2 hidden sm:inline">
+                        {(user as any)?.firstName || "User"}
+                      </span> */}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <User className="h-4 w-4 mr-2" />
+                        {t("headerSubNavLinkProfile")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => logoutMutation.mutate()}
+                      disabled={logoutMutation.isPending}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+                      <Languages />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[4rem]">
+                    <DropdownMenuItem asChild>
+                      <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
+                        En
+                      </button>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
+                        It
+                      </button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+              </>
+              
             ) : (
+
               <div className="hidden sm:flex items-center space-x-2">
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
+<<<<<<< HEAD
                     welcome
+=======
+                    {t("headerNavLinkLogin")}
+>>>>>>> refs/remotes/origin/main
                   </Button>
                 </Link>
                 <Link href="/signup">
                   <Button size="sm">
-                    Sign Up
+                    {t("headerNavLinkSignup")}
                   </Button>
                 </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+                      <Languages />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[4rem]">
+                    <DropdownMenuItem asChild>
+                      <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
+                        En
+                      </button>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
+                        It
+                      </button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+              
             )}
 
             {/* Mobile menu button */}
@@ -299,8 +355,6 @@ export default function Navbar() {
             </Button>
 
           </div>
-
-        </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
@@ -352,6 +406,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="mt-4">
+<<<<<<< HEAD
               <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
                 English
               </button>
@@ -364,65 +419,107 @@ export default function Navbar() {
                 alt="Logo Image"
                 className="h-16 w-20"
             />
+=======
+              <img
+                  src="/uploads/86c865afac2283f69423030f427ef09a"
+                  alt="Logo Image"
+                  className="h-16 w-20"
+              />
+            </div>
+>>>>>>> refs/remotes/origin/main
           </div>
+          
+          {/* Desktop Navigation */}
+          <div className="flex items-center space-x-4">
 
-            
-            {/* Desktop Navigation */}
-            <div className="flex items-center space-x-4">
-              {navigation.map((item) => (
+            {navigation.map((item) => (
 
+              
+              (item.href === '/' || item.href === '/how-it-works') ?
+
+              <Link key={item.name} href={item.href}>
+                <span
+                  className={`px-3 py-2 text-sm font-medium inline-flex transition-colors cursor-pointer ${
+                    location === item.href
+                      ? "text-primary"
+                      : "text-gray-700 hover:text-primary"
+                  }`}
+                >
+                  {item.name}
+                </span>
+              </Link>
+
+              :
+              
+              (item.name === "Services" || item.name === 'Servizi') ?
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="primary" size="sm">
+                    <List className="h-5 w-5 mr-0" />
+                    <span className={`ml-0 hidden sm:inline ${location === item.href ? "text-primary" : "text-gray-700 hover:text-primary" }`}>
+                      {item.name}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
                 
-                (item.href === '/' || item.href === '/how-it-works') ?
-
-                <Link key={item.name} href={item.href}>
-                  <span
-                    className={`px-3 py-2 text-sm font-medium inline-flex transition-colors cursor-pointer ${
-                      location === item.href
-                        ? "text-primary"
-                        : "text-gray-700 hover:text-primary"
-                    }`}
-                  >
-                    {item.name}
-                  </span>
-                </Link>
+                {item.listItems?.map((litems) => (
+                    <DropdownMenuItem asChild>
+                      <Link href={litems.href} className="cursor-pointer">
+                        { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
+                        { litems.href == '#' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
+                        { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
+                        { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
+                        { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 
+                        { litems.name }
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
                 :
-                
-                (item.name === "Services") ?
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="primary" size="sm">
-                      <List className="h-5 w-5 mr-0" />
-                      <span className={`ml-0 hidden sm:inline ${location === item.href ? "text-primary" : "text-gray-700 hover:text-primary" }`}>
-                        {item.name}
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                  
-                  {item.listItems?.map((litems) => (
-                      <DropdownMenuItem asChild>
-                        <Link href={litems.href} className="cursor-pointer">
-                          { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
-                          { litems.href == '#' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
-                          { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
-                          { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
-                          { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 
-                          { litems.name }
-                        </Link>
-                      </DropdownMenuItem>
-                      
-                  ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              ''
 
-                  :
+            ))}
 
-                ''
+            <Link href="/login">
+              <Button variant="primary" size="sm">
+                {t("headerNavLinkLogin")}
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button size="sm">
+                {t("headerNavBtnSignup")}
+              </Button>
+            </Link>
 
-              ))}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+                    <Languages />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[4rem]">
+                  <DropdownMenuItem asChild>
+                    <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
+                      En
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
+                      It
+                    </button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            
+          </div>
 
+<<<<<<< HEAD
               <Link href="/login">
                 <Button variant="primary" size="sm">
                   {t('welcome')}
@@ -433,16 +530,16 @@ export default function Navbar() {
                   Get Started
                 </Button>
               </Link>
+=======
+          {/* Search & Actions */}
+          {/* <div className="flex items-center space-x-4">
+>>>>>>> refs/remotes/origin/main
               
-            </div>
+          </div>
+          */}
+              
 
-            {/* Search & Actions */}
-            {/* <div className="flex items-center space-x-4">
-                
-            </div>
-           */}
-              
-        </div>
+        </div>  
 
       </nav>
     </header>

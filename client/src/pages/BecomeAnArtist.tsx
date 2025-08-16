@@ -13,13 +13,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation,Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 
 export default function BecomeAnArtist() {
 
+    const { t, i18n } = useTranslation();
     const { isAuthenticated } = useAuth();
     const [, setLocation] = useLocation();
     const { toast } = useToast();
-    const [isCreatingArtist, setIsCreatingArtist] = useState(false);
+    const [isCreatingArtist, setIsCreatingArtist] = useState(true);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [bio, setBio] = useState("");
     const [specialty, setSpecialty] = useState("");
@@ -95,26 +97,25 @@ export default function BecomeAnArtist() {
 
   return (
     <>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="grid grid-cols-1 lg:grid-cols-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
      {/* Header */}
 
       <div className="mt-6">
         
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">Become An Artist</h1>
-        <p className="text-lg text-gray-600 mb-8">
-          ArtCraftStudio is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
-          We’d love to explore a collaboration where we feature your artwork on our platform, handling marketing, sales, and logistics while you focus on creating. Here’s what we offer:
+        <h1 className="max-w-4xl text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">{t("becomeanartistPagePrimaryTitle")}</h1>
+        <p className="max-w-4xl text-lg text-gray-600 mb-8">
+          {t("becomeanartistPagePrimaryDesc")}
         </p>
-        <h3 className="text-2xl md:text-2xl font-bold text-gray-900 mb-4">Why Partner with ArtCraftStudio?</h3>
-        <ul className="mb-8">
-          <li><b>Expanded Reach:</b>Tap into our growing community of art lovers and collectors.</li>
-          <li><b>Seamless Sales : </b>We manage listings, promotions, payments, and shipping (if applicable).</li>
-          <li><b>Fair Earnings : </b>commission split—e.g., 30% in your favor with fair competitive royalty rates.</li>
-          <li><b>Brand Exposure : </b>Featured spots on our website, social media, and newsletters.</li>
+        <h3 className="max-w-4xl text-2xl md:text-2xl font-bold text-gray-900 mb-4">{t("becomeanartistBecomePartnerTitle")}</h3>
+        <ul className="max-w-4xl">
+          <li className="mt-3"><b>{t("becomeanartistPartnerStepFirst")} </b>{t("becomeanartistPartnerStepFirstDesc")}</li>
+          <li className="mt-3"><b>{t("becomeanartistPartnerStepSecond")} </b>{t("becomeanartistPartnerStepSecondDesc")}</li>
+          <li className="mt-3"><b>{t("becomeanartistPartnerStepThird")} </b>{t("becomeanartistPartnerStepThirdDesc")}</li>
+          <li className="mt-3"><b>{t("becomeanartistPartnerStepFour")} </b>{t("becomeanartistPartnerStepFourDesc")}</li>
         </ul>
 
-          {isAuthenticated && (
+          {/* {isAuthenticated && (
             <Button 
               size="lg"
               className="bg-primary hover:bg-primary/90"
@@ -125,7 +126,7 @@ export default function BecomeAnArtist() {
             </Link>
             <ArrowDown className="h-4 w-4 mr-2" />
             </Button>
-          )}
+          )} */}
         
       </div>
 
@@ -146,7 +147,7 @@ export default function BecomeAnArtist() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Palette className="h-5 w-5 mr-2" />
-                  Become An Artist
+                  {t("becomeanartistFormTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -155,32 +156,32 @@ export default function BecomeAnArtist() {
                 <form onSubmit={handleCreateArtist} className="space-y-4">
 
                   <div>
-                    <Label htmlFor="specialty">Specialty</Label>
+                    <Label htmlFor="specialty">{t("becomeanartistFormInputSpeciality")}</Label>
                     <Input
                       id="specialty"
                       name="specialty"
                       value={specialty}
                       onChange={(e) => setSpecialty(e.target.value)}
-                      placeholder="e.g., Digital Illustration, Typography"
+                      placeholder={t("becomeanartistFormInputSpecialityPlaceholder")}
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio">{t("becomeanartistFormInputBiography")}</Label>
                     <Textarea
                       id="bio"
                       name="bio"
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
-                      placeholder="Tell us about yourself and your art..."
+                      placeholder={t("becomeanartistFormInputBiographyPlaceholder")}
                       required
                     />
                   </div>
 
                   {/* File Portfolio */}
                   <div>
-                    <Label htmlFor="file-upload">Upload Portfolio</Label>
+                    <Label htmlFor="file-upload">{t("becomeanartistFormUploadPortfolio")}</Label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                       <input
                         id="file-upload"
@@ -192,7 +193,7 @@ export default function BecomeAnArtist() {
                       <label htmlFor="file-upload" className="cursor-pointer">
                         <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                         <p className="text-gray-600">
-                          {uploadedFile ? uploadedFile.name : "Drag and drop your file here or click to browse"}
+                          {uploadedFile ? uploadedFile.name : t("becomeanartistFormUploadPortfolioPlaceholder")}
                         </p>
                         <p className="text-sm text-gray-500 mt-2">PNG, JPG, SVG up to 10MB</p>
                       </label>
@@ -200,24 +201,24 @@ export default function BecomeAnArtist() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="website">Website (Optional)</Label>
+                    <Label htmlFor="website">{t("becomeanartistFormInputWebsite")}</Label>
                     <Input
                       id="website"
                       name="website"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
-                      placeholder="https://google.com"
+                      placeholder={t("becomeanartistFormInputWebsitePlaceholder")}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="instagram">Instagram (Optional)</Label>
+                    <Label htmlFor="instagram">{t("becomeanartistFormInputInstagram")}</Label>
                     <Input
                       id="instagram"
                       name="instagram"
                       value={instagram}
                       onChange={(e) => setInstagram(e.target.value)}
-                      placeholder="@yourusername"
+                      placeholder={t("becomeanartistFormInputInstagramPlaceholder")}
                     />
                   </div>
 
@@ -227,13 +228,13 @@ export default function BecomeAnArtist() {
                       variant="outline"
                       onClick={() => setIsCreatingArtist(false)}
                     >
-                      Cancel
+                      {t("becomeanartistFormBtnCancel")}
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={createArtistMutation.isPending}
                     >
-                      {createArtistMutation.isPending ? "Creating..." : "Create Profile"}
+                      {createArtistMutation.isPending ? t("becomeanartistFormBtnSumiting") : t("becomeanartistFormBtnSumit")}
                     </Button>
                   </div>
 
@@ -245,14 +246,13 @@ export default function BecomeAnArtist() {
           
         )}
 
-
-        {!isCreatingArtist && ( <div className="py-16 space-y-6 inline-block"> </div> )}
+        {!isCreatingArtist && ( <div className="py-8 space-y-6 inline-block"> </div> )}
         
-        <div className="py-16 space-y-6 inline-block">
+        <div className="py-8 space-y-6 inline-block">
             
             <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">To Become our Partner</h1>
-              <p className="text-xl text-gray-600">Experience our widest artwork eCommerce marketplace by simply filling this for to become a verified Artist.Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("becomeanartistPageSecondaryTitle")}</h1>
+              <p className="text-xl text-gray-600">{t("becomeanartistPageSecondaryDesc")}</p>
             </div>
           
           {!isCreatingArtist && !artist && (
@@ -272,16 +272,16 @@ export default function BecomeAnArtist() {
     <section className="py-16 bg-gray-50" id="how-it-works">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-          <p className="text-xl text-gray-600">From creating an atrist profile to Artwork Sale in 3 simple steps</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("becomeanartistHowITworksTitle")}</h2>
+          <p className="text-xl text-gray-600">{t("becomeanartistHowITworksTagline")}</p>
         </div>
 
         <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
              {[
-              { step: 1, title: "Become An Artist", desc: "Become one of our proud elegant artwork artist by creating an artist profile to make your dream come true.", icon: '', color: "bg-primary" },
-              { step: 2, title: "Upload Artworks", desc: "Upload the varieties of your artwork to showcase & bring them into the real world artwork marketplace.", icon: Palette, color: "bg-secondary" },
-              { step: 3, title: "Receive 30% Per Sale", desc: "Receive exactly 30% parcent of each sale and have a detailed dashboard for sales activities management.", icon: Zap, color: "bg-accent" },
+              { step: 1, title: t("becomeanartistHIWStepFirstH"), desc: t("becomeanartistHIWStepFirstD"), icon: '', color: "bg-primary" },
+              { step: 2, title: t("becomeanartistHIWStepSecondH"), desc: t("becomeanartistHIWStepSecondD"), icon: Palette, color: "bg-secondary" },
+              { step: 3, title: t("becomeanartistHIWStepThirdH"), desc: t("becomeanartistHIWStepThirdD"), icon: Zap, color: "bg-accent" },
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className={`${item.color} text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4`}>
@@ -302,9 +302,9 @@ export default function BecomeAnArtist() {
       {/* Call to Action */}
       <div className="mt-16 text-center bg-gradient-to-r from-primary to-secondary text-white rounded-2xl p-12">
         
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Share Your Artwork?</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("ShareArtTitle")}</h2>
         <p className="text-lg text-blue-100 mb-6">
-          Join our community of artists and start earning from your creativity
+          {t("ShareArtDesc")}
         </p>
         
         <div className="space-y-4">
@@ -312,15 +312,15 @@ export default function BecomeAnArtist() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold">30%</div>
-              <div className="text-sm text-blue-100">Commission Rate</div>
+              <div className="text-sm text-blue-100">{t("ShareArtCommissionDesc")}</div>
             </div>
             <div>
               <div className="text-2xl font-bold">24/7</div>
-              <div className="text-sm text-blue-100">Support</div>
+              <div className="text-sm text-blue-100">{t("ShareArtSupportDesc")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold">Free</div>
-              <div className="text-sm text-blue-100">To Join</div>
+              <div className="text-2xl font-bold">{t("ShareArtJoinTitle")}</div>
+              <div className="text-sm text-blue-100">{t("ShareArtJoinDesc")}</div>
             </div>
           </div>
           
@@ -331,7 +331,7 @@ export default function BecomeAnArtist() {
               className="border-white text-gray-900 hover:bg-white hover:text-primary"
               onClick={() => setIsCreatingArtist(true)}
             >
-              Get Started Now
+              {t("ShareArtBtn")}
             </Button>
           )}
         </div>

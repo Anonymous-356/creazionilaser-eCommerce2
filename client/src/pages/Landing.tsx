@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Palette, Shirt, Star, Users } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Landing() {
+
+  const { t, i18n } = useTranslation();
+
   return (
     <div className="flex flex-col">
     
@@ -30,26 +34,25 @@ export default function Landing() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <Badge variant="primary" className="mb-4 bg-primary text-white">
-            Custom Products & Artist Community
+            {t("homeMainTagline")}
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Create Custom Products with 
-            <span className="text-blue-600"> Amazing Designs</span>
+            {t("homeMainTitle")} 
+            <span className="text-blue-600"> {t("homeMainTitleLastPart")}</span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Transform your ideas into reality with our custom printing services. 
-            Browse unique designs from talented artists or upload your own creations.
+            {t("homeMainDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
               <Button size="lg" className="min-w-[200px]">
-                Start Creating
+                {t("homeMainSectionSignup")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link href="/login">
               <Button variant="outline" size="lg" className="min-w-[200px]">
-                Browse Designs
+                {t("homeMainSectionLogin")}
               </Button>
             </Link>
           </div>
@@ -60,10 +63,10 @@ export default function Landing() {
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Everything You Need to Create
+            {t("homeServicesTitle")}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            From custom t-shirts to laser-engraved items, we have all the tools and services you need.
+            {t("homeServicesDesc")}
           </p>
         </div>
         
@@ -71,9 +74,9 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Shirt className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>Custom T-Shirts</CardTitle>
+              <CardTitle>{t("homeServicesCardFirstTitle")}</CardTitle>
               <CardDescription>
-                High-quality DTF printing on premium cotton tees
+                {t("homeServicesCardFirstDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -81,9 +84,9 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Star className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>Laser Engraving</CardTitle>
+              <CardTitle>{t("homeServicesCardSecondTitle")}</CardTitle>
               <CardDescription>
-                Precision engraving on wood, acrylic, and metal
+                {t("homeServicesCardSecondDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -91,9 +94,9 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Palette className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>Vinyl Stickers</CardTitle>
+              <CardTitle>{t("homeServicesCardThirdTitle")}</CardTitle>
               <CardDescription>
-                Durable, weatherproof vinyl decals and stickers
+                {t("homeServicesCardThirdDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -101,9 +104,9 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>Artist Community</CardTitle>
+              <CardTitle>{t("homeServicesCardFourthTitle")}</CardTitle>
               <CardDescription>
-                Discover and support talented artists worldwide
+                {t("homeServicesCardFourthDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -115,20 +118,20 @@ export default function Landing() {
         <Card className="max-w-4xl mx-auto text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <CardHeader className="pb-8">
             <CardTitle className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to Start Creating?
+              {t("homeCreateTitle")}
             </CardTitle>
             <CardDescription className="text-blue-100 text-lg mb-8">
-              Join thousands of creators and customers who trust us with their custom products.
+              {t("homeCreateDesc")}
             </CardDescription>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/signup">
                 <Button size="lg" variant="secondary" className="min-w-[200px]">
-                  Create Account
+                   {t("homeCreateBtnlogin")}
                 </Button>
               </Link>
               <Link href="/login">
                 <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white text-gray-900">
-                  Sign In
+                   {t("homeCreateBtnsignup")}
                 </Button>
               </Link>
             </div>

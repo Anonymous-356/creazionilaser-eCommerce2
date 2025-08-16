@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from 'react-i18next';
 
 import { Search,Upload, Filter,Quote,User,Palette,ArrowDown,ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +18,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Quotes() {
 
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const [ , setLocation] = useLocation();
@@ -102,21 +104,20 @@ export default function Quotes() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-16">
-            Custom Quotes
+            {t("quotesMainTitle")}
           </h1>
 
           {/* Top Introduction section */}
           <div className="mb-16 mx-auto">
-            <h4 className="font-bold mb-4 md:text-2xl">Need To Order Bulk Products?</h4>
+            <h4 className="font-bold mb-4 md:text-2xl">{t("quotesMainOrderTitle")}</h4>
             <p className="text-lg text-gray-600 mb-8">
-              ArtCraftStudio is a leading white lable print on demand services provider eCommerce platform with "Premier Online Gallery," "Emerging Art Marketplace," &amp; "Handcrafted Art Platform". We’re passionate about supporting talented artists like you by providing a platform to showcase and sell your work to a wider audience.
-              We’d love to explore a collaboration where we feature your artwork on our platform, handling marketing, sales, and logistics while you focus on creating. Here’s what we offer:
+              {t("quotesMainOrderDesc")}
             </p>
-            <h6 className="font-bold mb-4 md:text-2xl text-2xl">Privillages For Companies/Special Events</h6>
+            <h6 className="font-bold mb-4 md:text-2xl text-2xl">{t("quotesAdvantageTitle")}</h6>
             <ul className="mb-8">
-              <li><b>Free Packaging : </b>We manage listings, promotions, payments, and shipping (if applicable).</li>
-              <li><b>Bulk Order Discounts:</b>Tap into our growing community of art lovers and collectors.</li>
-              <li><b>Express Delivery Service : </b>commission in your favor with fair competitive royalty rates.</li>
+              <li><b>{t("quotesAdvantagePackagingTitle")} </b>{t("quotesAdvantagePackagingDesc")}</li>
+              <li><b>{t("quotesAdvantagesDiscountTitle")} </b>{t("quotesAdvantagesDiscountDesc")}</li>
+              <li><b>{t("quoteAdvantagesDeliveryTitle")} </b>{t("quoteAdvantagesDeliveryDesc")}</li>
             </ul>
 
           </div>
@@ -137,7 +138,7 @@ export default function Quotes() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <Palette className="h-5 w-5 mr-2" />
-                        Get A Quote
+                        {t("quoteFormTitle")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -146,55 +147,55 @@ export default function Quotes() {
                       <form onSubmit={handleCreateCustomQuote} className="space-y-4">
       
                         <div>
-                          <Label htmlFor="title">Organisation</Label>
+                          <Label htmlFor="title">{t("quoteFormInputName")}</Label>
                           <Input
                             id="title"
                             name="title"
                             value={formData.title}
                               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="e.g., Title"
+                            placeholder={t("quoteFormPlaceholderName")}
                             required
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor="email">Professional Email</Label>
+                          <Label htmlFor="email">{t("quoteFormInputEmail")}</Label>
                           <Input
                             id="email"
                             name="email"
                             value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            placeholder="e.g., Google@gmail.com"
+                            placeholder={t("quoteFormPlaceholderEmail")}
                             required
                           />
                         </div>
       
                         <div>
-                          <Label htmlFor="subject">Subject</Label>
+                          <Label htmlFor="subject">{t("quoteFormInputSubject")}</Label>
                           <Input
                             id="subject"
                             name="subject"
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            placeholder="e.g., Subject"
+                            placeholder={t("quoteFormPlaceholderSubject")}
                             required
                           />
                         </div>
       
                         <div>
-                          <Label htmlFor="description">Description</Label>
+                          <Label htmlFor="description">{t("quoteFormInputDesc")}</Label>
                           <Textarea
                             id="description"
                             name="description"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Tell us about your purpose of custom order..."
+                            placeholder={t("quoteFormPlaceholderDesc")}
                             required
                           />
                         </div>
       
                          <div>
-                            <Label htmlFor="image-url">Upload Profile Image</Label>
+                            <Label htmlFor="image-url">{t("quoteFormFieldImage")}</Label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                               
                               <input
@@ -207,7 +208,7 @@ export default function Quotes() {
                               <label htmlFor="image-url" className="cursor-pointer">
                                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                                 <p className="text-gray-600">
-                                  {uploadedFile ? uploadedFile.name : "Click to upload design"}
+                                  {uploadedFile ? uploadedFile.name : t("quoteFormPlaceholderImage")}
                                 </p>
                               </label>
                             </div>
@@ -219,13 +220,13 @@ export default function Quotes() {
                             variant="outline"
                             onClick={() => setIsCreatingCustomQuote(false)}
                           >
-                            Cancel
+                            {t("quoteFormBtnCancel")}
                           </Button>
                           <Button 
                             type="submit" 
                             disabled={createCustomQuoteMutation.isPending}
                           >
-                            {createCustomQuoteMutation.isPending ? "Submitting..." : "Submit"}
+                            {createCustomQuoteMutation.isPending ? t("quoteFormBtnSubmitting") : t("quoteFormBtnSubmit")}
                           </Button>
                         </div>
       
@@ -241,8 +242,8 @@ export default function Quotes() {
               <div className="py-16 space-y-6 inline-block">
                   
                   <div className="text-center">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Want To Get Custom Quote</h1>
-                    <p className="text-xl text-gray-600">Experience our widest artwork eCommerce marketplace by simply filling this for to become a verified Artist.Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type</p>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("quoteGetCustomTitle")}</h1>
+                    <p className="text-xl text-gray-600">{t("quoteGetCustomDesc")}</p>
                   </div>
                 
                 {!isCreatingCustomQuote && (
@@ -265,9 +266,9 @@ export default function Quotes() {
           {/* Call to Action */}
           <div className="mt-16 text-center bg-gradient-to-r from-primary to-secondary text-white rounded-2xl p-12">
             
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Share Your Artwork?</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("ShareArtTitle")}</h2>
             <p className="text-lg text-blue-100 mb-6">
-              Join our community of artists and start earning from your creativity
+              {t("ShareArtDesc")}
             </p>
             
             <div className="space-y-4">
@@ -275,15 +276,15 @@ export default function Quotes() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold">30%</div>
-                  <div className="text-sm text-blue-100">Commission Rate</div>
+                  <div className="text-sm text-blue-100">{t("ShareArtCommissionDesc")}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold">24/7</div>
-                  <div className="text-sm text-blue-100">Support</div>
+                  <div className="text-sm text-blue-100">{t("ShareArtSupportDesc")}</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">Free</div>
-                  <div className="text-sm text-blue-100">To Join</div>
+                  <div className="text-2xl font-bold">{t("ShareArtJoinTitle")}</div>
+                  <div className="text-sm text-blue-100">{t("ShareArtJoinDesc")}</div>
                 </div>
               </div>
               
@@ -294,12 +295,12 @@ export default function Quotes() {
                   className="border-white text-gray-900 hover:bg-white hover:text-primary"
                   onClick={() => setLocation("/become-an-artist")}
                 >
-                  Get Started Now
+                  {t("ShareArtBtn")}
                 </Button>
               ) : !isAuthenticated ? ( 
                 <Link href="/signup">
                   <Button size="lg" className="mt-4 min-w-[200px]">
-                    Get Started Now
+                    {t("ShareArtBtn")}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
