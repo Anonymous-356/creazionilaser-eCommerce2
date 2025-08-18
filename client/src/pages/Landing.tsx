@@ -48,13 +48,13 @@ export default function Landing() {
                 {t("loggedInHomeMainDesc")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
+                {/* <Button 
                   size="lg" 
                   className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   onClick={() => setLocation("/create")}
                 >
                   {t("loggedInHomeMainCustomize")}
-                </Button>
+                </Button> */}
                 <Button 
                   size="lg" 
                   variant="outline" 
@@ -242,13 +242,13 @@ export default function Landing() {
             {t("loggedInHomeCreateDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
+            {/* <Button 
               size="lg"
               className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
               onClick={() => setLocation("/create")}
             >
               {t("loggedInHomeCreateBtnLeft")}
-            </Button>
+            </Button> */}
             {!artist &&(
               <Button 
                 size="lg"
