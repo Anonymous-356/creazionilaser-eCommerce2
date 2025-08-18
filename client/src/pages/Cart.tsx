@@ -101,12 +101,12 @@ export default function Cart() {
         <Card>
           <CardContent className="p-8 text-center">
             <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">{t("cartPageTitle")}</h2>
+            <h2 className="text-2xl font-bold mb-4">{t("cartEmptyPageTitle")}</h2>
             <p className="text-gray-600 mb-6">
-              {t("cartPageDesc")}
+              {t("cartEmptyPageDesc")}
             </p>
             <Button onClick={() => window.location.href = "/shop"}>
-              {t("cartPageBtn")}
+              {t("cartPageContinueBtn")}
             </Button>
           </CardContent>
         </Card>
@@ -168,7 +168,7 @@ export default function Cart() {
                       </div>
                       <div className="flex items-center space-x-4">
                         <span className="font-semibold text-lg">
-                          ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                          €{(parseFloat(item.price) * item.quantity).toFixed(2)}
                         </span>
                         <Button
                           size="sm"
@@ -195,16 +195,16 @@ export default function Cart() {
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span>{t("cartPageSubtotal")}</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
+                <span>€{getTotalPrice().toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("cartPageShipping")}</span>
-                <span>$9.99</span>
+                <span>€9.99</span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-semibold">
                   <span>{t("cartPageTotal")}</span>
-                  <span>${(getTotalPrice() + 9.99).toFixed(2)}</span>
+                  <span>€{(getTotalPrice() + 9.99).toFixed(2)}</span>
                 </div>
               </div>
               <Button 
@@ -278,7 +278,7 @@ export default function Cart() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-lg font-semibold mb-4">
                     <span>{t("cartPageTotal")}</span>
-                    <span>${(getTotalPrice() + 9.99).toFixed(2)}</span>
+                    <span>€{(getTotalPrice() + 9.99).toFixed(2)}</span>
                   </div>
                 </div>
 

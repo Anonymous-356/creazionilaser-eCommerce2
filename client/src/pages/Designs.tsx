@@ -34,8 +34,6 @@ export default function Designs() {
     },
   });
 
-  console.log(designs);
-
   const filteredDesigns = designs
     .filter((design: any) => 
       design.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -26,7 +26,7 @@ export default function Portfolio() {
     queryKey: ["/api/artists"],
   });
 
-   const { data: artist } = useQuery({
+  const { data: artist } = useQuery({
     queryKey: [`/api/artist/${artistId}`],
   });
 
@@ -41,8 +41,6 @@ export default function Portfolio() {
       return response.json();
     },
   });
-
-  console.log(artist);
 
   const filteredDesigns = designs
     .filter((design: any) => 
@@ -96,10 +94,10 @@ export default function Portfolio() {
                 )}
                 
               </div>
-              <CardTitle>{t("artistPortfolioPageTopTitle")}</CardTitle>
+              <CardTitle>{artist?.firstName+' '+artist?.lastName}</CardTitle>
             </CardHeader>
             <CardContent className="pt-8">
-              <p className="text-lg text-gray-600">{t("artistPortfolioTitle")} : {artist?.firstName+' '+artist?.lastName}</p>
+              {/* <p className="text-lg text-gray-600">{t("artistPortfolioTitle")} : {artist?.firstName+' '+artist?.lastName}</p> */}
               <p className="text-lg text-gray-600">{t("artistPortfolioSince")} : {new Date(artist?.createdAt).toLocaleDateString()}</p>
               <p className="text-lg text-gray-600">{t("artistPortfolioSpeciality")} : {artist?.speciality}</p>
               <p className="text-lg text-gray-600">{t("artistPortfolioBiography")} : {artist?.biography}</p>
@@ -117,7 +115,7 @@ export default function Portfolio() {
       <div className="mb-16 mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("artistPortfolioPageSecTitle")}</h1>
         <p className="text-lg text-gray-600">
-          {t("artistPortfolioPageDesc")}
+          {artist?.biography}
         </p>
       </div>
 

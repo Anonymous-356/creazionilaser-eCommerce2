@@ -1,10 +1,8 @@
 import { useState } from "react";
 import '../i18n/i18n'; // initialize i18n
 import { useTranslation } from 'react-i18next';
-<<<<<<< HEAD
-=======
+
 import { useLocation } from "wouter";
->>>>>>> refs/remotes/origin/main
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -56,12 +54,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [ isLoading,setLocation] = useLocation();
-
-  const { t, i18n } = useTranslation();
-  
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };  
 
   const { t, i18n } = useTranslation();
   
@@ -300,11 +292,7 @@ export default function AdminDashboard() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
-<<<<<<< HEAD
-                    lang
-=======
                     <Languages />
->>>>>>> refs/remotes/origin/main
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[4rem]">

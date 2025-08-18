@@ -71,7 +71,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <Link href={`/product/?product=${product.id}`} target="_blank">{product.name}</Link>
             </h3>
             <Badge variant="primary" className="ml-2">
-              ${product.basePrice}
+              €{product.basePrice}
             </Badge>
           </div>
           

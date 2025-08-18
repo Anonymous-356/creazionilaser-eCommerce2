@@ -38,18 +38,6 @@ import { CartProvider } from "@/hooks/useCart";
 
 function Router() {
   
-  // const { t, i18n } = useTranslation();
-
-  // const changeLanguage = (lng) => {
-  //   i18n.changeLanguage(lng);
-  // };
-
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const paths = [ "/" ,"home" , "artists","product","portfolio","designs",
-                  "become-an-artist","shop","cart","create",
-                  "profile","contact","gift-ideas","how-it-works",
-                  "custom-quotes","faqs","privacy-policy","terms-&-condition"];  
-
   // if (isLoading) {
   //   return (
   //     <div className="min-h-screen flex items-center justify-center">
@@ -57,6 +45,12 @@ function Router() {
   //     </div>
   //   );
   // }
+
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const paths = [ "/" ,"home" , "artists","product","portfolio","designs",
+                  "become-an-artist","shop","cart","create",
+                  "profile","contact","gift-ideas","how-it-works",
+                  "custom-quotes","faqs","privacy-policy","terms-&-condition"];  
 
   // Debug logging removed for production
 
@@ -147,6 +141,8 @@ function InAuthenticatedApp() {
         <Switch>
           <Route path="/" component={Landing} />
           <Route path="/home" component={Landing} />
+          <Route path="/artists" component={Artists} />
+          <Route path="/portfolio" component={Portfolio} />
           <Route path="/faqs" component={Faqs} />
           <Route path="/contact" component={Contact} />
           <Route path="/gift-ideas" component={GiftIdeas} />

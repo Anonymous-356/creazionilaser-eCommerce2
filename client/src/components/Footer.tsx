@@ -19,7 +19,7 @@ export default function Footer() {
               <img
                   src="/uploads/86c865afac2283f69423030f427ef09a"
                   alt="Logo Image"
-                  className="h-48 w-72"
+                  className="h-64 w-auto"
               />
             </Link>
             <p className="text-gray-300 mb-6 max-w-md">
@@ -27,25 +27,18 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a 
-                href="#" 
+                href="https://www.facebook.com/CreazioniLaserCom/" 
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-800"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a 
-                href="#" 
+                href="https://www.instagram.com/creazionilaser_italia/" 
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-800"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a 
-                href="#" 
-                className="text-gray-400 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-800"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
               </a>
               <a 
                 href="mailto:info@creazionilaser.com" 

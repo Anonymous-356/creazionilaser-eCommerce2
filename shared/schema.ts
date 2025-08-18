@@ -170,7 +170,14 @@ export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
   key: varchar("key").notNull().unique(),
   value: varchar("value").notNull(),
- });
+});
+
+// Settings
+export const wishlist = pgTable("wishlist", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  designId: varchar("design_id").notNull(),
+});
 
 // Schemas
 export const insertUserSchema = createInsertSchema(users);
@@ -179,6 +186,7 @@ export const insertCategorySchema = createInsertSchema(categories);
 export const insertSubCategorySchema = createInsertSchema(subcategories);
 export const insertProductSchema = createInsertSchema(products);
 export const insertDesignSchema = createInsertSchema(designs);
+export const insertWishlistSchema = createInsertSchema(wishlist);
 export const insertQuotesSchema = createInsertSchema(quotes);
 export const insertEnquiriesSchema = createInsertSchema(enquiries);
 export const insertCartItemSchema = createInsertSchema(cartItems);
@@ -194,6 +202,7 @@ export type Category = typeof categories.$inferSelect;
 export type Subcategory = typeof subcategories.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Design = typeof designs.$inferSelect;
+export type Wishlist = typeof wishlist.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type Enquiry = typeof enquiries.$inferSelect;
 export type CartItem = typeof cartItems.$inferSelect;

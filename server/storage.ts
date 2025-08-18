@@ -5,6 +5,7 @@ import {
   categories,
   products,
   designs,
+  wishlist,
   enquiries,
   cartItems,
   orders,
@@ -16,6 +17,7 @@ import {
   type Category,
   type Product,
   type Design,
+  type Wishlist,
   type Enquiry,
   type CartItem,
   type Order,
@@ -110,8 +112,8 @@ export class DatabaseStorage implements IStorage {
   async getArtist(id: number): Promise <Artist | undefined> {
 
     const artist = await db.select({
+        id : artists.id,
         userId: artists.userId,
-        artistId : artists.id,
         email: users.email,
         firstName: users.firstName,
         lastName: users.lastName,
@@ -126,16 +128,14 @@ export class DatabaseStorage implements IStorage {
         updatedAt: artists.updatedAt,
     }).from(artists).innerJoin(users, eq(artists.userId , users.id)).where(eq(artists.id,id));
 
-    // const [artist] = await db.select().from(artists).where(eq(artists.id, id));
     return artist[0];
   }
 
   async getArtistByUserId(userId: number): Promise<Artist | undefined> {
     
      const artist = await db.select({
-        
+        id : artists.id,
         userId: artists.userId,
-        artistId : artists.id,
         specialty : artists.specialty,
         biography : artists.bio,
         firstName: users.firstName,
@@ -158,8 +158,8 @@ export class DatabaseStorage implements IStorage {
   async getAllArtists(): Promise<Artist[]> {
 
   const allArtists = await db.select({
+        id : artists.id,
         userId: users.id,
-        artistId : artists.id,
         specialty : artists.specialty,
         biography : artists.bio,
         firstName: users.firstName,
@@ -231,7 +231,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDesignsByArtist(artistId: number): Promise<Design[]> {
-    return await db.select().from(designs)
+    return await db.select(
+        {
+          id : designs.id,
+          artistId : designs.artistId,
+          price: designs.price,
+          title:designs.title,
+          description:designs.description,
+          imageUrl:designs.imageUrl,
+          artistuserID : artists.userId,
+          artistFirstName : users.firstName,
+          artistLastName:users.lastName
+        }
+      ).from(designs)
+      .innerJoin(artists, eq(artists.id , designs.artistId))
+      .innerJoin(users, eq(users.id , artists.userId))
       .where(and(eq(designs.artistId, artistId), eq(designs.isPublic, true)))
       .orderBy(desc(designs.createdAt));
   }

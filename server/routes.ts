@@ -9,6 +9,7 @@ import {
   products, 
   users, 
   artists,
+  wishlist,
   quotes,
   enquiries,
   settings 
@@ -333,10 +334,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/artist/:id', isAuthenticated, async (req: any, res) => {
+  app.get('/api/artist/:id', async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log(id);
       const artist = await storage.getArtist(id);
+      console.log(artist);
       res.json(artist);
     } catch (error) {
       console.error("Error fetching artist profile:", error);
@@ -541,6 +544,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error creating design:", error);
       res.status(500).json({ message: "Failed to create design" });
     }
+  });
+
+  app.post('/api/wishlist', isAuthenticated, async (req: any, res) => {
+
+    console.log('Hello functioning....');
+    
+     try {
+
+      const [listItem] = await db.insert(wishlist).values({
+        designId: req.body.designID,
+        userId : req.body.userID,
+      })
+      .returning();
+
+      res.status(201).json(wishlist);
+    } catch (error) {
+      console.error("Error adding design to wishlist:", error);
+      res.status(500).json({ message: "Failed to add design to wishlist" });
+    }
+
   });
 
   // Cart routes (authenticated)
@@ -1159,41 +1182,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const settingData = req.body;
 
-<<<<<<< HEAD
       Object.entries(settingData).map(([key, value]) => {
        
-        db.insert(settings).values({key : value});
+        // db.insert(settings).values({key : value});
+        // Object.entries(settingData).map(([key , value]) => {
+          
+        // });
         
-=======
-      if (!Array.isArray(settings)) {
-        return res.status(400).json({ message: 'Invalid data format' });
-      }
-
-      // const insertStmt = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
-
-      // const insertMany = db.transaction((items) => {
-      //   for (const item of items) {
-      //     if (item.key && item.value) {
-      //       insertStmt.run(item.key, item.value);
-      //     }
-      //   }
-      // });
-
-      // insertMany(settings);
-
-      // Object.entries(settingData).map(([Key,value]) =>{
-      //   values[] = {key,value}
-      // });
-
-       Object.entries(settingData).map(([key , value]) => {
-        
-         //values = { key : key , value : value }
-
-        //db.insert(settings).values(values);
-
->>>>>>> refs/remotes/origin/main
       });
-      
+
       res.json([]);
     } catch (error) {
       console.error("Error fetching enquiries:", error);

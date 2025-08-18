@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 export default function Shop() {
 
   const { t, i18n } = useTranslation();
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
@@ -69,13 +70,6 @@ export default function Shop() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("shopPageTitle")}</h1>
-        <p className="text-lg text-gray-600">
-          {t("shopPageDesc")}
-        </p>
-      </div>
 
       {/* Filters */}
       <div className="mb-8 space-y-4 md:space-y-0 md:flex md:items-center md:space-x-4">
@@ -115,11 +109,36 @@ export default function Shop() {
         </Select>
       </div>
 
-      {/* Results count */}
-      <div className="mb-6">
-        <p className="text-gray-600">
-          Showing {filteredProducts.length} of {products.length} products
-        </p>
+      <div className="text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("loggedInHomeShopTitle")}</h2>
+        <p className="text-xl text-gray-600">{t("loggedInHomeShopDesc")}</p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 animate-stagger">
+        {categories.map((category: any) => (
+          <Card 
+            key={category.id} 
+            className="group cursor-pointer card-hover"
+            onClick={() => setSelectedCategory(category.slug)}
+          >
+            <CardContent className="p-6 text-center">
+              <img 
+                src={category.imageUrl} 
+                alt={category.name}
+                className="w-full h-32 object-cover rounded-lg mb-4"
+              />
+              <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                {category.name}
+              </h3>
+              <p className="text-sm text-gray-500">{t("loggedInHomeShopRedirectHook")}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("shopPageTitle")}</h1>
       </div>
 
       {/* Products grid */}

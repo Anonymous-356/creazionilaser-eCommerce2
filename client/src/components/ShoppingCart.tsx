@@ -115,7 +115,7 @@ export default function ShoppingCart({ trigger, isOpen, onOpenChange }: Shopping
                             
                             <div className="flex items-center space-x-2">
                               <span className="font-medium text-sm">
-                                ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                                €{(parseFloat(item.price) * item.quantity).toFixed(2)}
                               </span>
                               <Button
                                 size="sm"
@@ -142,7 +142,7 @@ export default function ShoppingCart({ trigger, isOpen, onOpenChange }: Shopping
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal:</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>€{totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping:</span>
@@ -150,19 +150,19 @@ export default function ShoppingCart({ trigger, isOpen, onOpenChange }: Shopping
                     {shipping === 0 ? (
                       <span className="text-green-600">Free</span>
                     ) : (
-                      `$${shipping.toFixed(2)}`
+                      `€${shipping.toFixed(2)}`
                     )}
                   </span>
                 </div>
                 {totalPrice < 50 && shipping > 0 && (
                   <p className="text-xs text-gray-600">
-                    Add ${(50 - totalPrice).toFixed(2)} more for free shipping
+                    Add €{(50 - totalPrice).toFixed(2)} more for free shipping
                   </p>
                 )}
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total:</span>
-                    <span className="text-primary">${finalTotal.toFixed(2)}</span>
+                    <span className="text-primary">€{finalTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

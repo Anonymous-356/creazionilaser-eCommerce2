@@ -28,11 +28,13 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
     enabled: false, // We'll use mock data since we don't have a user details endpoint
   });
 
+  console.log(artist);
+
   // Fetch designs by this artist
   const { data: designs = [] } = useQuery({
-    queryKey: ["/api/designs", artist.artistId],
+    queryKey: ["/api/designs", artist.id],
     queryFn: async () => {
-      const response = await fetch(`/api/designs?artist=${artist.artistId}`);
+      const response = await fetch(`/api/designs?artist=${artist.id}`);
       if (!response.ok) throw new Error('Failed to fetch designs');
       return response.json();
     },
@@ -144,7 +146,7 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={() => {
               // Navigate to artist profile or designs
-              window.location.href = `/portfolio/?artist=${artist.artistId}`;
+              window.location.href = `/portfolio/?artist=${artist.id}`;
             }}
           >
             <ExternalLink className="h-4 w-4 mr-2" />

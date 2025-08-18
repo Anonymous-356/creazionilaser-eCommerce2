@@ -147,11 +147,11 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-primary">
-              ${totalPrice.toFixed(2)}
+              €{totalPrice.toFixed(2)}
             </div>
             {designPrice > 0 && (
               <div className="text-sm text-gray-500">
-                {t("createPageCustomProductTxt")}: ${basePrice.toFixed(2)} + {t("createPageCustomDesignTxt")}: ${designPrice.toFixed(2)}
+                {t("createPageCustomProductTxt")}: €{basePrice.toFixed(2)} + {t("createPageCustomDesignTxt")}: €{designPrice.toFixed(2)}
               </div>
             )}
           </div>
@@ -162,7 +162,7 @@ const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <h4 className="font-medium text-sm text-gray-700 mb-2">{t("createPagePreviewCustomizationTitle")}:</h4>
             <ul className="space-y-1 text-sm text-gray-600">
-              {design && <li>• {t("createPageCustomDesign")}: {design.title} (+${design.price})</li>}
+              {design && <li>• {t("createPageCustomDesign")}: {design.title} (+€{design.price})</li>}
               {uploadedFile && <li>• {t("createPageCustomFile")}: {uploadedFile.name}</li>}
               {customText && <li>• {t("createPageCustomText")}: "{customText}"</li>}
               {size && <li>• {t("createPageCustomSize")}: {size}</li>}

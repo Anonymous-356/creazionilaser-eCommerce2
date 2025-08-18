@@ -106,21 +106,10 @@ export default function Navbar() {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="flex justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-          <div className="flex items-center h-16">
+          {/* <div className="flex items-center h-16"> */}
 
           {/* Logo */}
-<<<<<<< HEAD
           <div className="flex items-center">
-            <div className="mt-4">
-              <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
-                English
-              </button>
-              <button onClick={() => changeLanguage('es')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">
-                Spanish
-              </button>
-            </div>
-=======
->>>>>>> refs/remotes/origin/main
             <Link href="/">
               <img
                   src="/uploads/86c865afac2283f69423030f427ef09a"
@@ -305,11 +294,7 @@ export default function Navbar() {
               <div className="hidden sm:flex items-center space-x-2">
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
-<<<<<<< HEAD
-                    welcome
-=======
                     {t("headerNavLinkLogin")}
->>>>>>> refs/remotes/origin/main
                   </Button>
                 </Link>
                 <Link href="/signup">
@@ -405,28 +390,11 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="mt-4">
-<<<<<<< HEAD
-              <button onClick={() => changeLanguage('en')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">
-                English
-              </button>
-              <button onClick={() => changeLanguage('es')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">
-                Spanish
-              </button>
-            </div>
             <img
                 src="/uploads/86c865afac2283f69423030f427ef09a"
                 alt="Logo Image"
                 className="h-16 w-20"
             />
-=======
-              <img
-                  src="/uploads/86c865afac2283f69423030f427ef09a"
-                  alt="Logo Image"
-                  className="h-16 w-20"
-              />
-            </div>
->>>>>>> refs/remotes/origin/main
           </div>
           
           {/* Desktop Navigation */}
@@ -519,26 +487,7 @@ export default function Navbar() {
             
           </div>
 
-<<<<<<< HEAD
-              <Link href="/login">
-                <Button variant="primary" size="sm">
-                  {t('welcome')}
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="sm">
-                  Get Started
-                </Button>
-              </Link>
-=======
-          {/* Search & Actions */}
-          {/* <div className="flex items-center space-x-4">
->>>>>>> refs/remotes/origin/main
-              
-          </div>
-          */}
-              
-
+          
         </div>  
 
       </nav>
