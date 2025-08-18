@@ -251,7 +251,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllDesigns(): Promise<Design[]> {
-    return await db.select().from(designs)
+    return await db.select(
+      {
+          id : designs.id,
+          artistId : designs.artistId,
+          price: designs.price,
+          title:designs.title,
+          description:designs.description,
+          imageUrl:designs.imageUrl,
+          artistuserID : artists.userId,
+          artistFirstName : users.firstName,
+          artistLastName:users.lastName
+        }
+    ).from(designs)
+      .innerJoin(artists, eq(artists.id , designs.artistId))
+      .innerJoin(users, eq(users.id , artists.userId))
       .where(eq(designs.isPublic, true))
       .orderBy(desc(designs.createdAt));
   }
