@@ -114,7 +114,7 @@ export default function Navbar() {
               <img
                   src="/uploads/86c865afac2283f69423030f427ef09a"
                   alt="Logo Image"
-                  className="h-16 w-20"
+                  className="h-32 w-auto"
               />
             </Link>
           </div>
@@ -393,7 +393,7 @@ export default function Navbar() {
             <img
                 src="/uploads/86c865afac2283f69423030f427ef09a"
                 alt="Logo Image"
-                className="h-16 w-20"
+                className="h-32 w-auto"
             />
           </div>
           

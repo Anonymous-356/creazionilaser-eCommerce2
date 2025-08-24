@@ -547,18 +547,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/wishlist', isAuthenticated, async (req: any, res) => {
-
-    console.log('Hello functioning....');
     
      try {
 
-      const [listItem] = await db.insert(wishlist).values({
-        designId: req.body.designID,
-        userId : req.body.userID,
-      })
-      .returning();
+      const just = JSON.parse(req.body);
+      console.log(just);
 
-      res.status(201).json(wishlist);
+      // const [listItem] = await db.insert(wishlist).values({
+      //   userId: parseInt(req.body.userID),
+      //   designId: parseInt(req.body.desginID),
+      // })
+      // .returning();
+
+      //res.status(201).json(wishlist);
     } catch (error) {
       console.error("Error adding design to wishlist:", error);
       res.status(500).json({ message: "Failed to add design to wishlist" });

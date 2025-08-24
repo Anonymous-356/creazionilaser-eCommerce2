@@ -7,6 +7,7 @@ import { ShoppingCart,HeartPlus, Star } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery,useMutation } from "@tanstack/react-query";
+import { apiRequest } from "../lib/queryClient";
 
 
 interface DesignCardProps {
@@ -30,12 +31,13 @@ export default function DesignCard({ design }: DesignCardProps) {
 
   const createWishListMutation = useMutation({
       
-      mutationFn: async (formData: any) => {
+      mutationFn: async (data: any) => {
        
-        const response = await fetch("/api/wishlist", {
+        console.log(data);
+        const response = await apiRequest("/api/wishlist", {
           method: "POST",
-          body: formData,
-          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to add into wishlist");
         return response.json();
@@ -58,8 +60,8 @@ export default function DesignCard({ design }: DesignCardProps) {
 
   const handleWishlist = (designID,userID) => {
       const fromData = {
-        designID,
-        userID
+        desginID : designID,
+        userID : userID
       }  
       createWishListMutation.mutate(fromData);
   };

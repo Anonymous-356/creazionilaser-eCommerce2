@@ -137,7 +137,7 @@ export default function Shop() {
       </div>
 
       {/* Header */}
-      <div className="mb-8 text-center">
+      <div className="mb-8 mt-16 text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("shopPageTitle")}</h1>
       </div>
 

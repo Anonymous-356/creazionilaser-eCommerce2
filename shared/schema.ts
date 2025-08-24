@@ -175,8 +175,8 @@ export const settings = pgTable("settings", {
 // Settings
 export const wishlist = pgTable("wishlist", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  designId: varchar("design_id").notNull(),
+  userId: integer("user_id").notNull(),
+  designId: integer("design_id").notNull(),
 });
 
 // Schemas
