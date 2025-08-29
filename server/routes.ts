@@ -93,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: req.req.t("signUpFormUserExistMessage") });
+        return res.status(400).json({ message: req.t("signUpFormUserExistMessage") });
       }
 
       // Hash password
@@ -126,9 +126,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
 
-      const to = email;
+      //const to = email;
       const subject = 'User Registered';
-      //const to = 'noreply@creazionilaser.com';
+      const to = 'noreply@creazionilaser.com';
       const messageBody = `<h3>Hi Admin,</h3>
                             <p>Successfully a new user has been registered with following details:</p>
                             <ul style="list-style:none !important;">
@@ -248,8 +248,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const quote = await storage.submitQuote(quoteData);
       
-      const to = email;
-      //const to = 'noreply@creazionilaser.com';
+      //const to = email;
+      const to = 'noreply@creazionilaser.com';
       const messageBody = `<h3>Hi Admin,</h3>
                             <p>This is a new quotation request we just received with following details:</p>
                             <ul style="list-style:none !important;">
@@ -289,8 +289,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const query = await storage.submitEnquiry(queryData);
       
-      const to = email;
-      //const to = 'noreply@creazionilaser.com';
+      //const to = email;
+      const to = 'noreply@creazionilaser.com';
       const messageBody = `<h3>Hi Admin,</h3>
                             <p>This is a new query we have just received it with following details:</p>
                             <ul style="list-style:none !important;">
@@ -423,9 +423,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(users.id, userId))
         .returning();
 
-      const to = 'hassan.aqiqali@gmail.com';
+      //const to = 'hassan.aqiqali@gmail.com';
       const subject = 'Artist Registered';
-      //const to = 'noreply@creazionilaser.com';
+      const to = 'noreply@creazionilaser.com';
       const messageBody = `<h3>Hi Admin,</h3>
                             <p>Successfully a new artist has been registered with following details:</p>
                             <ul style="list-style:none !important;">
