@@ -1,14 +1,38 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import i18next from 'i18next';
+import Backend from 'i18next-fs-backend';
+//var middleware = require('i18next-http-middleware') ;
+import {LanguageDetector,handle} from 'i18next-http-middleware';
+import path from 'path';
+
+
 import * as dotenv from 'dotenv';
 dotenv.config({path : "../.env"});
+
+i18next
+  .use(Backend)                     // Connects the file system backend
+  .use(LanguageDetector)            // Enables automatic language detection
+  .init({
+    backend: {
+      loadPath: path.join(process.cwd(), '../client/src/i18n/', '{{lng}}', '{{ns}}.json'), // Path to translation files
+    },
+    detection: {
+      order: ['querystring', 'cookie'],  // Priority: URL query string first, then cookies
+      caches: ['cookie'],                // Cache detected language in cookies
+    },
+    fallbackLng: 'en',                   // Default language when no language is detected
+    preload: ['en', 'it'],               // Preload these languages at startup
+});
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(handle(i18next));
 
 app.use((req, res, next) => {
+
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
@@ -65,7 +89,7 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "8080", 10);
   server.listen({
     port,
-    host: "0.0.0.0",
+    host: "localhost",
   }, () => {
     log(`serving on port ${port}`);
   });

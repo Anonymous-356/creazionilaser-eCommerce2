@@ -32,8 +32,8 @@ export default function Login() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
       toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
+        title: t("signInFormSuccessMessageTitle"),
+        description: t("signInFormSuccessMessage"),
       });
       
       // Small delay to ensure query invalidation completes
@@ -47,8 +47,8 @@ export default function Login() {
     },
     onError: (error: any) => {
       toast({
-        title: "Sign in failed",
-        description: error.message || "Invalid credentials. Please try again.",
+        title: t("signInFormFailureMessageTitle"),
+        description: error.message || t("signInFormFailureMessage"),
         variant: "destructive",
       });
     },
@@ -58,8 +58,8 @@ export default function Login() {
     e.preventDefault();
     if (!email || !password) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in all fields.",
+        title: t('signInFormEmptyFieldMessageTitle'),
+        description: t('signInFormEmptyFieldMessage'),
         variant: "destructive",
       });
       return;
@@ -120,7 +120,7 @@ export default function Login() {
               className="w-full"
               disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? t("") : t("signInFormBtn")}
+              {loginMutation.isPending ? t("signInFormBtnBefore") : t("signInFormBtn")}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">

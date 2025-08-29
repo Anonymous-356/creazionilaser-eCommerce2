@@ -119,7 +119,7 @@ export default function AdminDashboard() {
     },
     { id: "categories", label: t("Categories"), icon: Package ,listItems:[
         {id : "categories", label : t("Categories"),icon: Package },
-        {id : "subcategories", label : t("Sub Categories"),icon: Package }
+        // {id : "subcategories", label : t("Sub Categories"),icon: Package }
       ] 
     },
     { id: "products", label: t("Products"), icon: Package },
@@ -1367,7 +1367,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="basePrice">{t("Price ($)")}</Label>
+        <Label htmlFor="basePrice">{t("Price (€)")}</Label>
         <Input
           id="basePrice"
           type="number"
@@ -1566,11 +1566,11 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
       setIsCreateOpen(false);
-      toast({ title: t("category created successfully") });
+      toast({ title: t("categorycreationSuccessMessage") });
     },
     onError: (error: any) => {
       toast({ 
-        title: t("failed to create category"),
+        title: t("categorycreationFailureMessage"),
         description: error.message,
         variant: "destructive"
       });
@@ -1589,11 +1589,11 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
       setEditingCategory(null);
-      toast({ title: t("category updated successfully") });
+      toast({ title: t("categoryupdateSuccessMessage") });
     },
     onError: (error: any) => {
       toast({ 
-        title: ("failed to update category"),
+        title: t("categoryupdateFailureMessage"),
         description: error.message,
         variant: "destructive"
       });
@@ -1609,7 +1609,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/categories"] });
-      toast({ title: t("category deleted successfully") });
+      toast({ title: t("categorydeleteSuccessMessage") });
     },
     onError: (error: any) => {
       let errorMessage = error.message;
@@ -1622,7 +1622,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
       }
       
       toast({ 
-        title: t("cannot Delete Category"),
+        title: t("categorydeleteFailureMessage"),
         description: errorMessage,
         variant: "destructive"
       });

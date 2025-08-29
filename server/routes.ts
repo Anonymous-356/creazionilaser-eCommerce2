@@ -14,14 +14,19 @@ import {
   enquiries,
   settings 
 } from "@shared/schema";
+import React from "react";
+import { EnquiryForm } from "@/components/email-templates/EnquiryForm";
 import { db,pool } from "./db";
+import { v4 as uuidv4 } from 'uuid'
+import transporter from "./mailer";
 import { sql, eq } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
-import { v4 as uuidv4 } from 'uuid'
+import { useTranslation } from 'react-i18next';
+
 
 // Configure multer for file uploads
 const upload = multer({
@@ -45,6 +50,7 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+
   // Session configuration
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -84,14 +90,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { firstName, lastName, email, password } = req.body;
       
-      if (!firstName || !lastName || !email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: "User already exists with this email" });
+        return res.status(400).json({ message: req.req.t("signUpFormUserExistMessage") });
       }
 
       // Hash password
@@ -113,7 +115,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Auto-login the user after successful signup
       (req.session as any).userId = user.id;
-      console.log("Signup - Set session userId:", user.id);
       
       // Save session explicitly
       req.session.save((err) => {
@@ -124,15 +125,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
+
+      const to = email;
+      const subject = 'User Registered';
+      //const to = 'noreply@creazionilaser.com';
+      const messageBody = `<h3>Hi Admin,</h3>
+                            <p>Successfully a new user has been registered with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Username : </b>${firstName+' '+lastName}</li>
+                              <li><b>Useremail : </b>${email}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+
       // Return user data (without password) and success message
       const { password: _, ...userWithoutPassword } = user;
       res.status(201).json({ 
-        message: isFirstUser ? "Admin account created successfully" : "User created successfully", 
+        message: isFirstUser ? req.t("signUpFormAdminUserCreated") : req.t("signUpFormCustomerUserCreated"), 
         ...userWithoutPassword 
       });
     } catch (error) {
-      console.error("Signup error:", error);
-      res.status(500).json({ message: "Failed to create user" });
+      console.error(req.t("signUpFormFailureMessage"), error);
+      res.status(500).json({ message: req.t("signUpFormFailureMessage") });
     }
   });
 
@@ -140,25 +154,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-
       // Find user
       const user = await storage.getUserByEmail(email);
       if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: req.t("signInFormFailureMessage") });
       }
 
       // Check password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: req.t("signInFormFailureMessage") });
       }
 
       // Blocked user
       if (user && user.isBlocked === 1) {
-        return res.status(400).json({ message: "Blocked user,please contact your administrator." });
+        return res.status(400).json({ message: req.t("signInFormBlockedFailureMessage") });
       }
 
       const artist = await storage.getArtistByUserId(user.id);
@@ -168,8 +178,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set session
       (req.session as any).userId = user.id;
 
-      console.log("Login - Set session userId:", user.id);
-      
       // Save session explicitly
       req.session.save((err) => {
         if (err) {
@@ -183,93 +191,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Login failed" });
+      console.error(req.t("signInFormFailureMessageTitle"), error);
+      res.status(500).json({ message: req.t("signInFormFailureMessageTitle") });
     }
   });
 
   app.post('/api/auth/logout', (req, res) => {
     req.session?.destroy((err) => {
       if (err) {
-        return res.status(500).json({ message: "Could not log out" });
+        return res.status(500).json({ message: req.t("loggedOutFailureMessage") });
       }
      
-      res.json({ message: "Logged out successfully" });
+      res.json({ message: req.t("loggedOutSuccessMessage") });
     });
   });
 
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       if (!req.session?.userId) {
-        return res.status(401).json({ message: "Not authenticated" });
+        return res.status(401).json({ message: req.t("signInUserAuthentication") });
       }
 
       const user = await storage.getUser(req.session.userId);
       if (!user) {
-        return res.status(401).json({ message: "User not found" });
+        return res.status(401).json({ message: req.t("signInUserNotFound") });
       }
 
       // Return user data (without password)
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Get user error:", error);
-      res.status(500).json({ message: "Failed to get user" });
+      console.error(req.t("GetUserNotFound"), error);
+      res.status(500).json({ message: req.t("GetUserNotFound")});
     }
   });
-
   // End Authentication routes
-
 
   // Custom Quotes 
   app.post('/api/quotes',upload.single('attachment'), async (req: any, res) => {
 
     try {
         
-        console.log(req.body);
-        const userId = req.session.userId;
         const currentDate = new Date();
-
+        const userId = req.session.userId ? req.session.userId : 0 ;
+        const {title,email,subject,description} = req.body;
+        
         const quoteData = {
-          userId : userId || "",
-          title: req.body.title,
-          email: req.body.email,
-          subject: req.body.subject,
-          description: req.body.description,
+          userId,
+          title,
+          email,
+          subject,
+          description,
           attachment: req.file ? `/uploads/${req.file.filename}` : null,
           createdAt : currentDate,
         };
 
       const quote = await storage.submitQuote(quoteData);
+      
+      const to = email;
+      //const to = 'noreply@creazionilaser.com';
+      const messageBody = `<h3>Hi Admin,</h3>
+                            <p>This is a new quotation request we just received with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Organisation : </b>${title}</li>
+                              <li><b>Email : </b>${email}</li>
+                              <li><b>Subject : </b>${subject}</li>
+                              <li><b>Attachment : </b><a href='https://creazionilaser.com/uploads/${req.file.filename}' target='_blank'>Click to Download</a></li>
+                              <li><b>Description : </b>${description}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+
       res.status(201).json(quote);
     } catch (error) {
-      console.error("Error submitting custom quote:", error);
-      res.status(500).json({ message: "Failed to submit custom quote" });
+      console.error(req.t("quoteFormFailureMessage"), error);
+      res.status(500).json({ message: req.t("quoteFormFailureMessage") });
     }
   });
 
-  // Custom Quotes 
-  app.post('/api/enquiries',upload.single('attachment'), async (req: any, res) => {
-
+  // Contact Queries 
+  app.post('/api/enquiries', upload.single('attachment'), async (req: any, res) => {
+    
     try {
-        
-        const userId = req.session.userId;
-        const currentDate = new Date();
 
-        const enquiryData = {
-          userId : userId || "",
-          title: req.body.title,
-          email: req.body.email,
-          subject: req.body.subject,
-          message: req.body.message,
-          createdAt : currentDate,
-        };
+      const currentDate = new Date();
+      const userId = req.session.userId ? req.session.userId : 0 ;
+      const {title,email,subject,message} = req.body;
 
-      const quote = await storage.submitEnquiry(enquiryData);
-      res.status(201).json(quote);
+      const queryData = {
+        userId,
+        title,
+        email,
+        subject,
+        message,
+        createdAt : currentDate,
+      };
+
+      const query = await storage.submitEnquiry(queryData);
+      
+      const to = email;
+      //const to = 'noreply@creazionilaser.com';
+      const messageBody = `<h3>Hi Admin,</h3>
+                            <p>This is a new query we have just received it with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Title : </b>${title}</li>
+                              <li><b>Email : </b>${email}</li>
+                              <li><b>Subject : </b>${subject}</li>
+                              <li><b>Message : </b>${message}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+
+      res.status(201).json(query);
     } catch (error) {
-      console.error("Error submitting custom quote:", error);
-      res.status(500).json({ message: "Failed to submit custom quote" });
+      console.error(req.t("enquiryFormFailureMessage"), error);
+      res.status(500).json({ message: req.t("enquiryFormFailureMessage") });
     }
   });
 
@@ -279,8 +315,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const categories = await storage.getAllCategories();
       res.json(categories);
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      res.status(500).json({ message: "Failed to fetch categories" });
+      console.error(req.t("categoryfetchingFailureMessage"), error);
+      res.status(500).json({ message: req.t("categoryfetchingFailureMessage") });
     }
   });
 
@@ -365,14 +401,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const currentDate = new Date();
       const userId = req.session.userId;
+      const {bio,specialty,website,instagram} = req.body;
       
       const artistData = {
         userId,
-        bio: req.body.bio,
-        specialty: req.body.specialty,
+        bio,
+        specialty,
         socialLinks: {
-          website: req.body.website,
-          instagram: req.body.instagram,
+          website,
+          instagram,
         },
         portfolio : req.file ? `/uploads/${req.file.filename}` : null,
         createdAt : currentDate,
@@ -386,6 +423,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(users.id, userId))
         .returning();
 
+      const to = 'hassan.aqiqali@gmail.com';
+      const subject = 'Artist Registered';
+      //const to = 'noreply@creazionilaser.com';
+      const messageBody = `<h3>Hi Admin,</h3>
+                            <p>Successfully a new artist has been registered with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Username : </b>${userId}</li>
+                              <li><b>Specialty : </b>${specialty}</li>
+                              <li><b>Biography : </b>${bio}</li>
+                              <li><b>Portfolio : </b><a href='https://creazionilaser.com/uploads/${req.file.filename}' target='_blank'>Click to Download</a></li>
+                              <li><b>Social Links : </b><a href='${website}' target='_blank'>Website</a> | <a href='${instagram}' target='_blank'>Instagram</a></li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+      
       res.status(201).json(artist);
 
     } catch (error) {
@@ -515,6 +567,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
 
+      console.log(req.body);
+
       const userId = req.session.userId;
       
       // Either get existing or create new artist profile.
@@ -550,8 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
      try {
 
-      const just = JSON.parse(req.body);
-      console.log(just);
+
 
       // const [listItem] = await db.insert(wishlist).values({
       //   userId: parseInt(req.body.userID),
@@ -947,12 +1000,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       
       const allCategories = await db.select().from(categories).orderBy(categories.id);
-      
-      console.log("Fetched categories:", allCategories.length);
+      console.log(req.t("categoryfetchingSuccessMessage"), allCategories.length);
       res.json(allCategories);
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      res.status(500).json({ message: "Failed to fetch categories" });
+      console.error(req.t("categoryfetchingFailureMessage"), error);
+      res.status(500).json({ message: req.t("categoryfetchingFailureMessage") });
     }
   });
 
@@ -961,10 +1013,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       
       const { name, description, slug, imageUrl, sortOrder } = req.body;
-      console.log("Creating category with data:", {name, description, slug ,imageUrl, sortOrder});
-      
+
       if (!name) {
-        return res.status(400).json({ message: "Category name is required" });
+        return res.status(400).json({ message: req.t("categoryrequiredFieldMessage") });
       }
 
       const [category] = await db.insert(categories).values({
@@ -972,14 +1023,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: description || null,
         slug: slug || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
         imageUrl : imageUrl || null,
-        sortOrder,
+        sortOrder : sortOrder || 0,
       }).returning();
       
-      console.log("Created category:", category);
+      console.log(req.t("categorycreationSuccessMessage"), category);
       res.json(category);
     } catch (error) {
-      console.error("Failed to create category:", error);
-      res.status(500).json({ message: "Failed to create category", error: error.message });
+      console.error(req.t("categorycreationFailureMessage"), error);
+      res.status(500).json({ message: req.t("categorycreationFailureMessage"), error: error.message });
     }
   });
 
@@ -988,10 +1039,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const categoryId = parseInt(req.params.id);
       const { name, description, slug, imageUrl, sortOrder } = req.body;
-      console.log("Updating category:", categoryId, { name, description, slug ,imageUrl, sortOrder});
       
       if (!name) {
-        return res.status(400).json({ message: "Category name is required" });
+        return res.status(400).json({ message: req.t("categoryrequiredFieldMessage") });
       }
 
       const [category] = await db.update(categories)
@@ -1005,11 +1055,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(categories.id, categoryId))
         .returning();
       
-      console.log("Updated category:", category);
+      console.log(req.t("categoryupdateSuccessMessage"), category);
       res.json(category);
     } catch (error) {
-      console.error("Failed to update category:", error);
-      res.status(500).json({ message: "Failed to update category", error: error.message });
+      console.error(req.t("categoryupdateFailureMessage"), error);
+      res.status(500).json({ message: req.t("categoryupdateFailureMessage"), error: error.message });
     }
   });
 
@@ -1031,12 +1081,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const result = await db.delete(categories).where(eq(categories.id, categoryId));
-      console.log("Delete category result:", result);
       
-      res.json({ message: "Category deleted successfully", categoryId, result });
+      res.json({ message: req.t("categorydeleteSuccessMessage"), categoryId, result });
     } catch (error) {
-      console.error("Failed to delete category:", error);
-      res.status(500).json({ message: "Failed to delete category", error: error.message });
+      console.error(req.t("categorydeleteFailureMessage"), error);
+      res.status(500).json({ message: req.t("categorydeleteFailureMessage"), error: error.message });
     }
   });
 
@@ -1058,8 +1107,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/subcategories", isAdmin, async (req, res) => {
     try {
           
-      console.log(req.body);
-
       const { categoryId, name, description, slug, imageUrl, sortOrder } = req.body;
       console.log("Creating subcategories with data:", { name, description, slug ,imageUrl, sortOrder});
       
@@ -1160,8 +1207,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await db.select().from(quotes);
       res.json(result);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
-      res.status(500).json({ message: "Failed to fetch quotes" });
+      console.error(req.t("getQuoteFailureMessage"), error);
+      res.status(500).json({ message: req.t("getQuoteFailureMessage") });
     }
   });
 
@@ -1172,8 +1219,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await db.select().from(enquiries);
       res.json(result);
     } catch (error) {
-      console.error("Error fetching enquiries:", error);
-      res.status(500).json({ message: "Failed to fetch enquiries" });
+      console.error(req.t("getQueriesFailureMessage"), error);
+      res.status(500).json({ message: req.t("getQueriesFailureMessage")});
     }
   });
 
@@ -1252,4 +1299,50 @@ async function seedData() {
   } catch (error) {
     console.error("Error seeding database:", error);
   }
+}
+
+async function sendEmailHtmlTemplate(to : any,subject : any,messageBody : any){
+  
+  // Define Message Body with HTML
+  const htmlBody = ` <div style="background: #f5f5f5;">
+                      <table border="0" cellspacing="0" cellpadding="0" width="602" align="center" style=" width: 97%;margin: 0 auto; max-width:600px;">
+                          <tbody>
+                          <tr>
+                              <td align="left" style="font-family:Arial;font-size:12px;color:#000000;display:flex;justify-content:center;">
+                                <img src='https://creazionilaser.com/uploads/86c865afac2283f69423030f427ef09a' alt='Logo Image' target='_blank' style='height:150px;width:auto;' />
+                              </td>
+                          </tr>
+
+                          <tr>
+                              <td align="left"
+                                  style="font-family:Arial;font-size:12px;color:#37404a;border: solid 1px #c8c8c8;border-right:solid 1px #c8c8c8;
+                                  padding:40px 40px 50px 40px; line-height:18px;background: #fff;">
+                                  ${messageBody}
+                              </td>
+                          </tr>
+                          <td align="left" style="font-family:Arial;font-size:12px;color:#000000">
+                              <br><br><br><br>
+                          </td>
+                          
+
+                          </tbody>
+                      </table>
+                    </div>`;
+
+  // Define email options
+  let mailOptions = {
+      from: 'noreply@creazionilaser.com', // Sender
+      to: to, // Recipient(s)
+      subject: subject, // Subject
+      html: `${htmlBody}` // Message Body
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions,(error,info)=>{
+    if (error) {
+        console.log('Error sending email:', error);
+    } else {
+        console.log('Email sent successfully: %s', info.response);
+    }
+  });
 }

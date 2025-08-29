@@ -36,24 +36,24 @@ export default function Contact() {
 
   const createEnquiryMutation = useMutation({
       
-      mutationFn: async (formData: any) => {
-       
-        console.log(formData);
+      mutationFn: async (formData: FormData) => {
         const response = await fetch("/api/enquiries", {
           method: "POST",
           body: formData,
           credentials: "include",
         });
-        if (!response.ok) throw new Error("Failed to submit your enquiry.");
+        if (!response.ok) throw new Error(t("enquiryFormFailureMessage"));
         return response.json();
       },
-    
+
       onSuccess: () => {
         toast({
           title: "Success",
-          description: "We have received your enquiry successfully!",
+          description: t("enquiryFormSuccessMessage"),
         });
         queryClient.invalidateQueries({ queryKey: ["/api/enquiries"] });
+        queryClient.refetchQueries({ queryKey: ["/api/enquiries"] });
+  
         setIsCreatingEnquiry(true);
         setFormData({ ...formData, title: '' });
         setFormData({ ...formData, email: '' });
@@ -195,7 +195,7 @@ export default function Contact() {
                             type="submit" 
                             disabled={createEnquiryMutation.isPending}
                           >
-                            {createEnquiryMutation.isPending ? t("FormSubmitBtn") : t("FormSubmitBtn")}
+                            {createEnquiryMutation.isPending ? t("FormSubmittingBtn") : t("FormSubmitBtn")}
                           </Button>
                         </div>
       

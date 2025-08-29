@@ -41,20 +41,19 @@ export default function Quotes() {
       
       mutationFn: async (formData: any) => {
        
-        console.log(formData);
         const response = await fetch("/api/quotes", {
           method: "POST",
           body: formData,
           credentials: "include",
         });
-        if (!response.ok) throw new Error("Failed to submit custom quote request.");
+        if (!response.ok) throw new Error(t('quoteFormFailureMessage'));
         return response.json();
       },
     
       onSuccess: () => {
         toast({
           title: "Success",
-          description: "We have received your custom quote successfully!",
+          description: t('quoteFormSuccessMessage'),
         });
         queryClient.invalidateQueries({ queryKey: ["/api/quotes"] });
         setIsCreatingCustomQuote(true);
@@ -220,13 +219,13 @@ export default function Quotes() {
                             variant="outline"
                             onClick={() => setIsCreatingCustomQuote(false)}
                           >
-                            {t("quoteFormBtnCancel")}
+                            {t("FormCancelBtn")}
                           </Button>
                           <Button 
                             type="submit" 
                             disabled={createCustomQuoteMutation.isPending}
                           >
-                            {createCustomQuoteMutation.isPending ? t("quoteFormBtnSubmitting") : t("quoteFormBtnSubmit")}
+                            {createCustomQuoteMutation.isPending ? t("FormSubmittingBtn") : t("FormSubmitBtn")}
                           </Button>
                         </div>
       

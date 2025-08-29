@@ -38,8 +38,8 @@ export default function Signup() {
     },
     onSuccess: (data: any) => {
       toast({
-        title: "Account created successfully!",
-        description: "You have been automatically signed in.",
+        title: t('signUpFormSuccessMessageTitle'),
+        description: t('signUpFormSuccessMessage'),
       });
       
       // Invalidate auth query and redirect
@@ -55,8 +55,8 @@ export default function Signup() {
     },
     onError: (error: any) => {
       toast({
-        title: "Sign up failed",
-        description: error.message || "Failed to create account. Please try again.",
+        title: t('signUpFormFailureMessageTitle'),
+        description: error.message || t('signUpFormFailureMessage'),
         variant: "destructive",
       });
     },
@@ -67,8 +67,8 @@ export default function Signup() {
     
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in all fields.",
+        title: t('signUpFormEmptyFieldMessageTitle'),
+        description: t('signUpFormEmptyFieldMessage'),
         variant: "destructive",
       });
       return;
@@ -76,8 +76,8 @@ export default function Signup() {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
+        title: t('signUpFormConfirmPassMessageTitle'),
+        description: t('signUpFormConfirmPassMessage'),
         variant: "destructive",
       });
       return;
@@ -85,8 +85,8 @@ export default function Signup() {
 
     if (password.length < 6) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters long.",
+        title: t('signUpFormShortPassMessageTitle'),
+        description: t('signUpFormShortPassMessage'),
         variant: "destructive",
       });
       return;
