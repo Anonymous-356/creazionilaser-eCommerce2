@@ -3,7 +3,6 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
-//var middleware = require('i18next-http-middleware') ;
 import {LanguageDetector,handle} from 'i18next-http-middleware';
 import path from 'path';
 
@@ -89,7 +88,7 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "8080", 10);
   server.listen({
     port,
-    host: "localhost",
+    host: "0.0.0.0",
   }, () => {
     log(`serving on port ${port}`);
   });
