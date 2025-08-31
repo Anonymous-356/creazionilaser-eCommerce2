@@ -36,7 +36,7 @@ const upload = multer({
     if (file.mimetype.startsWith('image/')) {
       return cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'));
+      cb(new Error('Only image files are allowed'));    
     }
   }
 });
@@ -309,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-   // Category routes
+  // Category routes
   app.get('/api/categories', async (req, res) => {
     try {
       const categories = await storage.getAllCategories();
@@ -1309,7 +1309,7 @@ async function sendEmailHtmlTemplate(to : any,subject : any,messageBody : any){
                           <tbody>
                           <tr>
                               <td align="left" style="font-family:Arial;font-size:12px;color:#000000;display:flex;justify-content:center;">
-                                <img src='https://creazionilaser.com/uploads/86c865afac2283f69423030f427ef09a' alt='Logo Image' target='_blank' style='height:150px;width:auto;' />
+                                <img src='https://ci3.googleusercontent.com/meips/ADKq_NaaWlXYZ84iHXOhdcCjlvS-ORWqLTJZOSvy7Ny4_tZpG_O-P4THqJYp297V5Bf1yJHJvQog2n9r5dmBtU4YN8XYxWGEkJdh2V1OggWEd5kd7yW9AXFMXKVu=s0-d-e1-ft#https://creazionilaser.com/uploads/86c865afac2283f69423030f427ef09a' alt='Logo Image' target='_blank' style='height:150px;width:auto;' />
                               </td>
                           </tr>
 
@@ -1331,7 +1331,7 @@ async function sendEmailHtmlTemplate(to : any,subject : any,messageBody : any){
 
   // Define email options
   let mailOptions = {
-      from: 'noreply@creazionilaser.com', // Sender
+      from: 'admin@efficientitconsulting.com', // Sender
       to: to, // Recipient(s)
       subject: subject, // Subject
       html: `${htmlBody}` // Message Body
