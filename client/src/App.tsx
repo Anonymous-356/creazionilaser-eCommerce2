@@ -49,7 +49,7 @@ function Router() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const paths = [ "/" ,"home" , "artists","product","portfolio","designs",
                   "become-an-artist","shop","cart","create",
-                  "profile","contact","gift-ideas","how-it-works",
+                  "profile","contact","gifts","how-it-works",
                   "custom-quotes","faqs","privacy-policy","terms-&-condition"];  
 
   // Debug logging removed for production
@@ -116,7 +116,7 @@ function AuthenticatedApp({ user }: { user: any }) {
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/faqs" component={Faqs} />
           <Route path="/contact" component={Contact} />
-          <Route path="/gift-ideas" component={GiftIdeas} />
+          <Route path="/gifts" component={GiftIdeas} />
           <Route path="/how-it-works" component={HowITworks} />
           <Route path="/custom-quotes" component={Quotes} />
           <Route path="/privacy-policy" component={PrivacyAndPolicy} />
@@ -145,7 +145,7 @@ function InAuthenticatedApp() {
           <Route path="/portfolio" component={Portfolio} />
           <Route path="/faqs" component={Faqs} />
           <Route path="/contact" component={Contact} />
-          <Route path="/gift-ideas" component={GiftIdeas} />
+          <Route path="/gifts" component={GiftIdeas} />
           <Route path="/how-it-works" component={HowITworks} />
           <Route path="/custom-quotes" component={Quotes} />
           <Route path="/privacy-policy" component={PrivacyAndPolicy} />

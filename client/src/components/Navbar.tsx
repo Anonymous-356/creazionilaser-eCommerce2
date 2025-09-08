@@ -81,7 +81,7 @@ export default function Navbar() {
     { name: t("headerNavLinkCustomizeProduct"), href: "/create"},
     { name: t("headerNavLinkServices"), href: "#",listItems: [
           {name: t("headerSubNavLinkFaqs"), href: "/faqs"},
-          {name: t("headerSubNavLinkIdeas"), href: "#"} ,
+          {name: t("headerSubNavLinkIdeas"), href: "/gifts"} ,
           {name: t("headerSubNavLinkContact"), href: "/contact"},
           {name: t("headerSubNavLinkHowWorks"), href: "/how-it-works"},
           {name: t("headerSubNavLinkQuotes"), href: "/custom-quotes"}
@@ -186,7 +186,7 @@ export default function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link href={litems.href} className="cursor-pointer">
                         { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
-                        { litems.href == '#' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
+                        { litems.href == '/gifts' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
                         { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
                         { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
                         { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 
@@ -207,20 +207,6 @@ export default function Navbar() {
 
           {/* Search & Actions */}
           <div className="flex items-center space-x-1">
-
-            {/* Desktop Search */}
-            {/* <div className="hidden md:block">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-64 bg-gray-100 border-0 focus:bg-white"
-                />
-              </form>
-            </div> */}
 
             {/* Cart */}
             <Link href="/cart">
@@ -244,9 +230,7 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
                       <User className="h-5 w-5" />
-                      {/* <span className="ml-2 hidden sm:inline">
-                        {(user as any)?.firstName || "User"}
-                      </span> */}
+                      
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -359,21 +343,7 @@ export default function Navbar() {
                   </span>
                 </Link>
               ))}
-              
-              {/* Mobile Search */}
-              {/* <div className="px-3 py-2">
-                <form onSubmit={handleSearch} className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-full"
-                  />
-                </form>
-              </div> */}
-
+            
             </div>
           </div>
         )}
@@ -436,7 +406,7 @@ export default function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link href={litems.href} className="cursor-pointer">
                         { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
-                        { litems.href == '#' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
+                        { litems.href == '/gifts' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
                         { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
                         { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
                         { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 

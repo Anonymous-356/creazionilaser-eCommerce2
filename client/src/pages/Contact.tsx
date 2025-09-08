@@ -23,12 +23,13 @@ export default function Contact() {
   const [isCreatingEnquiry, setIsCreatingEnquiry] = useState(true);
   const [sortBy, setSortBy] = useState<string>("name");
 
-  const [formData, setFormData] = useState({
+  const INITIAL_FORM_STATE = {
     title: "",
     email: "",
     subject: "",
     message: "",
-  });
+  }
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
   const { data: artists = [],isLoading } = useQuery({
     queryKey: ["/api/artists"],
@@ -55,10 +56,7 @@ export default function Contact() {
         queryClient.refetchQueries({ queryKey: ["/api/enquiries"] });
   
         setIsCreatingEnquiry(true);
-        setFormData({ ...formData, title: '' });
-        setFormData({ ...formData, email: '' });
-        setFormData({ ...formData, subject: '' });
-        setFormData({ ...formData, message: '' });
+        setFormData(INITIAL_FORM_STATE);
       },
       onError: (error) => {
         toast({
@@ -136,7 +134,7 @@ export default function Contact() {
                       <form onSubmit={handleEnquiryQuote} className="space-y-4">
       
                         <div>
-                          <Label htmlFor="title">{t("EnquiryFormInputFullName")}</Label>
+                          <Label htmlFor="title">{t("EnquiryFormInputFullName")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="title"
                             name="title"
@@ -148,9 +146,10 @@ export default function Contact() {
                         </div>
 
                         <div>
-                          <Label htmlFor="email">{t("EnquiryFormInputEmail")}</Label>
+                          <Label htmlFor="email">{t("EnquiryFormInputEmail")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="email"
+                            type="email"
                             name="email"
                             value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -160,7 +159,7 @@ export default function Contact() {
                         </div>
       
                         <div>
-                          <Label htmlFor="subject">{t("EnquiryFormInputSubject")}</Label>
+                          <Label htmlFor="subject">{t("EnquiryFormInputSubject")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="subject"
                             name="subject"
@@ -172,7 +171,7 @@ export default function Contact() {
                         </div>
       
                         <div>
-                          <Label htmlFor="message">{t("EnquiryFormInputMessage")}</Label>
+                          <Label htmlFor="message">{t("EnquiryFormInputMessage")} <span className="text-red-600">*</span></Label>
                           <Textarea
                             id="message"
                             name="message"

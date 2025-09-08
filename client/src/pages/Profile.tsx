@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { User,Truck, Package, Palette, Upload, Eye } from "lucide-react";
+import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import e from "express";
 
@@ -19,25 +19,34 @@ export default function Profile() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
-  console.log(user);
-
+  const [activeTab, setActiveTab] = useState('artist');
   const [isUpdatingArtist, setIsUpdatingArtist] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedFileUser, setUploadedFileUser] = useState<File | null>(null);
-
-  const { data : artist} = useQuery({
+  
+  const {data : artist} = useQuery ({
     queryKey: ["/api/artists/me"],
     enabled: isAuthenticated,
   });
 
-  const [activeTab, setActiveTab] = !artist ? useState("profile") : useState('artist');
+  const { data: stats } = useQuery({
+    queryKey: ["api/stats/me"],
+    enabled: isAuthenticated,
+  });
 
   const { data: orders = [] } = useQuery({
     queryKey: ["/api/orders"],
     enabled: isAuthenticated,
   });
+
+  const INITIAL_DESIGN_FORM_STATE = {
+    title : "",
+    price : "",
+    description : "",
+  }
+  const [designFormData,setDesignFormData] = useState(INITIAL_DESIGN_FORM_STATE);
 
   const [userFormData,setUserFormData] = useState({
     userId : user?.Id,
@@ -46,27 +55,33 @@ export default function Profile() {
     email : user?.email,
     imageUrl : user?.profileImageUrl,
   });
-  
-  const [formData,setFormData] = useState({
+
+  const INITIAL_ARTIST_FORM_STATE = {
     userId : artist?.userId,
     firstName : artist?.firstName,
     lastName : artist?.lastName  || "",
     email : artist?.email,
     bio : artist?.biography,
     specialty : artist?.specialty,
-    imageUrl : artist?.imageUrl,
-    website : artist?.socialLinks.website ,
-    instagram : artist?.socialLinks.instagram ,
-  });
+    imageUrl : artist?.imageUrl || "",
+    website : artist?.socialLinks.website || "",
+    instagram : artist?.socialLinks.instagram || "",
+  }
+  const [formData,setFormData] = useState(INITIAL_ARTIST_FORM_STATE);
   
   const { data: designs = [] } = useQuery({
-    queryKey: ["/api/designs", artist?.artistId],
+    queryKey: ["/api/designs", artist?.id],
     queryFn: async () => {
-      if (!artist?.artistId) return [];
-      const response = await fetch(`/api/designs?artist=${artist?.artistId}`);
+      if (!artist?.id) return [];
+      const response = await fetch(`/api/designs?artist=${artist?.id}`);
       return response.json();
     },
-    enabled: !!artist?.artistId,
+    enabled: !!artist?.id,
+  });
+
+  const { data: wishlist = [] } = useQuery({
+    queryKey: ["/api/wishlist/me"],
+    enabled: isAuthenticated,
   });
 
   const updateUserMutation = useMutation({
@@ -76,13 +91,13 @@ export default function Profile() {
           body: data,
           credentials: "include",
         });
-        if (!response.ok) throw new Error("Failed to update user profile");
+        if (!response.ok) throw new Error(t("profileUserFormFailureMessage"));
         return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "User profile updated successfully!",
+        description: t("profileUserFormSuccessMessage"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
       setIsUpdatingUser(false);
@@ -98,18 +113,18 @@ export default function Profile() {
 
   const updateArtistMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await fetch(`/api/artists/${artist?.artistId}`,{
+      const response = await fetch(`/api/artists/${artist?.id}`,{
           method: "PUT",
           body: data,
           credentials: "include",
         });
-        if (!response.ok) throw new Error("Failed to update artist profile");
+        if (!response.ok) throw new Error(t("profileArtistFormFailureMessage"));
         return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Artist profile updated successfully!",
+        description: t("profileArtistFormSuccessMessage"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/artists/me"] });
       setIsUpdatingArtist(false);
@@ -130,16 +145,17 @@ export default function Profile() {
         body: formData,
         credentials: "include",
       });
-      if (!response.ok) throw new Error("Failed to upload design");
+      if (!response.ok) throw new Error(t("profileMyDesignFormFailureMessage"));
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Design uploaded successfully!",
+        description: t("profileMyDesignFormSuccessMessage"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/designs"] });
       setSelectedFile(null);
+      setDesignFormData(INITIAL_DESIGN_FORM_STATE);
     },
     onError: (error) => {
       toast({
@@ -160,15 +176,31 @@ export default function Profile() {
 
   const handleUpdateArtist = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!uploadedFile) return;
-    const formData = new FormData(e.currentTarget);
-    formData.append("image", uploadedFile);
-    updateArtistMutation.mutate(formData);
+    
+    if(!formData.imageUrl && !uploadedFile){
+      toast({
+        title: t('profileArtistFormProfileMissingTitle'),
+        description: t('profileArtistFormProfileMissingTitleMessage'),
+        variant: "destructive",
+      });
+      return; 
+    }
+
+    const artistformData = new FormData(e.currentTarget);
+    artistformData.append("image", uploadedFile);
+    updateArtistMutation.mutate(artistformData);
   };
 
   const handleUploadDesign = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!selectedFile) return;
+    if (!selectedFile){
+      toast({
+        title: t('profileDesignFormImageMissingTitle'),
+        description: t('profileDesignFormImageMissingTitleMessage'),
+        variant: "destructive",
+      });
+      return;  
+    }
     const formData = new FormData(e.currentTarget);
     formData.append("image", selectedFile);
     uploadDesignMutation.mutate(formData);
@@ -207,15 +239,19 @@ export default function Profile() {
             <TabsList className="grid h-full w-72 mr-4 grid-cols-1">
                 <TabsTrigger value="profile">
                   <User className="h-4 w-4 mr-2" />
-                  {t("profilePageSideBarTab3")} 
+                  {t("myAccountUserTabFirst")} 
                 </TabsTrigger>
                 <TabsTrigger  value="shipping">
                   <Truck className="h-4 w-4 mr-2" />
-                  {t("profilePageSideBarTab4")} 
+                  {t("myAccountUserTabSecond")} 
+                </TabsTrigger>
+                <TabsTrigger  value="wishlist">
+                  <Truck className="h-4 w-4 mr-2" />
+                  {t("myAccountUserTabThird")} 
                 </TabsTrigger>
                 <TabsTrigger value="orders">
                   <Package className="h-4 w-4 mr-2" />
-                  {t("profilePageSideBarTab5")}
+                  {t("myAccountUserTabForth")}
                 </TabsTrigger>
             </TabsList>
 
@@ -224,11 +260,15 @@ export default function Profile() {
             <TabsList className="grid h-full w-72 mr-4 grid-cols-1">
                 <TabsTrigger value="artist">
                   <Palette className="h-4 w-4 mr-2" />
-                  {t("profilePageSideBarTab1")}
+                  {t("myAccountArtistTabFirst")}
                 </TabsTrigger>
                 <TabsTrigger value="designs" disabled={!artist}>
                   <Eye className="h-4 w-4 mr-2" />
-                  {t("profilePageSideBarTab2")}
+                  {t("myAccountArtistTabSecond")}
+                </TabsTrigger>
+                 <TabsTrigger value="statistics" disabled={!artist}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  {t("myAccountArtistTabThird")}
                 </TabsTrigger>  
             </TabsList>
             
@@ -364,6 +404,41 @@ export default function Profile() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="wishlist" className="w-full">
+
+                {/* My Wishlist */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("profileMyWishlistMainTitle")} ({wishlist.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {wishlist.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileMyDesignNoRecordTitle")}</h3>
+                        <p className="text-gray-600">{t("profileMyDesignNoRecordDesc")}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+                        {wishlist.map((design: any) => (
+                          <div key={design.id} className="border rounded-lg overflow-hidden">
+                            <img
+                              src={design.imageUrl}
+                              alt={design.title}
+                              className="w-full h-32 object-cover"
+                            />
+                            <div className="p-3 flex justify-between">
+                              <h4 className="font-medium">{design.title}</h4>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+              </TabsContent>
+
               <TabsContent value="shipping" className="w-full">
                 <Card>
                   <CardHeader>
@@ -423,7 +498,7 @@ export default function Profile() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                              <Label htmlFor="firstName">{t("profileArtistFirstName")}</Label>
+                              <Label htmlFor="firstName">{t("profileArtistFirstName")} <span className="text-red-600">*</span></Label>
                               <Input
                                 type="hidden"
                                 name="userId"
@@ -440,7 +515,7 @@ export default function Profile() {
                               />
                             </div>
                             <div>
-                              <Label htmlFor="lastName">{t("profileArtistLastName")}</Label>
+                              <Label htmlFor="lastName">{t("profileArtistLastName")} <span className="text-red-600">*</span></Label>
                               <Input
                                 id="lastName"
                                 name="lastName"
@@ -456,7 +531,7 @@ export default function Profile() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                              <Label htmlFor="email">{t("profileArtistEmail")}</Label>
+                              <Label htmlFor="email">{t("profileArtistEmail")} <span className="text-red-600">*</span></Label>
                               <Input
                                 id="email"
                                 type="email"
@@ -468,7 +543,7 @@ export default function Profile() {
                               />
                             </div>
                             <div>
-                              <Label htmlFor="specialty">{t("profileArtistSpecialty")}</Label>
+                              <Label htmlFor="specialty">{t("profileArtistSpecialty")} <span className="text-red-600">*</span></Label>
                               <Input
                                 id="specialty"
                                 type="text"
@@ -483,7 +558,7 @@ export default function Profile() {
                           </div>
 
                           <div>
-                            <Label htmlFor="bio">{t("profileArtistBio")}</Label>
+                            <Label htmlFor="bio">{t("profileArtistBio")} <span className="text-red-600">*</span></Label>
                             <Textarea
                               id="bio"
                               type="textarea"
@@ -496,7 +571,7 @@ export default function Profile() {
                           </div>
                           
                           <div>
-                            <Label htmlFor="image-url">{t("profileArtistImage")}</Label>
+                            <Label htmlFor="image-url">{t("profileArtistImage")} <span className="text-red-600">*</span></Label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                               <input
                                 name="existingProfileImage"
@@ -511,10 +586,9 @@ export default function Profile() {
                                 accept="image/*"
                                 onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
                               />
-                              <img 
-                              src={formData.imageUrl}
-                              alt="Existing Profile Image" 
-                              className="h-16 w-16" />
+                              {formData.imageUrl && (
+                                <img src={formData.imageUrl} alt="Existing Profile Image" className="h-16 w-16" />
+                              )}
                               <label htmlFor="image-url" className="cursor-pointer">
                                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                                 <p className="text-gray-600">
@@ -575,6 +649,7 @@ export default function Profile() {
 
               <TabsContent value="designs" className="w-full">
                 <div className="space-y-6">
+
                   {/* Upload New Design */}
                   <Card>
                     <CardHeader>
@@ -585,11 +660,13 @@ export default function Profile() {
                       <form onSubmit={handleUploadDesign} className="space-y-4">
                         
                         <div>
-                          <Label htmlFor="design-title">{t("profileMyDesignTitle")}</Label>
+                          <Label htmlFor="design-title">{t("profileMyDesignTitle")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="design-title"
                             name="title"
                             placeholder={t("profileMyDesignTitlePlaceholder")}
+                            value={designFormData.title}
+                            onChange={(e) => setDesignFormData({ ...designFormData, title: e.target.value })}
                             required
                           />
                         </div>
@@ -600,11 +677,13 @@ export default function Profile() {
                             id="design-description"
                             name="description"
                             placeholder={t("profileMyDesignDescPlaceholder")}
+                            value={designFormData.description}
+                            onChange={(e) => setDesignFormData({ ...designFormData, description: e.target.value })}
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor="design-price">{t("profileMyDesignPrice")}</Label>
+                          <Label htmlFor="design-price">{t("profileMyDesignPrice")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="design-price"
                             name="price"
@@ -612,12 +691,14 @@ export default function Profile() {
                             step="0.01"
                             min="0"
                             placeholder={t("profileMyDesignPricePlaceholder")}
+                            value={designFormData.price}
+                            onChange={(e) => setDesignFormData({ ...designFormData, price: e.target.value })}
                             required
                           />
                         </div>
                         
                         <div>
-                          <Label htmlFor="design-file">{t("profileMyDesignUpload")}</Label>
+                          <Label htmlFor="design-file">{t("profileMyDesignUpload")} <span className="text-red-600">*</span></Label>
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                             <input
                               id="design-file"
@@ -625,7 +706,6 @@ export default function Profile() {
                               className="hidden"
                               accept="image/*"
                               onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                              required
                             />
                             <label htmlFor="design-file" className="cursor-pointer">
                               <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
@@ -685,6 +765,55 @@ export default function Profile() {
                       )}
                     </CardContent>
                   </Card>
+
+                </div>
+              </TabsContent>  
+
+              <TabsContent value="statistics" className="w-full">
+                <div className="space-y-6">
+                  {/* Upload New Design */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t("profileMyStatisticsMainTitle")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+
+                      <div className="space-y-6">
+                        {/* Stats cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg">
+                              <CardTitle className="text-sm font-medium text-blue-800">{t("Total Downloads")}</CardTitle>
+                              <Package className="h-5 w-5 text-blue-800" />
+                            </CardHeader>
+                            <CardContent className="pt-4">
+                              <div className="text-3xl font-bold text-blue-700">{stats?.totalDownloads || 0}</div>
+                              {/* <p className="text-xs text-gray-600 mt-1">
+                                +{stats?.newDownloadsThisWeek || 0} this week
+                              </p> */}
+                            </CardContent>
+                          </Card>
+
+                          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-green-50 to-green-100 rounded-t-lg">
+                              <CardTitle className="text-sm font-medium text-green-800">{t("Total Earnings")}</CardTitle>
+                              <CirclePoundSterling className="h-5 w-5 text-green-800" />
+                            </CardHeader>
+                            <CardContent className="pt-4">
+                              <div className="text-3xl font-bold text-green-700">{stats?.totalEarnings || 0}</div>
+                              {/* <p className="text-xs text-gray-600 mt-1">
+                                {stats?.newtotalEarningThisWeek || 0} this week
+                              </p> */}
+                            </CardContent>
+                          </Card>
+
+                        </div>
+                      </div>
+
+                    </CardContent>
+                  </Card>
+
+                  
                 </div>
               </TabsContent>  
 

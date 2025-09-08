@@ -28,6 +28,7 @@ import { eq, desc, and, sql,Query } from "drizzle-orm";
 import { on } from "events";
 
 export interface IStorage {
+
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -72,13 +73,17 @@ export interface IStorage {
   getOrdersByUser(userId: number): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
 
-  // Order operations
+  // Quote operations
   submitQuote(quoteData: typeof quotes.$inferInsert): Promise<Quote>;
   getQuotes(): Promise<Quote[]>;
 
   // Enquiries operations
   submitEnquiry(enquiryData: typeof enquiries.$inferInsert): Promise<Enquiry>;
   getEnquiries(): Promise<Enquiry[]>;
+
+  // Profile operations
+
+  getUserWishlist(userId: number) : Promise<Wishlist[]>;
 
 }
 
@@ -239,6 +244,7 @@ export class DatabaseStorage implements IStorage {
           title:designs.title,
           description:designs.description,
           imageUrl:designs.imageUrl,
+          downloadCount:designs.downloadCount, 
           artistuserID : artists.userId,
           artistFirstName : users.firstName,
           artistLastName:users.lastName
@@ -345,6 +351,14 @@ export class DatabaseStorage implements IStorage {
    async getEnquiries(): Promise<Enquiry[]> {
     const [result] = await db.select().from(enquiries);
     return result;
+  }
+
+  // Profile operations 
+
+  async getUserWishlist(userId : number) : Promise <Wishlist[]>{
+    const [wishlistResult] = await db.select().from(wishlist).where(eq(wishlist.userId, userId));
+    console.log(wishlistResult);
+    return wishlistResult;
   }
 
 }

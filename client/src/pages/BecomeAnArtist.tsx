@@ -23,10 +23,15 @@ export default function BecomeAnArtist() {
     const { toast } = useToast();
     const [isCreatingArtist, setIsCreatingArtist] = useState(true);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-    const [bio, setBio] = useState("");
-    const [specialty, setSpecialty] = useState("");
-    const [instagram, setInstagram] = useState("");
-    const [website, setWebsite] = useState("");
+
+    const INITIAL_FORM_STATE = {
+      bio : "",
+      specialty : "",
+      instagram : "",
+      website : "",
+    }
+
+    const [formData,setFormData] = useState(INITIAL_FORM_STATE);
 
     const { data: artist } = useQuery({
       queryKey: ["/api/artists/me"],
@@ -46,17 +51,18 @@ export default function BecomeAnArtist() {
           body: formData,
           credentials: "include",
         });
-        if (!response.ok) throw new Error("Failed to upload design");
+        if (!response.ok) throw new Error(t("becomeanartistFormFailureMessage"));
         return response.json();
       },
     
       onSuccess: () => {
         toast({
           title: "Success",
-          description: "Artist profile created successfully!",
+          description: t("becomeanartistFormSuccessMessage"),
         });
         queryClient.invalidateQueries({ queryKey: ["/api/artists/me"] });
         setIsCreatingArtist(false);
+        setFormData(INITIAL_FORM_STATE);
       },
       onError: (error) => {
         toast({
@@ -69,11 +75,19 @@ export default function BecomeAnArtist() {
   
     const handleCreateArtist = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (!uploadedFile) return;
-      const formData = new FormData(e.currentTarget);
+      
+      if (!uploadedFile){
+        toast({
+          title: t('becomeanartistFormPortfolioMissingTitle'),
+          description: t('becomeanartistFormPortfolioMissingMessage'),
+          variant: "destructive",
+        });
+        return;  
+      }
 
-      formData.append("image", uploadedFile);
-      createArtistMutation.mutate(formData);
+      const artistFormData = new FormData(e.currentTarget);
+      artistFormData.append("image", uploadedFile);
+      createArtistMutation.mutate(artistFormData);
 
     };
 
@@ -114,20 +128,7 @@ export default function BecomeAnArtist() {
           <li className="mt-3"><b>{t("becomeanartistPartnerStepThird")} </b>{t("becomeanartistPartnerStepThirdDesc")}</li>
           <li className="mt-3"><b>{t("becomeanartistPartnerStepFour")} </b>{t("becomeanartistPartnerStepFourDesc")}</li>
         </ul>
-
-          {/* {isAuthenticated && (
-            <Button 
-              size="lg"
-              className="bg-primary hover:bg-primary/90"
-              onClick={() => setLocation("#how-it-works")}
-            >
-             <Link className="bg-primary hover:bg-primary/90" href="#how-it-works">
-                How it works
-            </Link>
-            <ArrowDown className="h-4 w-4 mr-2" />
-            </Button>
-          )} */}
-        
+ 
       </div>
 
     </div>
@@ -156,24 +157,24 @@ export default function BecomeAnArtist() {
                 <form onSubmit={handleCreateArtist} className="space-y-4">
 
                   <div>
-                    <Label htmlFor="specialty">{t("becomeanartistFormInputSpeciality")}</Label>
+                    <Label htmlFor="specialty">{t("becomeanartistFormInputSpeciality")} <span className="text-red-600">*</span></Label>
                     <Input
                       id="specialty"
                       name="specialty"
-                      value={specialty}
-                      onChange={(e) => setSpecialty(e.target.value)}
+                      value={formData.specialty}
+                      onChange={(e) => setFormData({...formData,specialty : e.target.value})}
                       placeholder={t("becomeanartistFormInputSpecialityPlaceholder")}
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="bio">{t("becomeanartistFormInputBiography")}</Label>
+                    <Label htmlFor="bio">{t("becomeanartistFormInputBiography")} <span className="text-red-600">*</span></Label>
                     <Textarea
                       id="bio"
                       name="bio"
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      value={formData.bio}
+                      onChange={(e) => setFormData({...formData,bio : e.target.value})}
                       placeholder={t("becomeanartistFormInputBiographyPlaceholder")}
                       required
                     />
@@ -181,7 +182,7 @@ export default function BecomeAnArtist() {
 
                   {/* File Portfolio */}
                   <div>
-                    <Label htmlFor="file-upload">{t("becomeanartistFormUploadPortfolio")}</Label>
+                    <Label htmlFor="file-upload">{t("becomeanartistFormUploadPortfolio")} <span className="text-red-600">*</span></Label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                       <input
                         id="file-upload"
@@ -205,8 +206,8 @@ export default function BecomeAnArtist() {
                     <Input
                       id="website"
                       name="website"
-                      value={website}
-                      onChange={(e) => setWebsite(e.target.value)}
+                      value={formData.website}
+                      onChange={(e) => setFormData({...formData,website : e.target.value})}
                       placeholder={t("becomeanartistFormInputWebsitePlaceholder")}
                     />
                   </div>
@@ -216,8 +217,8 @@ export default function BecomeAnArtist() {
                     <Input
                       id="instagram"
                       name="instagram"
-                      value={instagram}
-                      onChange={(e) => setInstagram(e.target.value)}
+                      value={formData.instagram}
+                      onChange={(e) => setFormData({...formData,instagram : e.target.value})}
                       placeholder={t("becomeanartistFormInputInstagramPlaceholder")}
                     />
                   </div>

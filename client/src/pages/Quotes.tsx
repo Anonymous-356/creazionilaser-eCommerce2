@@ -25,12 +25,13 @@ export default function Quotes() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isCreatingCustomQuote, setIsCreatingCustomQuote] = useState(true);
 
-  const [formData, setFormData] = useState({
+  const INITIAL_FORM_STATE = {
     title: "",
     email: "",
     subject: "",
     description: "",
-  });
+  }
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
   const { data : artist,isLoading} = useQuery({
     queryKey: ["/api/artists/me"],
@@ -57,10 +58,7 @@ export default function Quotes() {
         });
         queryClient.invalidateQueries({ queryKey: ["/api/quotes"] });
         setIsCreatingCustomQuote(true);
-         setFormData({ ...formData, title: '' });
-        setFormData({ ...formData, email: '' });
-        setFormData({ ...formData, subject: '' });
-        setFormData({ ...formData, description: '' });
+        setFormData(INITIAL_FORM_STATE);
       },
       onError: (error) => {
         toast({
@@ -146,7 +144,7 @@ export default function Quotes() {
                       <form onSubmit={handleCreateCustomQuote} className="space-y-4">
       
                         <div>
-                          <Label htmlFor="title">{t("quoteFormInputName")}</Label>
+                          <Label htmlFor="title">{t("quoteFormInputName")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="title"
                             name="title"
@@ -158,9 +156,10 @@ export default function Quotes() {
                         </div>
 
                         <div>
-                          <Label htmlFor="email">{t("quoteFormInputEmail")}</Label>
+                          <Label htmlFor="email">{t("quoteFormInputEmail")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="email"
+                            type="email"
                             name="email"
                             value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -170,7 +169,7 @@ export default function Quotes() {
                         </div>
       
                         <div>
-                          <Label htmlFor="subject">{t("quoteFormInputSubject")}</Label>
+                          <Label htmlFor="subject">{t("quoteFormInputSubject")} <span className="text-red-600">*</span></Label>
                           <Input
                             id="subject"
                             name="subject"
@@ -182,7 +181,7 @@ export default function Quotes() {
                         </div>
       
                         <div>
-                          <Label htmlFor="description">{t("quoteFormInputDesc")}</Label>
+                          <Label htmlFor="description">{t("quoteFormInputDesc")} <span className="text-red-600">*</span></Label>
                           <Textarea
                             id="description"
                             name="description"

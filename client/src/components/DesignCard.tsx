@@ -27,26 +27,26 @@ interface DesignCardProps {
 export default function DesignCard({ design }: DesignCardProps) {
 
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
   const { user, isAuthenticated } = useAuth();
 
   const createWishListMutation = useMutation({
       
       mutationFn: async (data: any) => {
        
-        console.log(data);
         const response = await apiRequest("/api/wishlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error("Failed to add into wishlist");
+        if (!response.ok) throw new Error(t("useraddWishlistFailureMessage"));
         return response.json();
       },
     
       onSuccess: () => {
         toast({
           title: "Success",
-          description: "Added into wishlist successfully!",
+          description: t("useraddWishlistSuccessMessage"),
         });
       },
       onError: (error) => {

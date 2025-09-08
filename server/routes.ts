@@ -12,14 +12,15 @@ import {
   wishlist,
   quotes,
   enquiries,
-  settings 
+  settings, 
+  designs
 } from "@shared/schema";
 import React from "react";
 import { EnquiryForm } from "@/components/email-templates/EnquiryForm";
 import { db,pool } from "./db";
 import { v4 as uuidv4 } from 'uuid'
 import transporter from "./mailer";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, gt,count } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
@@ -93,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: req.t("signUpFormUserExistMessage") });
+        return res.status(401).json({ message: req.t("signUpFormUserExistMessage") });
       }
 
       // Hash password
@@ -119,15 +120,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save session explicitly
       req.session.save((err) => {
         if (err) {
-          console.error("Session save error:", err);
+          console.error(req.t("sessionCreateFailureMessage"), err);
         } else {
-          console.log("Session saved successfully");
+          console.log(req.t("sessionCreateSuccessMessage"));
         }
       });
       
-
       //const to = email;
-      const subject = 'User Registered';
+      const subject = `New User Registered - ${firstName+''+lastName}`;
       const to = 'noreply@creazionilaser.com';
       const messageBody = `<h3>Hi Admin,</h3>
                             <p>Successfully a new user has been registered with following details:</p>
@@ -157,18 +157,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Find user
       const user = await storage.getUserByEmail(email);
       if (!user) {
-        return res.status(401).json({ message: req.t("signInFormFailureMessage") });
+        return res.status(401).json({ message: req.t("signInFormCredentialFailureMessage") });
       }
 
       // Check password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        return res.status(401).json({ message: req.t("signInFormFailureMessage") });
+        return res.status(401).json({ message: req.t("signInFormCredentialFailureMessage") });
       }
 
       // Blocked user
       if (user && user.isBlocked === 1) {
-        return res.status(400).json({ message: req.t("signInFormBlockedFailureMessage") });
+        return res.status(403).json({ message: req.t("signInFormBlockedFailureMessage") });
       }
 
       const artist = await storage.getArtistByUserId(user.id);
@@ -181,9 +181,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save session explicitly
       req.session.save((err) => {
         if (err) {
-          console.error("Session save error:", err);
+          console.error(req.t("sessionCreateFailureMessage"), err);
         } else {
-          console.log("Session saved successfully");
+          console.log(req.t("sessionCreateSuccessMessage"));
         }
       });
       
@@ -191,8 +191,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error(req.t("signInFormFailureMessageTitle"), error);
-      res.status(500).json({ message: req.t("signInFormFailureMessageTitle") });
+      console.error(req.t("signInFormAdminFailureMessage"), error);
+      res.status(500).json({ message: req.t("signInFormAdminFailureMessage") });
     }
   });
 
@@ -370,19 +370,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/artist/:id', async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      console.log(id);
-      const artist = await storage.getArtist(id);
-      console.log(artist);
-      res.json(artist);
-    } catch (error) {
-      console.error("Error fetching artist profile:", error);
-      res.status(500).json({ message: "Failed to fetch artist profile" });
-    }
-  });
-
   app.get('/api/artists/me', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
@@ -392,6 +379,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching artist profile:", error);
       res.status(500).json({ message: "Failed to fetch artist profile" });
+    }
+  });
+
+  app.get('/api/artist/:id', async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log(id);
+      const artist = await storage.getArtist(id);
+      console.log(artist);
+      res.json(artist);
+    } catch (error) {
+      console.error("Error fetching artist profile:ME", error);
+      res.status(500).json({ message: "Failed to fetch artist profile:ME" });
     }
   });
 
@@ -441,8 +441,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(artist);
 
     } catch (error) {
-      console.error("Error creating artist:", error);
-      res.status(500).json({ message: "Failed to create artist profile" });
+      console.error(req.t("becomeanartistFormFailureMessage"), error);
+      res.status(500).json({ message: req.t("becomeanartistFormFailureMessage")});
     }
   });
 
@@ -453,14 +453,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentDate = new Date();
       const artistId = parseInt(req.params.id);
       const userId = parseInt(req.body.userId);
+      const {firstName,lastName,email,existingProfileImage,bio,specialty,website,instagram} = req.body;
 
       const [artist] = await db.update(artists)
         .set({
-          bio: req.body.bio,
-          specialty: req.body.specialty,
+          bio,
+          specialty,
           socialLinks: {
-            website: req.body.website,
-            instagram: req.body.instagram,
+            website,
+            instagram,
           },
           updatedAt : currentDate,
         })
@@ -469,22 +470,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
      
       const [user] = await db.update(users)
       .set({
-        firstName : req.body.firstName,
-        lastName : req.body.firstName,
-        email : req.body.email,
-        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
+        firstName,
+        lastName,
+        email,
+        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : existingProfileImage,
         updatedAt : currentDate,
       })
       .where(eq(users.id , userId))  
       .returning();
 
-      console.log("Updated artist profile successfully:");
-      res.json({ message: "Updated artist profile successfully", artist });
+      console.log(req.t("profileArtistFormSuccessMessage"));
+      res.status(201).json({ message: req.t("profileArtistFormSuccessMessage"), artist });
     } catch (error) {
-      console.error("Failed to update artist:", error);
-      res.status(500).json({ message: "Failed to udpate artist." });
+      console.error(req.t("profileArtistFormFailureMessage"), error);
+      res.status(500).json({ message: req.t("profileArtistFormFailureMessage") });
     }
 
+  });
+
+  app.get('/api/stats/me', isAuthenticated, async (req: any, res) => {
+     
+    try {
+
+      const userId = req.session.userId;
+      const artist = await storage.getArtistByUserId(userId);
+
+      const totalDownloads = await db.select({ count: sql`count(*)`,totalPriceCount : count(designs.price) }).from(designs).where(eq(designs.artistId,artist.id) && gt(designs.downloadCount,0));
+      
+      res.json({
+        totalDownloads: totalDownloads[0]?.count || 0,
+        totalEarnings: totalDownloads[0]?.totalPriceCount,
+      });
+    } catch (error) {
+      console.error("Error fetching artist stats:", error);
+      res.status(500).json({ message: "Failed to fetch artist stats" });
+    }
   });
 
   app.get('/api/users/me', isAuthenticated, async (req: any, res) => {
@@ -502,8 +522,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/users/:id/", isAuthenticated,upload.single('image'), async (req, res) => {
 
     try {
-
-      console.log('Functioning...');
 
       const currentDate = new Date();
       const userId = parseInt(req.params.id);
@@ -549,6 +567,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/designs/:id', async (req, res) => {
     try {
+      console.log('functioning...params');
+      console.log(req.params.id);
       const designId = parseInt(req.params.id);
       const design = await storage.getDesign(designId);
       
@@ -584,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const designData = {
-        artistId: artist?.artistId,
+        artistId: artist?.id,
         title: req.body.title,
         description: req.body.description,
         price: req.body.price,
@@ -604,20 +624,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
      try {
 
+      const [listItem] = await db.insert(wishlist).values({
+        userId: parseInt(req.body.userID),
+        designId: parseInt(req.body.desginID),
+      })
+      .returning();
 
-
-      // const [listItem] = await db.insert(wishlist).values({
-      //   userId: parseInt(req.body.userID),
-      //   designId: parseInt(req.body.desginID),
-      // })
-      // .returning();
-
-      //res.status(201).json(wishlist);
+      res.status(201).json(listItem);
     } catch (error) {
-      console.error("Error adding design to wishlist:", error);
-      res.status(500).json({ message: "Failed to add design to wishlist" });
+      console.error(req.t("useraddWishlistFailureMessage"), error);
+      res.status(500).json({ message: req.t("useraddWishlistFailureMessage") });
     }
 
+  });
+
+  app.get('api/wishlist/me', isAuthenticated, async (req: any, res) => {
+    try {
+      console.log('functioning....');
+      const userId = req.session.userId;
+      const wishlist = await storage.getUserWishlist(userId);
+      
+      res.json(wishlist);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
   });
 
   // Cart routes (authenticated)
@@ -726,16 +757,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/stats', isAdmin, async (req, res) => {
     try {
+
       const totalUsers = await db.select({ count: sql`count(*)` }).from(users);
       const totalProducts = await db.select({ count: sql`count(*)` }).from(products);
       const totalCategories = await db.select({ count: sql`count(*)` }).from(categories);
+      const totalArtists = await db.select({ count: sql`count(*)` }).from(artists);
+      const totalDesigns = await db.select({ count: sql`count(*)` }).from(designs);
       
       res.json({
         totalUsers: totalUsers[0]?.count || 0,
         totalProducts: totalProducts[0]?.count || 0,
         totalCategories: totalCategories[0]?.count || 0,
-        totalDesigns: 0, // Will implement when designs table exists
-        totalArtists: 0,
+        totalDesigns: totalDesigns[0]?.count || 0,
+        totalArtists: totalArtists[0]?.count || 0,
         totalOrders: 0,
         totalRevenue: 0,
         newUsersThisWeek: 0,
@@ -1049,8 +1083,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name,
           description: description || null,
           slug: slug,
-          imageUrl : imageUrl || null,
-          sortOrder,
+          imageUrl,
+          sortOrder : sortOrder || 0,
         })
         .where(eq(categories.id, categoryId))
         .returning();

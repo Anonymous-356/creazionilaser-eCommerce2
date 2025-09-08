@@ -48,7 +48,7 @@ export default function Login() {
     onError: (error: any) => {
       toast({
         title: t("signInFormFailureMessageTitle"),
-        description: error.message || t("signInFormFailureMessage"),
+        description: error.message || t("signInFormAdminFailureMessage"),
         variant: "destructive",
       });
     },
@@ -56,14 +56,6 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast({
-        title: t('signInFormEmptyFieldMessageTitle'),
-        description: t('signInFormEmptyFieldMessage'),
-        variant: "destructive",
-      });
-      return;
-    }
     loginMutation.mutate({ email, password });
   };
 
@@ -79,7 +71,7 @@ export default function Login() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t("signInFormInputEmail")}</Label>
+              <Label htmlFor="email">{t("signInFormInputEmail")} <span className="text-red-600">*</span></Label>
               <Input
                 id="email"
                 type="email"
@@ -90,7 +82,7 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t("signInFormInputPassword")}</Label>
+              <Label htmlFor="password">{t("signInFormInputPassword")} <span className="text-red-600">*</span></Label>
               <div className="relative">
                 <Input
                   id="password"

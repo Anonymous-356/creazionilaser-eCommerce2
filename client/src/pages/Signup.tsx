@@ -65,15 +65,6 @@ export default function Signup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      toast({
-        title: t('signUpFormEmptyFieldMessageTitle'),
-        description: t('signUpFormEmptyFieldMessage'),
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (password !== confirmPassword) {
       toast({
         title: t('signUpFormConfirmPassMessageTitle'),
@@ -108,7 +99,7 @@ export default function Signup() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">{t("signUpFormInputFirstName")}</Label>
+                <Label htmlFor="firstName">{t("signUpFormInputFirstName")} <span className="text-red-600">*</span></Label>
                 <Input
                   id="firstName"
                   placeholder={t("signUpFormPlaceholderFirstName")}
@@ -118,7 +109,7 @@ export default function Signup() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">{t("signUpFormInputLastName")}</Label>
+                <Label htmlFor="lastName">{t("signUpFormInputLastName")} <span className="text-red-600">*</span></Label>
                 <Input
                   id="lastName"
                   placeholder={t("signUpFormPlaceholderLastName")}
@@ -129,7 +120,7 @@ export default function Signup() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">{t("signUpFormInputEmail")}</Label>
+              <Label htmlFor="email">{t("signUpFormInputEmail")} <span className="text-red-600">*</span></Label>
               <Input
                 id="email"
                 type="email"
@@ -138,9 +129,10 @@ export default function Signup() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              <small className="text-gray-400">Email address must be unique.</small>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t("signUpFormInputPassword")}</Label>
+              <Label htmlFor="password">{t("signUpFormInputPassword")} <span className="text-red-600">*</span></Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -166,7 +158,7 @@ export default function Signup() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t("signUpFormInputConfirmPass")}</Label>
+              <Label htmlFor="confirmPassword">{t("signUpFormInputConfirmPass")} <span className="text-red-600">*</span></Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"

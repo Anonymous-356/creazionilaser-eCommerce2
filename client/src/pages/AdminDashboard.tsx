@@ -1705,7 +1705,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
+                          if (confirm(t('categorydeleleConfirmMessage'))) {
                             deleteCategoryMutation.mutate(category.id);
                           }
                         }}
@@ -1983,7 +1983,7 @@ function SubCategoriesTab({ subcategories,categories }: { subcategories?: any[];
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to delete "${subcategory.name}"? This action cannot be undone.`)) {
+                          if (confirm(t('subcategorydeleleConfirmMessage'))) {
                             deleteSubCategoryMutation.mutate(subcategory.id);
                           }
                         }}

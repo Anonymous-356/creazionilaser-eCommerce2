@@ -20,8 +20,6 @@ export default function Designs() {
     queryKey: ["/api/artists"],
   });
 
-  console.log(artists);
-
   const { data: designs = [], isLoading } = useQuery({
     queryKey: ["/api/designs", selectedArtist],
     queryFn: async () => {
