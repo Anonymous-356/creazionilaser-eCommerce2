@@ -356,8 +356,19 @@ export class DatabaseStorage implements IStorage {
   // Profile operations 
 
   async getUserWishlist(userId : number) : Promise <Wishlist[]>{
-    const [wishlistResult] = await db.select().from(wishlist).where(eq(wishlist.userId, userId));
-    console.log(wishlistResult);
+
+    const wishlistResult = await db.select(
+      {
+        id : designs.id,
+        price: designs.price,
+        title:designs.title,
+        description:designs.description,
+        imageUrl:designs.imageUrl,
+      }
+      ).from(wishlist)
+      .innerJoin(designs, eq(wishlist.designId , designs.id))
+      .where(eq(wishlist.userId, userId))
+
     return wishlistResult;
   }
 

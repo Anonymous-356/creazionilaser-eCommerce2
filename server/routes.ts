@@ -20,7 +20,7 @@ import { EnquiryForm } from "@/components/email-templates/EnquiryForm";
 import { db,pool } from "./db";
 import { v4 as uuidv4 } from 'uuid'
 import transporter from "./mailer";
-import { sql, eq, gt,count } from "drizzle-orm";
+import { sql, eq, gt,count,and,sum } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
@@ -495,11 +495,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.session.userId;
       const artist = await storage.getArtistByUserId(userId);
 
-      const totalDownloads = await db.select({ count: sql`count(*)`,totalPriceCount : count(designs.price) }).from(designs).where(eq(designs.artistId,artist.id) && gt(designs.downloadCount,0));
+      const result = await db.select({ downloadCount: sum(designs.downloadCount),designPrice : sum(designs.price) }).from(designs).where(and(eq(designs.artistId,artist.id), gt(designs.downloadCount,0)));
       
+      const totalDownloads = parseInt(result[0]?.downloadCount);
+      const pricePerDesgin = parseFloat(result[0]?.designPrice);
+
+      const totalEarnings = ((totalDownloads * pricePerDesgin) / 100) * 35
+
       res.json({
-        totalDownloads: totalDownloads[0]?.count || 0,
-        totalEarnings: totalDownloads[0]?.totalPriceCount,
+        totalDownloads: totalDownloads || 0,
+        totalEarnings: totalEarnings || 0,
       });
     } catch (error) {
       console.error("Error fetching artist stats:", error);
@@ -525,12 +530,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const currentDate = new Date();
       const userId = parseInt(req.params.id);
+      const {firstName,lastName,email} = req.body;
 
       const [user] = await db.update(users)
       .set({
-        firstName : req.body.firstName,
-        lastName : req.body.firstName,
-        email : req.body.email,
+        firstName,
+        lastName,
+        email,
         profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
         updatedAt : currentDate,
       })
@@ -540,7 +546,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Updated user profile successfully:");
       res.json({ message: "Updated user profile successfully", user });
     } catch (error) {
-      console.log('Not Functioning...');
       console.error("Failed to update user:", error);
       res.status(500).json({ message: "Failed to udpate user." });
     }
@@ -638,16 +643,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   });
 
-  app.get('api/wishlist/me', isAuthenticated, async (req: any, res) => {
+  app.get('/api/wishlist/me', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('functioning....');
+      
       const userId = req.session.userId;
       const wishlist = await storage.getUserWishlist(userId);
       
       res.json(wishlist);
     } catch (error) {
-      console.error("Error fetching user profile:", error);
-      res.status(500).json({ message: "Failed to fetch user profile" });
+      console.error("Error fetching user wishlist:", error);
+      res.status(500).json({ message: "Failed to fetch user wishlist" });
     }
   });
 

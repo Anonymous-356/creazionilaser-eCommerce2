@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,26 +14,46 @@ import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling } f
 import { useTranslation } from 'react-i18next';
 import e from "express";
 
+async function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function fetchDataFunction(){
+  
+}
+  
 export default function Profile() {
 
-  const { t, i18n } = useTranslation();
-  const { user, isAuthenticated } = useAuth();
+  const { t,i18n } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('artist');
+  const [formData,setFormData] = useState({});
+  const [userFormData,setUserFormData] = useState({});
+  const [activeTab, setActiveTab] = useState('profile');
   const [isUpdatingArtist, setIsUpdatingArtist] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedFileUser, setUploadedFileUser] = useState<File | null>(null);
   
+  const {data : user } = useQuery({
+    queryKey: ["/api/users/me"],
+    enabled: isAuthenticated,
+  })
+
   const {data : artist} = useQuery ({
     queryKey: ["/api/artists/me"],
     enabled: isAuthenticated,
   });
 
-  const { data: stats } = useQuery({
+  const {data: stats } = useQuery({
     queryKey: ["api/stats/me"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: wishlist = [] } = useQuery({
+    queryKey: ["/api/wishlist/me"],
     enabled: isAuthenticated,
   });
 
@@ -41,34 +62,6 @@ export default function Profile() {
     enabled: isAuthenticated,
   });
 
-  const INITIAL_DESIGN_FORM_STATE = {
-    title : "",
-    price : "",
-    description : "",
-  }
-  const [designFormData,setDesignFormData] = useState(INITIAL_DESIGN_FORM_STATE);
-
-  const [userFormData,setUserFormData] = useState({
-    userId : user?.Id,
-    firstName : user?.firstName,
-    lastName : user?.lastName  || "",
-    email : user?.email,
-    imageUrl : user?.profileImageUrl,
-  });
-
-  const INITIAL_ARTIST_FORM_STATE = {
-    userId : artist?.userId,
-    firstName : artist?.firstName,
-    lastName : artist?.lastName  || "",
-    email : artist?.email,
-    bio : artist?.biography,
-    specialty : artist?.specialty,
-    imageUrl : artist?.imageUrl || "",
-    website : artist?.socialLinks.website || "",
-    instagram : artist?.socialLinks.instagram || "",
-  }
-  const [formData,setFormData] = useState(INITIAL_ARTIST_FORM_STATE);
-  
   const { data: designs = [] } = useQuery({
     queryKey: ["/api/designs", artist?.id],
     queryFn: async () => {
@@ -79,11 +72,46 @@ export default function Profile() {
     enabled: !!artist?.id,
   });
 
-  const { data: wishlist = [] } = useQuery({
-    queryKey: ["/api/wishlist/me"],
-    enabled: isAuthenticated,
-  });
+  useEffect(() => {
 
+    if (artist) {
+      setActiveTab('artist'); // Set local state when data is available
+
+      const INITIAL_ARTIST_FORM_STATE = {
+        userId : artist?.userId,
+        firstName : artist?.firstName,
+        lastName : artist?.lastName  || "",
+        email : artist?.email,
+        bio : artist?.biography,
+        specialty : artist?.specialty,
+        imageUrl : artist?.imageUrl || "",
+        website : artist?.socialLinks.website || "",
+        instagram : artist?.socialLinks.instagram || "",
+      }
+      
+      setFormData(INITIAL_ARTIST_FORM_STATE);
+    }
+
+    if(user){
+        const INITIAL_USER_FORM_STATE = {
+          userId : user?.Id,
+          firstName : user?.firstName,
+          lastName : user?.lastName  || "",
+          email : user?.email,
+          imageUrl : user?.profileImageUrl || "",
+        }
+       setUserFormData(INITIAL_USER_FORM_STATE);
+    }
+
+  }, [artist,user]); // Re-run effect when 'artist' updates
+
+  const INITIAL_DESIGN_FORM_STATE = {
+    title : "",
+    price : "",
+    description : "",
+  }
+  const [designFormData,setDesignFormData] = useState(INITIAL_DESIGN_FORM_STATE);
+  
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await fetch(`/api/users/${user?.id}`,{
@@ -168,7 +196,16 @@ export default function Profile() {
 
   const handleUpdateUser = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!uploadedFileUser) return;
+
+    if(!userFormData.imageUrl && !uploadedFileUser){
+      toast({
+        title: t('profileFormProfileImageMissingTitle'),
+        description: t('profileFormProfileImageMissingMessage'),
+        variant: "destructive",
+      });
+      return; 
+    }
+
     const formData = new FormData(e.currentTarget);
     formData.append("image", uploadedFileUser);
     updateUserMutation.mutate(formData);
@@ -176,11 +213,10 @@ export default function Profile() {
 
   const handleUpdateArtist = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     if(!formData.imageUrl && !uploadedFile){
       toast({
-        title: t('profileArtistFormProfileMissingTitle'),
-        description: t('profileArtistFormProfileMissingTitleMessage'),
+        title: t('profileFormProfileImageMissingTitle'),
+        description: t('profileFormProfileImageMissingMessage'),
         variant: "destructive",
       });
       return; 
@@ -288,11 +324,11 @@ export default function Profile() {
                         <form onSubmit={handleUpdateUser} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <Label htmlFor="firstName">{t("profileUserFirstName")}</Label>
+                                <Label htmlFor="firstName">{t("profileUserFirstName")} <span className="text-red-600">*</span></Label>
                                 <Input
                                   id="firstName"
                                   name="firstName"
-                                  value={userFormData?.firstName || ""}
+                                  value={userFormData?.firstName}
                                   onChange={(e) => setUserFormData({ ...userFormData, firstName: e.target.value })}
                                   placeholder={t("profileUserFirstNamePlaceholder")}
                                 />
@@ -302,30 +338,30 @@ export default function Profile() {
                                 <Input
                                   id="lastName"
                                   name="lastName"
-                                  value={userFormData?.lastName || ""}
+                                  value={userFormData?.lastName}
                                   onChange={(e) => setUserFormData({ ...userFormData, lastName: e.target.value })}
                                   placeholder={t("profileUserLastNamePlaceholder")}
                                 />
                               </div>
                             </div>
                             <div>
-                              <Label htmlFor="email">{t("profileUserEmail")}</Label>
+                              <Label htmlFor="email">{t("profileUserEmail")} <span className="text-red-600">*</span></Label>
                               <Input
                                 id="email"
                                 name="email"
-                                value={userFormData?.email || ""}
+                                value={userFormData?.email}
                                 onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
                                 placeholder={t("profileUserEmailPlaceholder")}
                               />
                             </div>
                             <div>
-                                <Label htmlFor="image-url">{t("profileArtistImage")}</Label>
+                                <Label htmlFor="image-url">{t("profileArtistImage")} <span className="text-red-600">*</span></Label>
                                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                                   <input
                                     name="existingProfileImage"
                                     type="hidden"
                                     className="hidden"
-                                    value={userFormData?.imageUrl || ""}
+                                    value={userFormData?.imageUrl}
                                   />
                                   <input
                                     id="image-url"
@@ -334,10 +370,9 @@ export default function Profile() {
                                     accept="image/*"
                                     onChange={(e) => setUploadedFileUser(e.target.files?.[0] || null)}
                                   />
-                                  <img 
-                                  src={userFormData?.imageUrl || "" }
-                                  alt="Existing Profile Image" 
-                                  className="h-16 w-16" />
+                                  {userFormData?.imageUrl && (
+                                    <img  src={userFormData?.imageUrl} alt="Existing Profile Image" className="h-16 w-16" />
+                                  )}
                                   <label htmlFor="image-url" className="cursor-pointer">
                                     <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
                                     <p className="text-gray-600">
@@ -422,13 +457,10 @@ export default function Profile() {
                       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
                         {wishlist.map((design: any) => (
                           <div key={design.id} className="border rounded-lg overflow-hidden">
-                            <img
-                              src={design.imageUrl}
-                              alt={design.title}
-                              className="w-full h-32 object-cover"
-                            />
+                            <img src={design.imageUrl} alt={design.title} className="w-full h-32 object-cover" />
                             <div className="p-3 flex justify-between">
                               <h4 className="font-medium">{design.title}</h4>
+                              <Badge variant="secondary" className="ml-2"> €{design.price} </Badge>
                             </div>
                           </div>
                         ))}
@@ -800,7 +832,7 @@ export default function Profile() {
                               <CirclePoundSterling className="h-5 w-5 text-green-800" />
                             </CardHeader>
                             <CardContent className="pt-4">
-                              <div className="text-3xl font-bold text-green-700">{stats?.totalEarnings || 0}</div>
+                              <div className="text-3xl font-bold text-green-700">€{stats?.totalEarnings || 0}</div>
                               {/* <p className="text-xs text-gray-600 mt-1">
                                 {stats?.newtotalEarningThisWeek || 0} this week
                               </p> */}

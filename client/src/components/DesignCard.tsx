@@ -58,10 +58,10 @@ export default function DesignCard({ design }: DesignCardProps) {
       },
     });
 
-  const handleWishlist = (designID,userID) => {
+  const handleWishlist = (designID) => {
       const fromData = {
         desginID : designID,
-        userID : userID
+        userID : user?.id,
       }  
       createWishListMutation.mutate(fromData);
   };
@@ -82,7 +82,7 @@ export default function DesignCard({ design }: DesignCardProps) {
                 className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-full"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleWishlist(design.id,design.artistId);
+                  handleWishlist(design.id);
                 }}
               >
                 <HeartPlus className="h-4 w-4 items-center" />

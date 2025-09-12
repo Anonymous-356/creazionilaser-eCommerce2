@@ -97,9 +97,9 @@ export const designs = pgTable("designs", {
   imageUrl: varchar("image_url").notNull(),
   fileUrl: varchar("file_url"), // high-res download URL
   tags: jsonb("tags"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).$type<number>().notNull(),
   isPublic: boolean("is_public").default(true),
-  downloadCount: integer("download_count").default(0),
+  downloadCount: integer("download_count").$type<number>().default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -117,7 +117,7 @@ export default function Product() {
       <div className="mb-16 max-w-4xl">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("produtcDetailsPageDesc")}</h1>
         <p className="text-lg text-gray-600">
-          Discover our wide range of elegant artworks by huge number of artists,we have showcased every artist artwork with an equal opportunity.
+          {product?.description}
         </p>
       </div>
  
