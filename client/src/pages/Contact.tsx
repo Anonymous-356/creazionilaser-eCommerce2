@@ -186,9 +186,9 @@ export default function Contact() {
                           <Button 
                             type="button" 
                             variant="outline"
-                            onClick={() => setIsCreatingEnquiry(false)}
+                            onClick={() => setFormData(INITIAL_FORM_STATE)}
                           >
-                            {t("FormCancelBtn")}
+                            {t("FormClearBtn")}
                           </Button>
                           <Button 
                             type="submit" 

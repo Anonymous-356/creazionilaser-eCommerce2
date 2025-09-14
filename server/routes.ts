@@ -572,8 +572,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/designs/:id', async (req, res) => {
     try {
-      console.log('functioning...params');
-      console.log(req.params.id);
       const designId = parseInt(req.params.id);
       const design = await storage.getDesign(designId);
       
@@ -645,7 +643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/wishlist/me', isAuthenticated, async (req: any, res) => {
     try {
-      
+
       const userId = req.session.userId;
       const wishlist = await storage.getUserWishlist(userId);
       
@@ -743,10 +741,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Admin routes (protected)
   const isAdmin = async (req: any, res: any, next: any) => {
+
     if (!req.session?.userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    
     try {
       const user = await storage.getUser(req.session.userId);
       if (!user || (user as any).userType !== 'admin') {
@@ -890,12 +888,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
 
       const allArtists = await db.select({
-        id: users.id,
-        artistId : artists.id,
+        id: artists.id,
+        userId : users.id,
         specialty : artists.specialty,
         biography : artists.bio,
         isVerified : artists.isVerified,
-        isBlocked : artists.isBlocked,
+        isRejected : artists.isRejected,
         socialLinks : artists.socialLinks,
         firstName: users.firstName,
         lastName: users.lastName,
@@ -903,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imageUrl : users.profileImageUrl,
         userType: users.userType,
         createdAt: artists.createdAt,
-      }).from(artists).leftJoin(users, eq(artists.userId , users.id)).where(eq(artists.isBlocked,0));
+      }).from(artists).innerJoin(users, eq(artists.userId , users.id)).where(eq(artists.isRejected,false));
       
       res.json(allArtists);
     } catch (error) {
@@ -912,26 +910,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/artists/:id", isAdmin, async (req, res) => {
+  app.put("/api/admin/artists/:id/:type", isAdmin, async (req, res) => {
 
     try {
-
-
-      const userId = parseInt(req.params.id);
-      const {specialty,biography} = req.body;
-      const currentDate = new Date();
-
-       const query = await db.update(artists)
-        .set({
-          specialty,
-          bio : biography,
-          createdAt : currentDate,
-        })
-        .where(eq(artists.id, userId))
-        .toSQL();
       
-      console.log("Successfully updated artist",query);
-      res.json({ message: "Successfully updated artist", userId });
+      const type = req.params.type;
+      const artistId = parseInt(req.params.id);
+      
+      const currentDate = new Date();
+      const {specialty,bio} = req.body;
+
+      let updateData = {};
+      if(type === 'profile'){
+        updateData = { bio,specialty,updatedAt : currentDate,}
+      }else if(type === 'verify'){
+        updateData = {isVerified : true}
+      }else if(type === 'reject'){
+        updateData = {isRejected : true}
+      }
+
+      const artist = await db.update(artists)
+      .set(updateData)
+      .where(eq(artists.id, artistId))
+      .returning();
+      
+      console.log("Successfully updated artist",artist);
+      res.status(201).json({ message: "Successfully updated artist", artistId });
 
     } catch (error) {
       console.error("Failed to update artist:", error);
@@ -939,6 +943,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/artists',isAdmin, async (req, res) => {
+    try {
+
+      const allArtists = await db.select({
+        id: artists.id,
+        userId : users.id,
+        specialty : artists.specialty,
+        biography : artists.bio,
+        isVerified : artists.isVerified,
+        isRejected : artists.isRejected,
+        socialLinks : artists.socialLinks,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        imageUrl : users.profileImageUrl,
+        userType: users.userType,
+        createdAt: artists.createdAt,
+      }).from(artists).innerJoin(users, eq(artists.userId , users.id)).where(eq(artists.isRejected,false));
+      
+      res.json(allArtists);
+    } catch (error) {
+      console.error("Error fetching artists:", error);
+      res.status(500).json({ message: "Failed to fetch artists" });
+    }
+  });
+  
   app.get('/api/admin/products', isAdmin, async (req, res) => {
     try {
       const allProducts = await db.select({

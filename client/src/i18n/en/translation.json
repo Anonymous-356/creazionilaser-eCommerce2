@@ -5,6 +5,7 @@
   "Overview": "Overview",
   "Users": "Users",
   "Artists": "Artists",
+  "Designs": "Designs",
   "Categories": "Categories",
   "Sub Categories": "Sub Categories",
   "Products": "Products",
@@ -153,6 +154,7 @@
   "cannot Delete subCategory" : "Cannot Delete subCategory",
   "Save settings successfully!" : "Save settings successfully!",
 
+  "FormClearBtn": "Clear",
   "FormCancelBtn": "Cancel",
   "FormSubmitBtn": "Submit",
   "FormSubmittingBtn": "Submitting...",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,6 @@ export default function Artists() {
   });
 
   const filteredArtists = artists.filter((artist: any) =>
-    
     artist.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     artist.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     artist.specialty?.toLowerCase().includes(searchQuery.toLowerCase())

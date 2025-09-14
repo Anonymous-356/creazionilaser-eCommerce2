@@ -87,7 +87,7 @@ export default function Portfolio() {
               <div className="bg-white rounded-full p-1 shadow-lg" >
                 {artist?.imageUrl ? (
 
-                <img src={artist?.imageUrl } alt="Artist Profile Image" className="h-32 object-cover rounded-full w-full" />
+                  <img src={artist?.imageUrl } alt="Artist Profile Image" className="h-32 object-cover rounded-full w-full" />
 
                 ):(
                   <CircleUser  className="h-32 object-cover rounded-full w-full"/>

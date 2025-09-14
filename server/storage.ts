@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
         imageUrl : users.profileImageUrl,
         portfolio : artists.portfolio,
         isVerified : artists.isVerified,
-        isBlocked : artists.isBlocked,
+        isRejected : artists.isRejected,
         socialLinks : artists.socialLinks,
         createdAt: artists.createdAt,
         updatedAt: artists.updatedAt,
@@ -148,7 +148,7 @@ export class DatabaseStorage implements IStorage {
         email: users.email,
         portfolio : artists.portfolio,
         isVerified : artists.isVerified,
-        isBlocked : artists.isBlocked,
+        isRejected : artists.isRejected,
         socialLinks : artists.socialLinks,
         commissionRate : artists.commissionRate,
         imageUrl : users.profileImageUrl,
@@ -171,13 +171,13 @@ export class DatabaseStorage implements IStorage {
         lastName: users.lastName,
         email: users.email,
         isVerified : artists.isVerified,
-        isBlocked : artists.isBlocked,
+        isRejected : artists.isRejected,
         socialLinks : artists.socialLinks,
         imageUrl : users.profileImageUrl,
         userType: users.userType,
         createdAt: artists.createdAt,
         updatedAt : artists.updatedAt,
-      }).from(artists).innerJoin(users, eq(artists.userId , users.id));
+      }).from(artists).innerJoin(users, eq(artists.userId , users.id)).where(eq(artists.isRejected,false));
       
    return allArtists; 
    

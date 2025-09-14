@@ -47,7 +47,7 @@ export const artists = pgTable("artists", {
   socialLinks: jsonb("social_links"),
   portfolio : varchar("portfolio"),
   isVerified: boolean("is_verified").default(false),
-  isBlocked: integer("is_blocked").notNull().default(0),
+  isRejected: boolean("is_rejected").notNull().default(false),
   commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("0.30"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -98,7 +98,7 @@ export const designs = pgTable("designs", {
   fileUrl: varchar("file_url"), // high-res download URL
   tags: jsonb("tags"),
   price: decimal("price", { precision: 10, scale: 2 }).$type<number>().notNull(),
-  isPublic: boolean("is_public").default(true),
+  isPublic: boolean("is_public").default(false),
   downloadCount: integer("download_count").$type<number>().default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });

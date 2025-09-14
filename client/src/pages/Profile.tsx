@@ -14,14 +14,7 @@ import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling } f
 import { useTranslation } from 'react-i18next';
 import e from "express";
 
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-function fetchDataFunction(){
-  
-}
-  
 export default function Profile() {
 
   const { t,i18n } = useTranslation();

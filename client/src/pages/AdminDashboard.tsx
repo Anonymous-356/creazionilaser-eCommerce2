@@ -41,7 +41,8 @@ import {
   EyeOff,
   Upload,
   CheckCheck,
-  Languages
+  Languages,
+  FolderHeart
 } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -72,6 +73,10 @@ export default function AdminDashboard() {
 
   const { data: artists } = useQuery({
     queryKey: ["/api/admin/artists"],
+  });
+
+  const { data: designs } = useQuery({
+    queryKey: ["/api/admin/designs"],
   });
 
   const { data: products } = useQuery({
@@ -117,11 +122,8 @@ export default function AdminDashboard() {
         {id: "artists", label: t("Artists"),icon: Users} 
       ]
     },
-    { id: "categories", label: t("Categories"), icon: Package ,listItems:[
-        {id : "categories", label : t("Categories"),icon: Package },
-        // {id : "subcategories", label : t("Sub Categories"),icon: Package }
-      ] 
-    },
+    { id: "designs", label: t("Designs"), icon: FolderHeart},
+    { id: "categories", label: t("Categories"), icon: Package},
     { id: "products", label: t("Products"), icon: Package },
     { id: "orders", label: t("Orders"), icon: ShoppingCart },
     { id: "enquiries", label: t("Enquiries"), icon: Package ,listItems:[
@@ -271,7 +273,6 @@ export default function AdminDashboard() {
             </Button>
             <div>
               <h2 className="text-2xl font-bold text-gray-900 capitalize">{activeTab}</h2>
-              {/* <p className="text-sm text-gray-600">Manage your platform from here</p> */}
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-4">
@@ -317,6 +318,7 @@ export default function AdminDashboard() {
           {activeTab === "overview" && <OverviewTab stats={stats} />}
           {activeTab === "users" && <UsersTab users={users} />}
           {activeTab === "artists" && <ArtistsTab artists={artists} />}
+          {activeTab === "deisgns" && <DesingsTab designs={designs} />}
           {activeTab === "categories" && <CategoriesTab categories={categories} />}
           {activeTab === "subcategories" && <SubCategoriesTab subcategories={subcategories} categories={categories}/>}
           {activeTab === "products" && <ProductsTab products={products} categories={categories} subcategories={subcategories} />}
@@ -779,23 +781,6 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
       
       )}
 
-      {/* <div>
-        <Label htmlFor="usertype">User Type</Label>
-        <Select value={formData.userType} onValueChange={(value) => setFormData({ ...formData, userType: value })}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select User Type" />
-          </SelectTrigger>
-          <SelectContent>
-            {userRoles?.map((role: any) => (
-              <SelectItem key={role.id} value={role.id.toString()}>
-                {role.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div> */}
-
-
       
       <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? (user ? "Updating..." : "Creating...") : (user ? "Update User" : "Create User")}
@@ -811,33 +796,10 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
   const [editingArtist, setEditingArtist] = useState<any>(null);
   const { t, i18n } = useTranslation();
  
-  // const createArtistMutation = useMutation({
-  //   mutationFn: async (artistData: any) => {
-  //     return await apiRequest("/api/admin/artists", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(artistData),
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ["/api/admin/artists"] });
-  //     queryClient.refetchQueries({ queryKey: ["/api/admin/artists"] });
-  //     setIsCreateOpen(false);
-  //     toast({ title: "Artist created successfully" });
-  //   },
-  //   onError: (error: any) => {
-  //     toast({ 
-  //       title: "Failed to create Artist",
-  //       description: error.message,
-  //       variant: "destructive"
-  //     });
-  //   },
-  // });
-
   const updateArtistMutation = useMutation({
     mutationFn: async ({ id, ...artistData }: any) => {
       
-     return await apiRequest(`/api/admin/artists/${id}`, {
+     return await apiRequest(`/api/admin/artists/${id}/${'profile'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(artistData),
@@ -847,7 +809,7 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/artists"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/artists"] });
       setEditingArtist(null);
-      // toast({ title: "Artist updated successfully" });
+      toast({ title: "Artist updated successfully" });
     },
     onError: (error: any) => {
       toast({ 
@@ -858,22 +820,22 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     },
   });
 
-  const blockArtistMutation = useMutation({
+  const rejectedArtistMutation = useMutation({
     mutationFn: async (artistId: number) => {
-      return await apiRequest(`/api/admin/artists/${artistId}/${1}`, {
+      return await apiRequest(`/api/admin/artists/${artistId}/${'reject'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({isBlocked : 1}),    
+        body: JSON.stringify({isRejected : true}),    
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/artists"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/artists"] });
-      toast({ title: t("artist blocked successfully") });
+      toast({ title: t("Artist rejected successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: t("failed to block artist"),
+        title: t("Failed to reject artist"),
         description: error.message,
         variant: "destructive"
       });
@@ -883,7 +845,7 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
   const verificaionArtistMutation = useMutation({
     mutationFn: async (artistId: number) => {
       const isVerified = true;
-      return await apiRequest(`/api/admin/artists/${artistId}/${1}`, {
+      return await apiRequest(`/api/admin/artists/${artistId}/${'verify'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({isVerified : true}),      
@@ -892,11 +854,11 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/artists"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/artists"] });
-      toast({ title: "artist verified successfully" });
+      toast({ title: "Artist verified successfully" });
     },
     onError: (error: any) => {
       toast({ 
-        title: t("failed to verify artist"),
+        title: t("Failed to verify artist"),
         description: error.message,
         variant: "destructive"
       });
@@ -910,25 +872,6 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
           <CardTitle>{t("Artist Management")}</CardTitle>
           <CardDescription>{t("Manage platform Artist and their permissions")}</CardDescription>
         </div>
-
-         {/* <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Artist
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Artist</DialogTitle>
-              <DialogDescription>Add a new user to your platform</DialogDescription>
-            </DialogHeader>
-            <ArtistForm 
-              onSubmit={(data) => createArtistMutation.mutate(data)}
-              isLoading={createArtistMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog> */}
 
         <Dialog open={!!editingArtist} onOpenChange={() => setEditingArtist(null)}>
           <DialogContent className="max-w-md">
@@ -988,23 +931,25 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
                       >
                       <Edit className="h-4 w-4"/>
                       </Button>
+                      {artist.isVerified !== true && (
                       <Button 
                         variant="destructive" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to block "${artist.firstName}"? This action cannot be undone.`)) {
-                            blockArtistMutation.mutate(artist.id);
+                          if (confirm(`Are you sure you want to reject "${artist.firstName}" artist account? This action cannot be undone.`)) {
+                            rejectedArtistMutation.mutate(artist.id);
                           }
                         }}
-                        disabled={blockArtistMutation.isPending}
+                        disabled={rejectedArtistMutation.isPending}
                       >
                       <Ban className="h-4 w-4"/>
                       </Button>
-                      {artist.isVerified !== true && artist.isBlocked === 0 && (
+                      )}
+                      {artist.isVerified !== true && (
                       <Button variant="default" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to verify "${artist.firstName}"? This action cannot be undone.`)) {
+                          if (confirm(`Are you sure you want to verify "${artist.firstName}" artist account? This action cannot be undone.`)) {
                             verificaionArtistMutation.mutate(artist.id);
                           }
                         }}
@@ -1031,12 +976,12 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
   isLoading: boolean;
 })  {
   const [formData, setFormData] = useState({
-    fname: artist?.firstName || "",
+    fname: artist?.firstName,
     lname: artist?.lastName || "",
-    email: artist?.email || "",
-    specialty: artist?.specialty || "",
-    biography: artist?.biography || "",
-    userType: artist?.userType || "",
+    email: artist?.email,
+    specialty: artist?.specialty,
+    bio: artist?.biography,
+    userType: artist?.userType,
   });
 
   const { t, i18n } = useTranslation();
@@ -1394,6 +1339,147 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
         {isLoading ? (product ? t("updating") : t("creating")) : (product ? t("Update Product") : "Create Product")}
       </Button>
     </form>
+  );
+}
+
+function DesingsTab({ designs }: { designs?: any[] }) {
+
+  const { toast } = useToast();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingArtist, setEditingArtist] = useState<any>(null);
+  const { t, i18n } = useTranslation();
+ 
+  const rejectedDesignMutation = useMutation({
+    mutationFn: async (artistId: number) => {
+      return await apiRequest(`/api/admin/designs/${artistId}/${'reject'}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({isRejected : true}),    
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/designs"] });
+      queryClient.refetchQueries({ queryKey: ["/api/admin/designs"] });
+      toast({ title: t("Design rejected successfully") });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: t("Failed to reject design"),
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  const approvalDesignMutation = useMutation({
+    mutationFn: async (artistId: number) => {
+      const isVerified = true;
+      return await apiRequest(`/api/admin/designs/${artistId}/${'approve'}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({isVerified : true}),      
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/designs"] });
+      queryClient.refetchQueries({ queryKey: ["/api/admin/designs"] });
+      toast({ title: "Designs approved successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: t("Failed to approve design"),
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>{t("Artist Management")}</CardTitle>
+          <CardDescription>{t("Manage platform Artist and their permissions")}</CardDescription>
+        </div>
+
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Speciality")}</TableHead>
+                <TableHead>{t("Status")}</TableHead>
+                <TableHead>{t("Actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {deisgns?.map((artist: any) => (
+                
+                <TableRow key={artist.id}>
+                  <TableCell className="font-medium">{artist.firstName} {artist.lastName}</TableCell>
+                  <TableCell>{artist.email}</TableCell>
+                  <TableCell>
+                    {artist.specialty}
+                  </TableCell>
+                  <TableCell>
+                    {artist.isVerified}
+                    { 
+                      artist.isVerified === true ? (
+                        <Badge className="lg-rounded" variant="default" size="sm">{t("Verified")}</Badge>
+                      )
+                      : artist.isVerified === false && (
+                        <Badge className="lg-rounded" variant="destructive" size="sm">{t("Pending")} </Badge>
+                      )
+                    }
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setEditingArtist(artist)}
+                      >
+                      <Edit className="h-4 w-4"/>
+                      </Button>
+                      {artist.isVerified !== true && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to reject "${artist.firstName}" artist account? This action cannot be undone.`)) {
+                            rejectedDesignMutation.mutate(artist.id);
+                          }
+                        }}
+                        disabled={rejectedDesignMutation.isPending}
+                      >
+                      <Ban className="h-4 w-4"/>
+                      </Button>
+                      )}
+                      {artist.isVerified !== true && (
+                      <Button variant="default" 
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to verify "${artist.firstName}" artist account? This action cannot be undone.`)) {
+                            approvalDesignMutation.mutate(artist.id);
+                          }
+                        }}
+                        disabled={approvalDesignMutation.isPending}
+                      >
+                        <CheckCheck className="h-4 w-4" />
+                      </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
