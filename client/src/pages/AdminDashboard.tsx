@@ -1033,8 +1033,8 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
         <Label htmlFor="biography">{t("Biography")}</Label>
         <Textarea
           id="biography"
-          value={formData.biography}
-          onChange={(e) => setFormData({ ...formData, biography: e.target.value })}
+          value={formData.bio}
+          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
           required
         />
       </div>

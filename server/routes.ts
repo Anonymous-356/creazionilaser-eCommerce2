@@ -488,6 +488,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   });
 
+  app.put("/api/users/:id/", isAuthenticated,upload.single('image'), async (req, res) => {
+
+    try {
+
+      const currentDate = new Date();
+      const userId = parseInt(req.params.id);
+      const {firstName,lastName,email} = req.body;
+
+      const [user] = await db.update(users)
+      .set({
+        firstName,
+        lastName,
+        email,
+        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
+        updatedAt : currentDate,
+      })
+      .where(eq(users.id , userId))  
+      .returning();
+
+      console.log("Updated user profile successfully:");
+      res.json({ message: "Updated user profile successfully", user });
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      res.status(500).json({ message: "Failed to udpate user." });
+    }
+
+  });
+
   app.get('/api/stats/me', isAuthenticated, async (req: any, res) => {
      
     try {
@@ -522,34 +550,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching user profile:", error);
       res.status(500).json({ message: "Failed to fetch user profile" });
     }
-  });
-
-  app.put("/api/users/:id/", isAuthenticated,upload.single('image'), async (req, res) => {
-
-    try {
-
-      const currentDate = new Date();
-      const userId = parseInt(req.params.id);
-      const {firstName,lastName,email} = req.body;
-
-      const [user] = await db.update(users)
-      .set({
-        firstName,
-        lastName,
-        email,
-        profileImageUrl : req.file ? `/uploads/${req.file.filename}` : req.body.existingProfileImage,
-        updatedAt : currentDate,
-      })
-      .where(eq(users.id , userId))  
-      .returning();
-
-      console.log("Updated user profile successfully:");
-      res.json({ message: "Updated user profile successfully", user });
-    } catch (error) {
-      console.error("Failed to update user:", error);
-      res.status(500).json({ message: "Failed to udpate user." });
-    }
-
   });
 
   // Design routes
@@ -924,9 +924,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if(type === 'profile'){
         updateData = { bio,specialty,updatedAt : currentDate,}
       }else if(type === 'verify'){
-        updateData = {isVerified : true}
+        updateData = {isVerified : true,updatedAt : currentDate,}
       }else if(type === 'reject'){
-        updateData = {isRejected : true}
+        updateData = {isRejected : true,updatedAt : currentDate,}
       }
 
       const artist = await db.update(artists)
@@ -943,10 +943,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/artists',isAdmin, async (req, res) => {
+  app.get('/api/admin/designs',isAdmin, async (req, res) => {
     try {
 
-      const allArtists = await db.select({
+      const resultDesigns = await db.select({
         id: artists.id,
         userId : users.id,
         specialty : artists.specialty,
@@ -960,12 +960,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imageUrl : users.profileImageUrl,
         userType: users.userType,
         createdAt: artists.createdAt,
-      }).from(artists).innerJoin(users, eq(artists.userId , users.id)).where(eq(artists.isRejected,false));
+      }).from(designs).innerJoin(artists,eq(artists.id,designs.artistId)).innerJoin(users, eq(artists.userId , users.id)).where(eq(designs.isPublic,true));
       
-      res.json(allArtists);
+      res.json(resultDesigns);
     } catch (error) {
-      console.error("Error fetching artists:", error);
-      res.status(500).json({ message: "Failed to fetch artists" });
+      console.error("Error fetching designs:", error);
+      res.status(500).json({ message: "Failed to fetch designs" });
     }
   });
   
