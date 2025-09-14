@@ -13,7 +13,6 @@
 
     export default transporter;
 
-
     //SMTP Creazionilaser.com
     //HOST : mail.creazionilaser.com
     //PORT : 587

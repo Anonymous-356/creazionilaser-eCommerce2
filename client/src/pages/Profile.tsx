@@ -388,13 +388,13 @@ export default function Profile() {
                               >
                                 {updateUserMutation.isPending ? t("profileUserBtnSubmitting") : t("profileUserBtnSubmit")}
                               </Button>
-                              <Button 
+                              {/* <Button 
                                 type="button" 
                                 variant="outline"
                                 onClick={() => setIsUpdatingUser(false)}
                               >
                                 {t("profileUserBtnCancel")}
-                              </Button>
+                              </Button> */}
                             </div>
                         </form>
                     </div>
@@ -662,13 +662,13 @@ export default function Profile() {
                             >
                               {updateArtistMutation.isPending ? t("profileArtistBtnSubmitting") : t("profileArtistBtnSubmit")}
                             </Button>
-                            <Button 
+                            {/* <Button 
                               type="button" 
                               variant="outline"
                               onClick={() => setIsUpdatingArtist(false)}
                             >
                               {t("profileArtistBtnCancel")}
-                            </Button>
+                            </Button> */}
                           </div>
 
                         </form>

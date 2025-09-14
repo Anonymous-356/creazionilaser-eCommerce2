@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,21 @@ import { useTranslation } from 'react-i18next';
 
 export default function Shop() {
 
+  const [location] = useLocation();
   const { t, i18n } = useTranslation();
-  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
+
+  // Parse the query string,get a category query parameter
+  const queryParams = new URLSearchParams(window.location.search);
+  const category = queryParams.get('category');
+
+  useEffect(() => {
+      if (category) {
+        setSelectedCategory(category); // Set local state when data is available
+      }  
+  }, [category]); // Re-run effect when 'category' updates
 
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],

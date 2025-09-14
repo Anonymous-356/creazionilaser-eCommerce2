@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ExternalLink, Instagram, Globe } from "lucide-react";
+import { Star, ExternalLink, Instagram, Globe,CircleUser } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from 'react-i18next';
 
@@ -28,8 +28,6 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
     enabled: false, // We'll use mock data since we don't have a user details endpoint
   });
 
-  console.log(artist);
-
   // Fetch designs by this artist
   const { data: designs = [] } = useQuery({
     queryKey: ["/api/designs", artist.id],
@@ -41,12 +39,8 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
   });
 
   // Mock user data (in a real app, this would come from the user details API) //designs?[0].imageUrl != null
-
-  //const mockCover = (designs as any)?.imageUrl != null ? (designs as any)?.imageUrl : `https://images.unsplash.com/photo-${1500000000000 + artist.id}?w=400&h=250&fit=crop`;
-  const mockAvatar = artist?.imageUrl != null ? artist?.imageUrl : `https://images.unsplash.com/photo-${1500000000000 + artist.id}?w=64&h=64&fit=crop&crop=face`;
   const mockRating = (4.5 + (artist.id % 10) * 0.05).toFixed(1);
   const mockReviews = 50 + (artist.id * 17) % 200;
-
   const socialLinks = artist.socialLinks || {};
 
   return (
@@ -63,11 +57,12 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
           </div>
           <div className="absolute bottom-4 left-4">
             <div className="bg-white rounded-full p-1 shadow-lg">
-              <img 
-                src= {artist?.imageUrl}
-                alt={artist?.firstName+''+artist?.lastName}
-                className="w-12 h-12 rounded-full object-cover"
-              />
+              {artist?.imageUrl ? (
+                <img src= {artist?.imageUrl} alt={artist?.firstName+''+artist?.lastName} className="w-12 h-12 rounded-full object-cover" />
+              ):(
+                  <CircleUser  className="w-12 h-12 rounded-full object-cover"/>
+              )}
+              
             </div>
           </div>
           {artist.isVerified ? (

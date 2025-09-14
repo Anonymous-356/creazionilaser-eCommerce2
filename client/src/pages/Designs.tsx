@@ -98,7 +98,7 @@ export default function Designs() {
             <SelectContent>
               <SelectItem value="all">{t("artworkSortByName")}</SelectItem>
               {Array.isArray(artists) && artists.map((artist: any) => (
-                <SelectItem key={artist.specialty} value={artist.artistId}>
+                <SelectItem key={artist.specialty} value={artist.id}>
                   {artist.firstName+' '+artist.lastName}
                 </SelectItem>
               ))}
@@ -135,7 +135,7 @@ export default function Designs() {
               setSelectedArtist("all");
             }}
           >
-            Clear Filters
+            {t("clearFilterCTA")}
           </Button>
         </div>
       ) : (

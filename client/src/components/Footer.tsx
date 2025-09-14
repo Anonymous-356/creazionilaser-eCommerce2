@@ -97,7 +97,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/gift-ideas" className="hover:text-primary transition-colors">
+                <a href="/gifts" className="hover:text-primary transition-colors">
                   {t("footerSupportIdeas")}
                 </a>
               </li>
