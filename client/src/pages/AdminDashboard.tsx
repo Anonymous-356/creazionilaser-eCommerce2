@@ -75,7 +75,7 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/artists"],
   });
 
-  const { data: designs } = useQuery({
+  const { data: artwork } = useQuery({
     queryKey: ["/api/admin/designs"],
   });
 
@@ -122,9 +122,9 @@ export default function AdminDashboard() {
         {id: "artists", label: t("Artists"),icon: Users} 
       ]
     },
-    { id: "designs", label: t("Designs"), icon: FolderHeart},
-    { id: "categories", label: t("Categories"), icon: Package},
     { id: "products", label: t("Products"), icon: Package },
+    { id: "artwork", label: t("Artwork"), icon: FolderHeart},
+    { id: "categories", label: t("Categories"), icon: Package},
     { id: "orders", label: t("Orders"), icon: ShoppingCart },
     { id: "enquiries", label: t("Enquiries"), icon: Package ,listItems:[
         {id : "enquiries", label : t("Enquiries"),icon: Phone },
@@ -168,10 +168,10 @@ export default function AdminDashboard() {
               <button
                 key={item.id}
                 onClick={() => {
-                   (item.id !== 'users' && item.id !== 'categories' && item.id !== 'enquiries') ? setActiveTab(item.id) : '';
-                  (item.id !== 'users' && item.id !== 'categories' && item.id !== 'enquiries') ? setSidebarOpen(false) : '';
+                   (item.id !== 'users' && item.id !== 'enquiries') ? setActiveTab(item.id) : '';
+                  (item.id !== 'users'  && item.id !== 'enquiries') ? setSidebarOpen(false) : '';
                 }}
-                className={`w-full flex items-center px-6 ${item.id !== 'users' && item.id !== 'categories' && item.id !== 'enquiries' ? 'py-4' : 'py-1'} text-left transition-all duration-200 ${
+                className={`w-full flex items-center px-6 ${item.id !== 'users' && item.id !== 'enquiries' ? 'py-4' : 'py-1'} text-left transition-all duration-200 ${
                   activeTab === item.id 
                     ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-600 font-medium' 
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
               >
 
                  
-                { (item.id === 'users' || item.id === 'categories' || item.id === 'enquiries') ? (
+                { (item.id === 'users' || item.id === 'enquiries') ? (
 
                   <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -318,10 +318,10 @@ export default function AdminDashboard() {
           {activeTab === "overview" && <OverviewTab stats={stats} />}
           {activeTab === "users" && <UsersTab users={users} />}
           {activeTab === "artists" && <ArtistsTab artists={artists} />}
-          {activeTab === "deisgns" && <DesingsTab designs={designs} />}
+          {activeTab === "artwork" && <ArtworkTab artwork={artwork} />}
           {activeTab === "categories" && <CategoriesTab categories={categories} />}
           {activeTab === "subcategories" && <SubCategoriesTab subcategories={subcategories} categories={categories}/>}
-          {activeTab === "products" && <ProductsTab products={products} categories={categories} subcategories={subcategories} />}
+          {activeTab === "products" && <ProductsTab products={products} categories={categories} />}
           {activeTab === "quotes" && <QuotesTab quotes={quotes} />}
           {activeTab === "enquiries" && <EnquiriesTab enquiries={enquiries} />}
           {activeTab === "orders" && <OrdersTab orders={orders} />}
@@ -466,7 +466,7 @@ function UsersTab({ users }: { users?: any[] }) {
 
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, ...userData }: any) => {
-      return await apiRequest(`/api/admin/users/${id}`, {
+      return await apiRequest(`/api/admin/users/${id}/${'profile'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -476,11 +476,11 @@ function UsersTab({ users }: { users?: any[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
       setEditingUser(null);
-      toast({ title: t("user updated successfully") });
+      toast({ title: t("User updated successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: "failed to update user",
+        title: "Failed to update user",
         description: error.message,
         variant: "destructive"
       });
@@ -489,18 +489,18 @@ function UsersTab({ users }: { users?: any[] }) {
 
   const blockUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      return await apiRequest(`/api/admin/users/${userId}/1`, {
+      return await apiRequest(`/api/admin/users/${userId}/${'block'}`, {
         method: "PUT",
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: t("user block successfully") });
+      toast({ title: t("User block successfully") });
     },
     onError: (error: any) => {
       toast({ 
-        title: t("failed to block user"),
+        title: t("Failed to block user"),
         description: error.message,
         variant: "destructive"
       });
@@ -570,16 +570,17 @@ function UsersTab({ users }: { users?: any[] }) {
                   <TableCell className="font-medium">{user.firstName} {user.lastName}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.userType === 'admin' ? 'default' : 'secondary'}>
-                      {user.userType}
-                    </Badge>
+                    {user.userType === 'admin' ? (
+                      <Badge className="bg-red-500"> {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}</Badge>
+                    ) : user.userType === 'artist' ? (
+                      <Badge variant="default"> {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}</Badge>
+                    ) : user.userType === 'customer' ? (
+                      <Badge className="bg-green-500"> {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}</Badge>
+                    ) : ('')}
                   </TableCell>
                   <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      {/* <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button> */}
                       <Button 
                           variant="outline" 
                           size="sm"
@@ -591,13 +592,13 @@ function UsersTab({ users }: { users?: any[] }) {
                         variant="destructive" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to block "${user.firstName}"? This action cannot be undone.`)) {
+                          if (confirm(`Are you sure you want to block this user "${user.firstName}"? This action cannot be undone.`)) {
                             blockUserMutation.mutate(user.id);
                           }
                         }}
                         disabled={blockUserMutation.isPending}
                       >
-                      <Trash2 className="h-4 w-4" />
+                      <Ban className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -684,7 +685,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="fname">{t("First Name")}</Label>
+        <Label htmlFor="fname">{t("First Name")} <span className="text-red-600">*</span></Label>
         <Input
           id="fname"
           value={formData.fname}
@@ -712,7 +713,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
         />
       </div>
       <div>
-        <Label htmlFor="email">{t("Email")}</Label>
+        <Label htmlFor="email">{t("Email")} <span className="text-red-600">*</span></Label>
         <Input
           id="email"
           type="email"
@@ -726,7 +727,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
 
           <>
             <div>
-              <Label htmlFor="password">{t("Password")}</Label>
+              <Label htmlFor="password">{t("Password")} <span className="text-red-600">*</span></Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -752,7 +753,7 @@ function UserForm({ userRoles, user, onSubmit, isLoading }: {
               </div>
             </div>
             <div>
-              <Label htmlFor="cPassword">{t("Confirm Password")}</Label>
+              <Label htmlFor="cPassword">{t("Confirm Password")} <span className="text-red-600">*</span></Label>
               <div className="relative">
                 <Input
                   id="cPassword"
@@ -915,10 +916,10 @@ function ArtistsTab({ artists }: { artists?: any[] }) {
                     {artist.isVerified}
                     { 
                       artist.isVerified === true ? (
-                        <Badge className="lg-rounded" variant="default" size="sm">{t("Verified")}</Badge>
+                        <Badge className="lg-rounded bg-green-500" size="sm">{t("Verified")}</Badge>
                       )
                       : artist.isVerified === false && (
-                        <Badge className="lg-rounded" variant="destructive" size="sm">{t("Pending")} </Badge>
+                        <Badge className="lg-rounded" variant="default" size="sm">{t("Pending")} </Badge>
                       )
                     }
                   </TableCell>
@@ -980,6 +981,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
     lname: artist?.lastName || "",
     email: artist?.email,
     specialty: artist?.specialty,
+    portfolio: artist.portfolio,
     bio: artist?.biography,
     userType: artist?.userType,
   });
@@ -1020,7 +1022,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
       </div>
 
        <div>
-        <Label htmlFor="speciality">{t("Speciality")}</Label>
+        <Label htmlFor="speciality">{t("Speciality")} <span className="text-red-600">*</span></Label>
         <Textarea
           id="speciality"
           value={formData.specialty}
@@ -1029,14 +1031,19 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
         />
       </div>
 
-       <div>
-        <Label htmlFor="biography">{t("Biography")}</Label>
+      <div>
+        <Label htmlFor="biography">{t("Biography")} <span className="text-red-600">*</span></Label>
         <Textarea
           id="biography"
           value={formData.bio}
           onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
           required
         />
+      </div>
+      <div>
+        <Label htmlFor="portfolio">{t("Portfolio Link : ")}  
+          <a href={formData?.portfolio} target="blank" className="text-blue-700 underline" download={formData?.portfolio}>Download</a>
+        </Label>
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
@@ -1046,7 +1053,7 @@ function ArtistForm({ artist, onSubmit, isLoading }: {
   );
 }
 
-function ProductsTab({ products, categories,subcategories }: { products?: any[]; categories?: any[];subcategories?: any[] }) {
+function ProductsTab({ products, categories }: { products?: any[]; categories?: any[];}) {
   
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -1142,7 +1149,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
             </DialogHeader>
             <ProductForm 
               categories={categories} 
-              subcategories={subcategories}
+              // subcategories={subcategories}
               onSubmit={(data) => createProductMutation.mutate(data)}
               isLoading={createProductMutation.isPending}
             />
@@ -1159,7 +1166,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
             {editingProduct && (
               <ProductForm 
                 categories={categories} 
-                subcategories={subcategories}
+                // subcategories={subcategories}
                 product={editingProduct}
                 onSubmit={(data) => updateProductMutation.mutate({ id: editingProduct.id, ...data })}
                 isLoading={updateProductMutation.isPending}
@@ -1199,7 +1206,7 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
                         variant="destructive" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+                          if (confirm(`Are you sure you want to delete this "${product.name}" product? This action cannot be undone.`)) {
                             deleteProductMutation.mutate(product.id);
                           }
                         }}
@@ -1226,9 +1233,9 @@ function ProductsTab({ products, categories,subcategories }: { products?: any[];
   );
 }
 
-function ProductForm({ categories,subcategories, product, onSubmit, isLoading }: { 
+function ProductForm({ categories, product, onSubmit, isLoading }: { 
   categories?: any[]; 
-  subcategories?: any[]; 
+  // subcategories?: any[]; 
   product?: any;
   onSubmit: (data: any) => void;
   isLoading: boolean;
@@ -1241,7 +1248,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
     name: product?.name || "",
     description: product?.description || "",
     categoryId: product?.categoryId?.toString() || "",
-    subcategoryId: product?.subcategoryId?.toString() || "",
+    // subcategoryId: product?.subcategoryId?.toString() || "",
     basePrice: product?.basePrice || "",
     imageUrl: product?.imageUrl || "",
   });
@@ -1251,7 +1258,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
     onSubmit({
       ...formData,
       categoryId: parseInt(formData.categoryId),
-      subcategoryId: parseInt(formData.subcategoryId),
+      // subcategoryId: parseInt(formData.subcategoryId),
       basePrice: formData.basePrice,
     });
   };
@@ -1259,7 +1266,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">{t("Product Name")}</Label>
+        <Label htmlFor="name">{t("Product Name")} <span className="text-red-600">*</span></Label>
         <Input
           id="name"
           value={formData.name}
@@ -1280,7 +1287,7 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="category">{t("Category")}</Label>
+        <Label htmlFor="category">{t("Category")} <span className="text-red-600">*</span></Label>
         <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
@@ -1295,8 +1302,8 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
         </Select>
       </div>
 
-      <div>
-        <Label htmlFor="subcategory">{t("Sub Category")}</Label>
+      {/* <div>
+        <Label htmlFor="subcategory">{t("Sub Category")} <span className="text-red-600">*</span></Label>
         <Select value={formData.subcategoryId} onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select subcategory" />
@@ -1309,10 +1316,10 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
 
       <div>
-        <Label htmlFor="basePrice">{t("Price (€)")}</Label>
+        <Label htmlFor="basePrice">{t("Price (€)")} <span className="text-red-600">*</span></Label>
         <Input
           id="basePrice"
           type="number"
@@ -1325,13 +1332,14 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
       </div>
 
       <div>
-        <Label htmlFor="imageUrl">{t("Image URL")}</Label>
+        <Label htmlFor="imageUrl">{t("Image URL")} <span className="text-red-600">*</span></Label>
         <Input
           id="imageUrl"
           type="url"
           value={formData.imageUrl}
           onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
           placeholder="e.g., Image Url"
+          required
         />
       </div>
 
@@ -1342,16 +1350,16 @@ function ProductForm({ categories,subcategories, product, onSubmit, isLoading }:
   );
 }
 
-function DesingsTab({ designs }: { designs?: any[] }) {
+function ArtworkTab({ artwork } : { artwork?: any[] }) {
 
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingArtist, setEditingArtist] = useState<any>(null);
+  const [viewArtwork, setViewArtwork] = useState<any>(null);
   const { t, i18n } = useTranslation();
  
   const rejectedDesignMutation = useMutation({
-    mutationFn: async (artistId: number) => {
-      return await apiRequest(`/api/admin/designs/${artistId}/${'reject'}`, {
+    mutationFn: async (artworkId: number) => {
+      return await apiRequest(`/api/admin/designs/${artworkId}/${'reject'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({isRejected : true}),    
@@ -1372,9 +1380,9 @@ function DesingsTab({ designs }: { designs?: any[] }) {
   });
 
   const approvalDesignMutation = useMutation({
-    mutationFn: async (artistId: number) => {
+    mutationFn: async (artworkId: number) => {
       const isVerified = true;
-      return await apiRequest(`/api/admin/designs/${artistId}/${'approve'}`, {
+      return await apiRequest(`/api/admin/designs/${artworkId}/${'approve'}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({isVerified : true}),      
@@ -1398,9 +1406,24 @@ function DesingsTab({ designs }: { designs?: any[] }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>{t("Artist Management")}</CardTitle>
-          <CardDescription>{t("Manage platform Artist and their permissions")}</CardDescription>
+          <CardTitle>{t("Artwork Management")}</CardTitle>
+          <CardDescription>{t("Manage platform Artworks and their permissions")}</CardDescription>
         </div>
+
+        {/* View Artwork Dialog */}
+        <Dialog open={!!viewArtwork} onOpenChange={() => setViewArtwork(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("View Artwork")}</DialogTitle>
+              {/* <DialogDescription>{t("Update product information")}</DialogDescription> */}
+            </DialogHeader>
+            {viewArtwork && (
+              <ViewArtwork 
+                artwork={viewArtwork}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
       </CardHeader>
       <CardContent>
@@ -1408,49 +1431,45 @@ function DesingsTab({ designs }: { designs?: any[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("Name")}</TableHead>
-                <TableHead>{t("Email")}</TableHead>
-                <TableHead>{t("Speciality")}</TableHead>
+                <TableHead>{t("Artwork by")}</TableHead>
+                <TableHead>{t("Design")}</TableHead>
+                <TableHead>{t("Description")}</TableHead>
+                <TableHead>{t("Price")}</TableHead>
                 <TableHead>{t("Status")}</TableHead>
                 <TableHead>{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {deisgns?.map((artist: any) => (
+              {artwork?.map((artwork: any) => (
                 
-                <TableRow key={artist.id}>
-                  <TableCell className="font-medium">{artist.firstName} {artist.lastName}</TableCell>
-                  <TableCell>{artist.email}</TableCell>
+                <TableRow key={artwork.id}>
+                  <TableCell>{artwork?.firstName} {artwork?.lastName}</TableCell>
+                  <TableCell className="font-medium">{artwork?.title}</TableCell>
+                  <TableCell className="font-medium">{artwork?.description}</TableCell>
+                  <TableCell>{artwork?.price}</TableCell>
                   <TableCell>
-                    {artist.specialty}
-                  </TableCell>
-                  <TableCell>
-                    {artist.isVerified}
-                    { 
-                      artist.isVerified === true ? (
-                        <Badge className="lg-rounded" variant="default" size="sm">{t("Verified")}</Badge>
-                      )
-                      : artist.isVerified === false && (
-                        <Badge className="lg-rounded" variant="destructive" size="sm">{t("Pending")} </Badge>
-                      )
-                    }
+                    {artwork.isPublic === true ? (
+                      <Badge className="absolute bg-green-500">{t('Approved')}</Badge>
+                    ) : (
+                      <Badge variant="default">{t('Pending')}</Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setEditingArtist(artist)}
+                          onClick={() => setViewArtwork(artwork)}
                       >
-                      <Edit className="h-4 w-4"/>
+                      <Eye className="h-4 w-4"/>
                       </Button>
-                      {artist.isVerified !== true && (
+                      {artwork?.isPublic !== true && (
                       <Button 
                         variant="destructive" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to reject "${artist.firstName}" artist account? This action cannot be undone.`)) {
-                            rejectedDesignMutation.mutate(artist.id);
+                          if (confirm(`Are you sure you want to reject "${artwork?.title}" by artist "${artwork?.firstName+' '+artwork?.lastName}"? This action cannot be undone.`)) {
+                            rejectedDesignMutation.mutate(artwork.id);
                           }
                         }}
                         disabled={rejectedDesignMutation.isPending}
@@ -1458,12 +1477,12 @@ function DesingsTab({ designs }: { designs?: any[] }) {
                       <Ban className="h-4 w-4"/>
                       </Button>
                       )}
-                      {artist.isVerified !== true && (
+                      {artwork.isPublic !== true && (
                       <Button variant="default" 
                         size="sm"
                         onClick={() => {
-                          if (confirm(`Are you sure you want to verify "${artist.firstName}" artist account? This action cannot be undone.`)) {
-                            approvalDesignMutation.mutate(artist.id);
+                          if (confirm(`Are you sure you want to approve "${artwork?.title}" by artist "${artwork?.firstName+' '+artwork?.lastName}"? This action cannot be undone.`)) {
+                            approvalDesignMutation.mutate(artwork.id);
                           }
                         }}
                         disabled={approvalDesignMutation.isPending}
@@ -1483,14 +1502,123 @@ function DesingsTab({ designs }: { designs?: any[] }) {
   );
 }
 
+function ViewArtwork({ artwork } : { artwork? : any}){
+
+  const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+ 
+  const rejectedDesignMutation = useMutation({
+    mutationFn: async (artworkId: number) => {
+      return await apiRequest(`/api/admin/designs/${artworkId}/${'reject'}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({isRejected : true}),    
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/designs"] });
+      queryClient.refetchQueries({ queryKey: ["/api/admin/designs"] });
+      toast({ title: t("Design rejected successfully") });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: t("Failed to reject design"),
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  const approvalDesignMutation = useMutation({
+    mutationFn: async (artworkId: number) => {
+      const isVerified = true;
+      return await apiRequest(`/api/admin/designs/${artworkId}/${'approve'}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({isVerified : true}),      
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/designs"] });
+      queryClient.refetchQueries({ queryKey: ["/api/admin/designs"] });
+      toast({ title: "Designs approved successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: t("Failed to approve design"),
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+
+  return (
+    <div>
+        <span><b> Artwork By : </b>{artwork?.firstName+' '+artwork?.lastName}</span><br />
+        <span><b> Design : </b>{artwork?.title}</span><br />
+        <span><b> Price : </b>{artwork?.price}</span><br />
+        <span><b> Description : </b>{artwork?.description}</span><br />
+        <span><b> Artwork Img : </b><img src={artwork?.imageUrl} className="mt-2 w-64 h-48 object-cover" /></span>
+        <div className="mt-6">
+          {artwork?.isPublic !== true && (
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Are you sure you want to reject "${artwork?.title}" by artist "${artwork?.firstName+' '+artwork?.lastName}"? This action cannot be undone.`)) {
+                    rejectedDesignMutation.mutate(artwork.id);
+                  }
+                }}
+                disabled={rejectedDesignMutation.isPending}
+                className="mr-2"
+              >
+              <Ban className="h-4 w-4"/>
+              </Button>
+              )}
+              {artwork.isPublic !== true && (
+              <Button variant="default" 
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Are you sure you want to approve "${artwork?.title}" by artist "${artwork?.firstName+' '+artwork?.lastName}"? This action cannot be undone.`)) {
+                    approvalDesignMutation.mutate(artwork.id);
+                  }
+                }}
+                disabled={approvalDesignMutation.isPending}
+              >
+                <CheckCheck className="h-4 w-4" />
+              </Button>
+              )}
+        </div>
+    </div>
+  )
+}
+
 function QuotesTab({ quotes }: { quotes?: any[] }) {
 
+  const [viewQuote, setViewQuote] = useState<any>(null);
   const { t, i18n } = useTranslation();
+
 
   return (
     <Card>
       <CardHeader>
-        <CardDescription>{t("View and manage custom quotes")}</CardDescription>
+        <div>
+          <CardDescription>{t("View and manage custom quotes")}</CardDescription>
+        </div>
+         {/* View Artwork Dialog */}
+        <Dialog open={!!viewQuote} onOpenChange={() => setViewQuote(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("View Quote")}</DialogTitle>
+            </DialogHeader>
+            {/* {viewQuote && (
+              <ViewQuote 
+                viewquote={viewQuote}
+              />
+            )} */}
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent> 
         <div className="overflow-x-auto">
@@ -1511,7 +1639,7 @@ function QuotesTab({ quotes }: { quotes?: any[] }) {
                   <TableCell>{new Date(quote.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" onClick={() => setViewQuote(quote)} />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -1528,6 +1656,14 @@ function QuotesTab({ quotes }: { quotes?: any[] }) {
       </CardContent>
     </Card>
   );
+}
+
+function ViewQuote({viewquote} : {viewquote?: any[]}){
+
+  const { t, i18n } = useTranslation();
+
+
+
 }
 
 function EnquiriesTab({ enquiries }: { enquiries?: any[] }) {
@@ -1854,7 +1990,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">{t("Category Name")}</Label>
+        <Label htmlFor="name">{t("Category Name")} <span className="text-red-600">*</span></Label>
         <Input
           id="name"
           value={formData.name}
@@ -1875,7 +2011,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
       </div>
 
       <div>
-        <Label htmlFor="slug">{t("URL Slug")}</Label>
+        <Label htmlFor="slug">{t("URL Slug")} <span className="text-red-600">*</span></Label>
         <Input
           id="slug"
           value={formData.slug}
@@ -1885,12 +2021,13 @@ function CategoryForm({ category, onSubmit, isLoading }: {
         <p className="text-xs text-gray-500 mt-1">Used in URLs, auto-generated if left empty</p>
       </div>
        <div>
-        <Label htmlFor="imageUrl">{t("Image Url")}</Label>
+        <Label htmlFor="imageUrl">{t("Image Url")} <span className="text-red-600">*</span></Label>
         <Input
           id="imageUrl"
           value={formData.imageUrl}
           onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
           placeholder="e.g., Image Url"
+          required
         />
       </div>
        <div>

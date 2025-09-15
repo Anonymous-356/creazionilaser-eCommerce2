@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling } from "lucide-react";
+import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling,HeartPlus,Trash2 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import e from "express";
 
@@ -772,12 +772,51 @@ export default function Profile() {
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
                           {designs.map((design: any) => (
-                            <div key={design.id} className="border rounded-lg overflow-hidden">
+                            <div key={design.id} className="relative border rounded-lg overflow-hidden">
                               <img
                                 src={design.imageUrl}
                                 alt={design.title}
                                 className="w-full h-32 object-cover"
                               />
+                              {/* <div className="w-48 h-24 bg-blue-500 relative">
+                                <div className="absolute inset-0 [clip-path:polygon(0%_0%,_100%_0%,_90%_50%,_100%_100%,_0%_100%)] [transform: rotate(45deg) translate(30%, -70%)]" >
+                                  <span className="absolute inset-0 flex items-center justify-center text-white font-bold">Ribbon Text</span>
+                                </div>
+                              </div> */}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-start">
+                                  <Button 
+                                    size="sm"
+                                    className="group-hover:opacity-100 transition-opacity duration-300 rounded-full"
+                                    // onClick={(e) => {
+                                    //   e.stopPropagation();
+                                    //   handleWishlist(design.id);
+                                    // }}
+                                  >
+                                    <Trash2 className="h-4 w-4 items-center" />
+                                  </Button>
+                                
+                              </div>
+                              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 bg-blue-600 text-white px-6 py-1 font-semibold shadow-lg">
+                                  <Button 
+                                    size="sm"
+                                    className="group-hover:opacity-100 transition-opacity duration-300 rounded-lg"
+                                    // onClick={(e) => {
+                                    //   e.stopPropagation();
+                                    //   handleWishlist(design.id);
+                                    // }}
+                                  >
+                                    {
+                                      design.isPublic === true ? (
+                                        'Approved'
+                                      ): design.isRejected === true ? (
+                                        'Rejected'
+                                      ) : (
+                                        'Pending'
+                                      )
+                                    }
+                                  </Button>
+                                
+                              </div>
                               <div className="p-3 flex justify-between">
                                 <h4 className="font-medium">{design.title}</h4>
                                 <p className="text-xs text-gray-500 mt-1">

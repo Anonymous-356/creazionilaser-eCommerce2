@@ -82,7 +82,7 @@ export const products = pgTable("products", {
   categoryId: integer("category_id").references(() => categories.id),
   subcategoryId: integer("subcategory_id").references(() => subcategories.id),
   basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
-  imageUrl: varchar("image_url"),
+  imageUrl: varchar("image_url").notNull(),
   customizationOptions: jsonb("customization_options"), // colors, sizes, materials
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -99,8 +99,10 @@ export const designs = pgTable("designs", {
   tags: jsonb("tags"),
   price: decimal("price", { precision: 10, scale: 2 }).$type<number>().notNull(),
   isPublic: boolean("is_public").default(false),
+  isRejected: boolean("is_rejected").default(false),
   downloadCount: integer("download_count").$type<number>().default(0),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Shopping cart items

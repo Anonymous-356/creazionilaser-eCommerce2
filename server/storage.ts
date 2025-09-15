@@ -32,6 +32,7 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByArtist(id: number): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Artist operations
@@ -91,6 +92,18 @@ export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByArtist(id: number): Promise<User | undefined> {
+    const [user] = await db.select({
+      firstName : users.firstName,
+      lastName : users.lastName,
+      email : users.email,
+      userType  : users.userType,
+      imageUrl : users.profileImageUrl,
+      isBlocked : users.isBlocked
+    }).from(artists).innerJoin(users,eq(artists.userId,users.id)).where(eq(artists.id, id));
     return user;
   }
 
@@ -245,6 +258,8 @@ export class DatabaseStorage implements IStorage {
           description:designs.description,
           imageUrl:designs.imageUrl,
           downloadCount:designs.downloadCount, 
+          isPublic : designs.isPublic,
+          isRejected : designs.isRejected,
           artistuserID : artists.userId,
           artistFirstName : users.firstName,
           artistLastName:users.lastName
@@ -252,7 +267,7 @@ export class DatabaseStorage implements IStorage {
       ).from(designs)
       .innerJoin(artists, eq(artists.id , designs.artistId))
       .innerJoin(users, eq(users.id , artists.userId))
-      .where(and(eq(designs.artistId, artistId), eq(designs.isPublic, true)))
+      .where(eq(designs.artistId, artistId))
       .orderBy(desc(designs.createdAt));
   }
 
@@ -265,6 +280,8 @@ export class DatabaseStorage implements IStorage {
           title:designs.title,
           description:designs.description,
           imageUrl:designs.imageUrl,
+          isPublic : designs.isPublic,
+          isRejected : designs.isRejected,
           artistuserID : artists.userId,
           artistFirstName : users.firstName,
           artistLastName:users.lastName

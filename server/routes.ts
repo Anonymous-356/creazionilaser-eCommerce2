@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+import { createServer, request, type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertCartItemSchema, 
@@ -27,6 +27,7 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { useTranslation } from 'react-i18next';
+import { Description } from "@radix-ui/react-toast";
 
 
 // Configure multer for file uploads
@@ -824,6 +825,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: currentDate, 
       }).returning();
 
+      const to = email;
+      const subject = 'User Account Created';
+      const messageBody = `<h3>Hi ${fname+' '+lname},</h3>
+                            <p>A user account has been created with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Email : </b>${email}</li>
+                              <li><b>Username : </b>${fname+' '+lname}</li>
+                              <li><b>UserPass : </b>${password}</li>
+                              <li><b>Date Created : </b>${currentDate}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+
+
       res.status(201).json(user);
     } catch (error) {
       console.error("Error creating new user:", error);
@@ -831,56 +846,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/users/:id", isAdmin, async (req, res) => {
+  app.put("/api/admin/users/:id/:type", isAdmin, async (req, res) => {
     try {
 
-      const userId = parseInt(req.params.id);
-      const {fname,lname,email,currentEmail} = req.body;
       const currentDate = new Date();
+      const requestType = req.params.type;
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+      
+      if(requestType === 'block'){
 
-      // Check if user already exists
-      if(currentEmail !== email){
-          const existingUser = await storage.getUserByEmail(email);
-          if (existingUser) {
-            return res.status(400).json({ message: "User already exists with this email" });
-          }
+        await db.update(users)
+        .set({
+            isBlocked : 1,
+            updatedAt : currentDate,
+          })
+        .where(eq(users.id, userId))
+
+        const to = user?.email;
+        const subject = 'User Account Blocked';
+        const messageBody = `<h3>Hi ${user?.firstName+' '+user?.lastName},</h3>
+                              <p>Your account with following details has been successfully blocked,contact your administrator for more info:</p>
+                              <ul style="list-style:none !important;">
+                                <li><b>Email : </b>${user?.email}</li>
+                                <li><b>Username : </b>${user?.firstName+' '+user?.lastName}</li>
+                                <li><b>Date Blocked : </b>${currentDate}</li>
+                            </ul>`;
+
+        await sendEmailHtmlTemplate(to,subject,messageBody);
+
+        console.log("Successfully blocked user");
+        res.json({ message: "Successfully blocked user", userId });
       }
 
-      await db.update(users)
+      if(requestType === 'profile'){
+
+        const {fname,lname,email,currentEmail} = req.body;
+
+        // Check if user already exists
+        if(currentEmail !== email){
+            const existingUser = await storage.getUserByEmail(email);
+            if (existingUser) {
+              return res.status(400).json({ message: "User already exists with this email" });
+            }
+        }
+
+        await db.update(users)
         .set({
-          firstName :fname,
-          lastName : lname || null,
-          email ,
-          updatedAt : currentDate,
-        })
+            firstName :fname,
+            lastName : lname || null,
+            email ,
+            updatedAt : currentDate,
+          })
         .where(eq(users.id, userId))
-      
-      console.log("Successfully updated user");
-      res.json({ message: "Successfully updated user", userId });
+        
+        console.log("Successfully updated user");
+        res.json({ message: "Successfully updated user", userId });
+      }
 
     } catch (error) {
       console.error("Failed to update user:", error);
       res.status(500).json({ message: "Failed to update user" });
-    }
-  });
-
-  app.put("/api/admin/users/:id/:isBlock", isAdmin, async (req, res) => {
-    try {
-      
-      const currentDate = new Date();
-      const userId = parseInt(req.params.id);
-      const isBlock = parseInt(req.params.isBlock);
-      
-      await db.update(users)
-        .set({isBlocked :isBlock,updatedAt : currentDate,})
-        .where(eq(users.id, userId))
-      
-      console.log("Successfully blocked user");
-      res.json({ message: "Successfully blocked user", userId });
-
-    } catch (error) {
-      console.error("Failed to blocked user:", error);
-      res.status(500).json({ message: "Failed to blocked user" });
     }
   });
 
@@ -892,6 +918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId : users.id,
         specialty : artists.specialty,
         biography : artists.bio,
+        portfolio : artists.portfolio,
         isVerified : artists.isVerified,
         isRejected : artists.isRejected,
         socialLinks : artists.socialLinks,
@@ -914,18 +941,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       
-      const type = req.params.type;
-      const artistId = parseInt(req.params.id);
-      
       const currentDate = new Date();
       const {specialty,bio} = req.body;
 
+      const type = req.params.type;
+      const artistId = parseInt(req.params.id);
+      const user = await storage.getUserByArtist(artistId);
+
       let updateData = {};
+      let emailText = '';
       if(type === 'profile'){
+        emailText = 'Updated';
         updateData = { bio,specialty,updatedAt : currentDate,}
       }else if(type === 'verify'){
+        emailText = 'Verified';
         updateData = {isVerified : true,updatedAt : currentDate,}
       }else if(type === 'reject'){
+        emailText = 'Rejected';
         updateData = {isRejected : true,updatedAt : currentDate,}
       }
 
@@ -933,6 +965,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .set(updateData)
       .where(eq(artists.id, artistId))
       .returning();
+      
+      const to = user?.email;
+      const subject = `Artist Account ${emailText}`;
+      const messageBody = `<h3>Hi ${user?.firstName+' '+user?.lastName},</h3>
+                            <p>Your account has been successfully ${emailText} by administrator with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Email : </b>${user?.email}</li>
+                              <li><b>Username : </b>${user?.firstName+' '+user?.lastName}</li>
+                              <li><b>Dated : </b>${currentDate}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
       
       console.log("Successfully updated artist",artist);
       res.status(201).json({ message: "Successfully updated artist", artistId });
@@ -945,24 +989,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/designs',isAdmin, async (req, res) => {
     try {
-
+      
       const resultDesigns = await db.select({
-        id: artists.id,
-        userId : users.id,
-        specialty : artists.specialty,
-        biography : artists.bio,
-        isVerified : artists.isVerified,
-        isRejected : artists.isRejected,
-        socialLinks : artists.socialLinks,
+        id: designs.id,
+        title : designs.title,
+        price : designs.price,
+        description : designs.description,
+        imageUrl : designs.imageUrl,
         firstName: users.firstName,
         lastName: users.lastName,
-        email: users.email,
-        imageUrl : users.profileImageUrl,
-        userType: users.userType,
-        createdAt: artists.createdAt,
-      }).from(designs).innerJoin(artists,eq(artists.id,designs.artistId)).innerJoin(users, eq(artists.userId , users.id)).where(eq(designs.isPublic,true));
-      
+        isPublic : designs.isPublic,
+        isRejected : designs.isRejected,
+      }).from(designs).innerJoin(artists,eq(artists.id,designs.artistId)).innerJoin(users, eq(artists.userId , users.id)).where(eq(designs.isRejected,false));
+     
       res.json(resultDesigns);
+    } catch (error) {
+      console.error("Error fetching designs:", error);
+      res.status(500).json({ message: "Failed to fetch designs" });
+    }
+  });
+
+  app.put('/api/admin/designs/:id/:type',isAdmin, async (req, res) => {
+    try {
+      
+      const currentDate = new Date();
+      const type = req.params.type;
+      const designId = parseInt(req.params.id);
+      const design = await storage.getDesign(designId)
+      const user = await storage.getUserByArtist(design?.artistId);
+
+      let updateData = {};
+      let emailText = '';
+      if(type === 'approve'){
+        emailText = 'Approved';
+        updateData = {isPublic : true,updatedAt : currentDate,}
+      }else{
+        emailText = 'Rejected';
+        updateData = {isRejected : true,updatedAt : currentDate,}
+      }
+
+      const updatedDesign = await db.update(designs)
+      .set(updateData)
+      .where(eq(designs.id, designId))
+      .returning();
+      
+      const to = user?.email;
+      const subject = `Design ${emailText}`;
+      const messageBody = `<h3>Hi ${user?.firstName+' '+user?.lastName},</h3>
+                            <p>Successfully your new artwok design has been ${emailText} by administrator with following details:</p>
+                            <ul style="list-style:none !important;">
+                              <li><b>Title : </b>${design?.title}</li>
+                              <li><b>Price : </b>${design?.price}</li>
+                              <li><b>Description : </b>${design?.description}</li>
+                              <li><b>Artwork Img : </b><a href=${design?.imageUrl} target="blank" className="text-blue-700 underline" download=${design?.imageUrl}>Download</a></li>
+                              <li><b>Date Updated : </b>${currentDate}</li>
+                          </ul>`;
+
+      await sendEmailHtmlTemplate(to,subject,messageBody);
+
+      console.log("Successfully updated design",updatedDesign);
+      res.status(201).json({message: "Successfully updated design",updatedDesign});
+
     } catch (error) {
       console.error("Error fetching designs:", error);
       res.status(500).json({ message: "Failed to fetch designs" });
@@ -997,7 +1084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/products', isAdmin, async (req, res) => {
     try {
-      const { name, description, categoryId,subcategoryId, basePrice, imageUrl, customizationOptions } = req.body;
+      const { name, description, categoryId, basePrice, imageUrl, customizationOptions } = req.body;
       
       if (!name || !categoryId || !basePrice) {
         return res.status(400).json({ message: "Name, category, and price are required" });
@@ -1007,7 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         description: description || null,
         categoryId: parseInt(categoryId),
-        subcategoryId: parseInt(subcategoryId),
+        // subcategoryId: parseInt(subcategoryId),
         basePrice,
         imageUrl: imageUrl || null,
         customizationOptions,
@@ -1024,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/products/:id", isAdmin, async (req, res) => {
     try {
       const productId = parseInt(req.params.id);
-      const { name, description, categoryId,subcategoryId, basePrice, imageUrl } = req.body;
+      const { name, description, categoryId, basePrice, imageUrl } = req.body;
       
       if (!name || !categoryId || !basePrice) {
         return res.status(400).json({ message: "Name, category, and price are required" });
@@ -1035,7 +1122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name,
           description: description || null,
           categoryId: parseInt(categoryId),
-          subcategoryId : parseInt(subcategoryId),
+          // subcategoryId : parseInt(subcategoryId),
           basePrice,
           imageUrl: imageUrl || null,
         })
