@@ -1,4 +1,3 @@
-
 {
   "Admin Panel": "Admin Panel",
   "Administrator" : "Administrator",
@@ -159,7 +158,6 @@
   "sub Category deleted successfully" : "Sub Category deleted successfully",
   "cannot Delete subCategory" : "Cannot Delete subCategory",
   "Save settings successfully!" : "Save settings successfully!",
-
   "FormClearBtn": "Clear",
   "FormCancelBtn": "Cancel",
   "FormSubmitBtn": "Submit",
@@ -613,5 +611,4 @@
   "footerSectionCompanyRights": "© 2024 CreazioniLaser.com. All rights reserved.",
   "footerSectionPolicy": "Privacy Policy",
   "footerSectionTermsCondt": "Terms of Service"
-
 }
