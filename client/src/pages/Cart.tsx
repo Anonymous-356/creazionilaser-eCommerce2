@@ -108,7 +108,7 @@ export default function Cart() {
             <Button onClick={() => window.location.href = "/shop"}>
               {t("cartPageContinueBtn")}
             </Button>
-          </CardContent>
+          </CardContent>  
         </Card>
       </div>
     );
