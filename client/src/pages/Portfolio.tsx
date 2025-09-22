@@ -31,11 +31,11 @@ export default function Portfolio() {
   });
 
   const { data: designs = [], isLoading } = useQuery({
-    queryKey: ["/api/designs", artistId],
+    queryKey: ["/api/portfolio/designs", artistId],
     queryFn: async () => {
       const url = artistId && artistId !== "all"
-        ? `/api/designs?artist=${artistId}`
-        : "/api/designs";
+        ? `/api/portfolio/designs?artist=${artistId}`
+        : "/api/portfolio/designs";
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch design');
       return response.json();
@@ -84,10 +84,10 @@ export default function Portfolio() {
         <div className="">
           <Card>
             <CardHeader className="flex justify-space items-center">
-              <div className="bg-white rounded-full p-1 shadow-lg" >
+              <div className="bg-white flex justify-center p-1 rounded-full w-49" >
                 {artist?.imageUrl ? (
 
-                  <img src={artist?.imageUrl } alt="Artist Profile Image" className="h-32 object-cover rounded-full w-full" />
+                  <img src={artist?.imageUrl } alt="Artist Profile Image" className="h-32 object-cover rounded-full w-49" />
 
                 ):(
                   <CircleUser  className="h-32 object-cover rounded-full w-full"/>
@@ -172,6 +172,7 @@ export default function Portfolio() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {filteredDesigns.map((design: any) => (
+
             <DesignCard key={design.id} design={design} />
           ))}
         </div>

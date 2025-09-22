@@ -10,16 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling,HeartPlus,Trash2 } from "lucide-react";
+import { User,Truck, Package, Palette, Upload, Eye,Users,CirclePoundSterling,HeartPlus,Trash2,ChartLine,Component } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import e from "express";
 
 
 export default function Profile() {
 
+  const { toast } = useToast();
   const { t,i18n } = useTranslation();
   const { isAuthenticated } = useAuth();
-  const { toast } = useToast();
 
   const [formData,setFormData] = useState({});
   const [userFormData,setUserFormData] = useState({});
@@ -161,6 +161,10 @@ export default function Profile() {
 
   const uploadDesignMutation = useMutation({
     mutationFn: async (formData: FormData) => {
+      console.log(formData);
+      for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+      }
       const response = await fetch("/api/designs", {
         method: "POST",
         body: formData,
@@ -185,6 +189,48 @@ export default function Profile() {
         variant: "destructive",
       });
     },
+  });
+
+  const deleteDesignMutation = useMutation({
+      mutationFn: async (designId: number) => {
+        const response = await fetch(`/api/design/${designId}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["/api/designs"] });
+        queryClient.refetchQueries({ queryKey: ["/api/designs"] });
+        toast({ title: t("Design removed successfully.") });
+      },
+      onError: (error: any) => {
+        toast({ 
+          title: "Failed to remove design.",
+          description: error.message,
+          variant: "destructive"
+        });
+      },
+  });
+
+  const deleteWishlistDesignMutation = useMutation({
+      mutationFn: async (wishlistId: number) => {
+        const response = await fetch(`/api/wishlist/${wishlistId}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["/api/wishlist/me"] });
+        queryClient.refetchQueries({ queryKey: ["/api/wishlist/me"] });
+        toast({ title: t("Wishlist updated successfully.") });
+      },
+      onError: (error: any) => {
+        toast({ 
+          title: "Failed to update wishlist.",
+          description: error.message,
+          variant: "destructive"
+        });
+      },
   });
 
   const handleUpdateUser = (e: React.FormEvent<HTMLFormElement>) => {
@@ -275,7 +321,7 @@ export default function Profile() {
                   {t("myAccountUserTabSecond")} 
                 </TabsTrigger>
                 <TabsTrigger  value="wishlist">
-                  <Truck className="h-4 w-4 mr-2" />
+                  <HeartPlus className="h-4 w-4 mr-2" />
                   {t("myAccountUserTabThird")} 
                 </TabsTrigger>
                 <TabsTrigger value="orders">
@@ -292,11 +338,11 @@ export default function Profile() {
                   {t("myAccountArtistTabFirst")}
                 </TabsTrigger>
                 <TabsTrigger value="designs" disabled={!artist}>
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Component className="h-4 w-4 mr-2" />
                   {t("myAccountArtistTabSecond")}
                 </TabsTrigger>
                  <TabsTrigger value="statistics" disabled={!artist}>
-                  <Eye className="h-4 w-4 mr-2" />
+                  <ChartLine className="h-4 w-4 mr-2" />
                   {t("myAccountArtistTabThird")}
                 </TabsTrigger>  
             </TabsList>
@@ -306,6 +352,7 @@ export default function Profile() {
           {!artist ? (
 
             <>
+
               <TabsContent value="profile" className="w-full">
                 <Card>
                   <CardHeader>
@@ -381,13 +428,7 @@ export default function Profile() {
                               >
                                 {updateUserMutation.isPending ? t("profileUserBtnSubmitting") : t("profileUserBtnSubmit")}
                               </Button>
-                              {/* <Button 
-                                type="button" 
-                                variant="outline"
-                                onClick={() => setIsUpdatingUser(false)}
-                              >
-                                {t("profileUserBtnCancel")}
-                              </Button> */}
+                            
                             </div>
                         </form>
                     </div>
@@ -449,10 +490,25 @@ export default function Profile() {
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
                         {wishlist.map((design: any) => (
-                          <div key={design.id} className="border rounded-lg overflow-hidden">
+                          <div key={design.id} className="relative border rounded-lg overflow-hidden">
                             <img src={design.imageUrl} alt={design.title} className="w-full h-32 object-cover" />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-start">
+                                <Button 
+                                  size="sm"
+                                  className="bg-red-500 group-hover:opacity-100 transition-opacity duration-300 rounded-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteWishlistDesignMutation.mutate(design.id);
+                                  }}
+                                >
+                                <Trash2 className="h-4 w-4 items-center" />  
+                                </Button>
+                              </div>
+                              <div className={`absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 ${ design.isPublic === true ? ('bg-green-600') : ('bg-red-600' )} text-white px-6 py-1 font-semibold shadow-lg right-5 top-[16%]`}>
+                                {design.isPublic === true ? ('Approved') : ('Pending')}                              
+                              </div>
                             <div className="p-3 flex justify-between">
-                              <h4 className="font-medium">{design.title}</h4>
+                              <h4 className="font-medium">{design.title} </h4>
                               <Badge variant="secondary" className="ml-2"> €{design.price} </Badge>
                             </div>
                           </div>
@@ -742,7 +798,13 @@ export default function Profile() {
                         </div>
                         
                         <div className="flex space-x-4 justify-end items-end">
-
+                          <Button 
+                            type="button" 
+                            variant="outline"
+                            onClick={() => setDesignFormData(INITIAL_DESIGN_FORM_STATE)}
+                          >
+                            {t("FormClearBtn")}
+                          </Button>
                           <Button 
                             type="submit" 
                             disabled={uploadDesignMutation.isPending || !selectedFile}
@@ -778,33 +840,21 @@ export default function Profile() {
                                 alt={design.title}
                                 className="w-full h-32 object-cover"
                               />
-                              {/* <div className="w-48 h-24 bg-blue-500 relative">
-                                <div className="absolute inset-0 [clip-path:polygon(0%_0%,_100%_0%,_90%_50%,_100%_100%,_0%_100%)] [transform: rotate(45deg) translate(30%, -70%)]" >
-                                  <span className="absolute inset-0 flex items-center justify-center text-white font-bold">Ribbon Text</span>
-                                </div>
-                              </div> */}
+                             
                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-start">
                                   <Button 
                                     size="sm"
-                                    className="group-hover:opacity-100 transition-opacity duration-300 rounded-full"
-                                    // onClick={(e) => {
-                                    //   e.stopPropagation();
-                                    //   handleWishlist(design.id);
-                                    // }}
+                                    className="bg-red-500 group-hover:opacity-100 transition-opacity duration-300 rounded-full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteDesignMutation.mutate(design.id);
+                                    }}
                                   >
-                                    <Trash2 className="h-4 w-4 items-center" />
+                                  <Trash2 className="h-4 w-4 items-center" />  
                                   </Button>
-                                
+                                  
                               </div>
-                              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 bg-blue-600 text-white px-6 py-1 font-semibold shadow-lg">
-                                  <Button 
-                                    size="sm"
-                                    className="group-hover:opacity-100 transition-opacity duration-300 rounded-lg"
-                                    // onClick={(e) => {
-                                    //   e.stopPropagation();
-                                    //   handleWishlist(design.id);
-                                    // }}
-                                  >
+                              <div className={`absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 ${ design.isPublic === true ? ('bg-green-600') : design.isRejected === true ? ('bg-red-600' ) : ( 'bg-blue-600' )} text-white px-6 py-1 font-semibold shadow-lg right-5 top-[16%]`}>
                                     {
                                       design.isPublic === true ? (
                                         'Approved'
@@ -813,9 +863,7 @@ export default function Profile() {
                                       ) : (
                                         'Pending'
                                       )
-                                    }
-                                  </Button>
-                                
+                                    }                                
                               </div>
                               <div className="p-3 flex justify-between">
                                 <h4 className="font-medium">{design.title}</h4>

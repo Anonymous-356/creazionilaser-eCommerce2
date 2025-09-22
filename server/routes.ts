@@ -28,6 +28,7 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { useTranslation } from 'react-i18next';
 import { Description } from "@radix-ui/react-toast";
+import { Console } from "console";
 
 
 // Configure multer for file uploads
@@ -558,6 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const { artist } = req.query;
+    
       let designs;
       if (artist) {
         designs = await storage.getDesignsByArtist(parseInt(artist as string));
@@ -571,27 +573,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/designs/:id', async (req, res) => {
+  app.get('/api/portfolio/designs', async (req, res) => {
+
     try {
-      const designId = parseInt(req.params.id);
-      const design = await storage.getDesign(designId);
       
-      if (!design) {
-        return res.status(404).json({ message: "Design not found" });
-      }
-      
-      res.json(design);
+      const { artist } = req.query;
+      const designs = await storage.getDesignsByArtistExRejected(parseInt(artist as string));
+      res.status(201).json(designs);
     } catch (error) {
-      console.error("Error fetching design:", error);
-      res.status(500).json({ message: "Failed to fetch design" });
+      console.error("Error fetching designs:", error);
+      res.status(500).json({ message: "Failed to fetch designs" });
     }
   });
 
   app.post('/api/designs', isAuthenticated, upload.single('image'), async (req: any, res) => {
     
     try {
-
-      console.log(req.body);
 
       const userId = req.session.userId;
       
@@ -624,6 +621,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/designs/:id', async (req, res) => {
+    try {
+      const designId = parseInt(req.params.id);
+      const design = await storage.getDesign(designId);
+      
+      if (!design) {
+        return res.status(404).json({ message: "Design not found" });
+      }
+      
+      res.json(design);
+    } catch (error) {
+      console.error("Error fetching design:", error);
+      res.status(500).json({ message: "Failed to fetch design" });
+    }
+  });
+
+  // Delete product
+  app.delete("/api/design/:id",isAuthenticated, async (req, res) => {
+    try {
+      const desginId = parseInt(req.params.id);
+      
+      const result = await db.delete(designs).where(eq(designs.id, desginId));
+      console.log("Delete result:", result);
+      
+      res.json({ message: "Design deleted successfully", desginId });
+    } catch (error) {
+      console.error("Failed to delete design:", error);
+      res.status(500).json({ message: "Failed to delete design", error });
+    }
+  });
+
   app.post('/api/wishlist', isAuthenticated, async (req: any, res) => {
     
      try {
@@ -647,11 +675,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userId = req.session.userId;
       const wishlist = await storage.getUserWishlist(userId);
+      console.log(wishlist);
       
       res.json(wishlist);
     } catch (error) {
       console.error("Error fetching user wishlist:", error);
       res.status(500).json({ message: "Failed to fetch user wishlist" });
+    }
+  });
+
+  app.delete('/api/wishlist/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      
+      const wishlistId = parseInt(req.params.id);
+      console.log(wishlistId);
+      const result = await db.delete(wishlist).where(eq(wishlist.id, wishlistId));
+      console.log("Delete result:", result);
+      
+      res.json({ message: "Wishlist updated successfully" });
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+      res.status(500).json({ message: "Failed to update wishlist", error });
     }
   });
 
@@ -1066,7 +1110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categoryId: products.categoryId,
         subcategoryId: products.subcategoryId,
         categoryName: categories.name,
-        imageUrl: categories.imageUrl,
+        imageUrl: products.imageUrl,
       })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id));
@@ -1082,9 +1126,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/products', isAdmin, async (req, res) => {
+  app.post('/api/admin/products',upload.single('image'), isAdmin, async (req, res) => {
     try {
-      const { name, description, categoryId, basePrice, imageUrl, customizationOptions } = req.body;
+
+      const { name, description, categoryId, basePrice, customizationOptions,existingProductImage } = req.body;
       
       if (!name || !categoryId || !basePrice) {
         return res.status(400).json({ message: "Name, category, and price are required" });
@@ -1096,7 +1141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categoryId: parseInt(categoryId),
         // subcategoryId: parseInt(subcategoryId),
         basePrice,
-        imageUrl: imageUrl || null,
+        imageUrl: req.file ? `/uploads/${req.file.filename}` : existingProductImage,
         customizationOptions,
       }).returning();
 
@@ -1108,10 +1153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update product
-  app.put("/api/admin/products/:id", isAdmin, async (req, res) => {
+  app.put("/api/admin/products/:id", upload.single('image'),isAdmin, async (req, res) => {
     try {
       const productId = parseInt(req.params.id);
-      const { name, description, categoryId, basePrice, imageUrl } = req.body;
+      const { name, description, categoryId, basePrice,existingProductImage } = req.body;
       
       if (!name || !categoryId || !basePrice) {
         return res.status(400).json({ message: "Name, category, and price are required" });
@@ -1124,7 +1169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           categoryId: parseInt(categoryId),
           // subcategoryId : parseInt(subcategoryId),
           basePrice,
-          imageUrl: imageUrl || null,
+          imageUrl: req.file ? `/uploads/${req.file.filename}` : existingProductImage,
         })
         .where(eq(products.id, productId))
         .returning();
@@ -1165,10 +1210,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Category CRUD operations
-  app.post("/api/admin/categories", isAdmin, async (req, res) => {
+  app.post("/api/admin/categories",upload.single('image'), isAdmin, async (req, res) => {
     try {
       
-      const { name, description, slug, imageUrl, sortOrder } = req.body;
+      const { name, description, slug, imageUrl, sortOrder,existingCategoryImage } = req.body;
 
       if (!name) {
         return res.status(400).json({ message: req.t("categoryrequiredFieldMessage") });
@@ -1178,7 +1223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         description: description || null,
         slug: slug || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        imageUrl : imageUrl || null,
+        imageUrl : req.file ? `/uploads/${req.file.filename}` : existingCategoryImage,
         sortOrder : sortOrder || 0,
       }).returning();
       
@@ -1191,10 +1236,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update category
-  app.put("/api/admin/categories/:id", isAdmin, async (req, res) => {
+  app.put("/api/admin/categories/:id",upload.single('image'), isAdmin, async (req, res) => {
     try {
+
       const categoryId = parseInt(req.params.id);
-      const { name, description, slug, imageUrl, sortOrder } = req.body;
+      const { name, description, slug, imageUrl, sortOrder, existingCategoryImage} = req.body;
       
       if (!name) {
         return res.status(400).json({ message: req.t("categoryrequiredFieldMessage") });
@@ -1205,7 +1251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name,
           description: description || null,
           slug: slug,
-          imageUrl,
+          imageUrl : req.file ? `/uploads/${req.file.filename}` : existingCategoryImage,
           sortOrder : sortOrder || 0,
         })
         .where(eq(categories.id, categoryId))
@@ -1381,13 +1427,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Crud Settings for admin
-  app.post('/api/admin/settings', isAdmin,upload.single('logo'), async (req, res) => {
+  app.post('/api/admin/settings', upload.single('logo'), isAdmin, async (req, res) => {
     try {
       
       const settingData = req.body;
 
       Object.entries(settingData).map(([key, value]) => {
        
+        console.log(key+''+value);
         // db.insert(settings).values({key : value});
         // Object.entries(settingData).map(([key , value]) => {
           
@@ -1397,8 +1444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json([]);
     } catch (error) {
-      console.error("Error fetching enquiries:", error);
-      res.status(500).json({ message: "Failed to fetch enquiries" });
+      console.error("Error updating settings:", error);
+      res.status(500).json({ message: "Failed to update settings" });
     }
   });
 

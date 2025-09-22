@@ -18,6 +18,8 @@ interface DesignCardProps {
     description?: string;
     price: string;
     imageUrl?: string;
+    isRejected?:boolean;
+    isPublic?:boolean;
     artistFirstName?: string;
     artistLastName?: string;
     customizationOptions?: any;
@@ -75,11 +77,14 @@ export default function DesignCard({ design }: DesignCardProps) {
             alt={design.title}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-end">
+          <div className={`absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 ${ design.isPublic === true ? ('bg-green-600') : ( 'bg-red-600' )} text-white px-6 py-1 font-semibold shadow-lg right-5 top-[16%]`}>
+          { design.isPublic === true ? ( 'Approved' ) : ( 'Pending' ) }                                
+          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-center top-[50%]">
             {isAuthenticated && (
               <Button 
                 size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-full"
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleWishlist(design.id);

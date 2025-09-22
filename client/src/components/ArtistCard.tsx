@@ -28,11 +28,11 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
     enabled: false, // We'll use mock data since we don't have a user details endpoint
   });
 
-  // Fetch designs by this artist
+  // Fetch designs by this artist with status approved and pending to approve only.
   const { data: designs = [] } = useQuery({
-    queryKey: ["/api/designs", artist.id],
+    queryKey: ["/api/portfolio/designs", artist.id],
     queryFn: async () => {
-      const response = await fetch(`/api/designs?artist=${artist.id}`);
+      const response = await fetch(`/api/portfolio/designs?artist=${artist.id}`);
       if (!response.ok) throw new Error('Failed to fetch designs');
       return response.json();
     },

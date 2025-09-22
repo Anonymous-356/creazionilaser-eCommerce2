@@ -58,6 +58,7 @@ export interface IStorage {
   
   // Design operations
   createDesign(designData: typeof designs.$inferInsert): Promise<Design>;
+  getDesignsByArtistExRejected(artistId: number): Promise<Design[]>;
   getDesignsByArtist(artistId: number): Promise<Design[]>;
   getAllDesigns(): Promise<Design[]>;
   getDesign(id: number): Promise<Design | undefined>;
@@ -248,6 +249,30 @@ export class DatabaseStorage implements IStorage {
     return design;
   }
 
+  async getDesignsByArtistExRejected(artistId: number): Promise<Design[]> {
+
+    return await db.select(
+        {
+          id : designs.id,
+          artistId : designs.artistId,
+          price: designs.price,
+          title:designs.title,
+          description:designs.description,
+          imageUrl:designs.imageUrl,
+          downloadCount:designs.downloadCount, 
+          isPublic : designs.isPublic,
+          isRejected : designs.isRejected,
+          artistuserID : artists.userId,
+          artistFirstName : users.firstName,
+          artistLastName:users.lastName
+        }
+      ).from(designs)
+      .innerJoin(artists, eq(artists.id , designs.artistId))
+      .innerJoin(users, eq(users.id , artists.userId))
+      .where(and(eq(designs.artistId, artistId),eq(designs.isRejected,false)))
+      .orderBy(desc(designs.createdAt));
+  }
+
   async getDesignsByArtist(artistId: number): Promise<Design[]> {
     return await db.select(
         {
@@ -376,11 +401,13 @@ export class DatabaseStorage implements IStorage {
 
     const wishlistResult = await db.select(
       {
-        id : designs.id,
+        id : wishlist.id,
+        designId : designs.id,
         price: designs.price,
         title:designs.title,
         description:designs.description,
         imageUrl:designs.imageUrl,
+        isPublic:designs.isPublic,
       }
       ).from(wishlist)
       .innerJoin(designs, eq(wishlist.designId , designs.id))

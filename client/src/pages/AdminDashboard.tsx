@@ -47,6 +47,10 @@ import {
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FILE } from "dns";
+import { File } from "buffer";
+import internal from "stream";
+import { Interface } from "readline";
 
 export default function AdminDashboard() {
 
@@ -1063,11 +1067,14 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
 
   const createProductMutation = useMutation({
     mutationFn: async (productData: any) => {
-      return await apiRequest("/api/admin/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
+
+        const response = await fetch('/api/admin/products',{
+          method: "POST",
+          body: productData,
+          credentials: "include",
+        });
+        // if (!response.ok) throw new Error(t(""));
+        // return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
@@ -1085,12 +1092,13 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
   });
 
   const updateProductMutation = useMutation({
-    mutationFn: async ({ id, ...productData }: any) => {
-      return await apiRequest(`/api/admin/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
+    mutationFn: async (productData: any) => {
+
+        const response = await fetch(`/api/admin/products/${editingProduct.id}`,{
+          method: "PUT",
+          body: productData,
+          credentials: "include",
+        });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
@@ -1127,6 +1135,7 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
     },
   });
 
+ 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1164,12 +1173,12 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
               <DialogDescription>{t("Update product information")}</DialogDescription>
             </DialogHeader>
             {editingProduct && (
-              <ProductForm 
+              <ProductForm
                 categories={categories} 
                 // subcategories={subcategories}
-                product={editingProduct}
-                onSubmit={(data) => updateProductMutation.mutate({ id: editingProduct.id, ...data })}
+                onSubmit={(data) => updateProductMutation.mutate(data)}
                 isLoading={updateProductMutation.isPending}
+                product={editingProduct}
               />
             )}
           </DialogContent>
@@ -1233,16 +1242,17 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
   );
 }
 
-function ProductForm({ categories, product, onSubmit, isLoading }: { 
+function ProductForm({ categories, onSubmit, isLoading, product }: { 
   categories?: any[]; 
   // subcategories?: any[]; 
-  product?: any;
   onSubmit: (data: any) => void;
   isLoading: boolean;
+  product?: any;
 })  {
  
-
+  const { toast } = useToast();
   const { t, i18n } = useTranslation();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: product?.name || "",
@@ -1253,15 +1263,31 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
     imageUrl: product?.imageUrl || "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      categoryId: parseInt(formData.categoryId),
-      // subcategoryId: parseInt(formData.subcategoryId),
-      basePrice: formData.basePrice,
-    });
+    if(!selectedFile && formData.imageUrl === ""){
+      toast({
+        title: t('productFormImageMissingTitle'),
+        description: t('productFormImageMissingMessage'),
+        variant: "destructive",
+      });
+    return; 
+    }
+    
+    const productFormData = new FormData(e.currentTarget);
+    productFormData.append("image", selectedFile); 
+    onSubmit(productFormData);
+
   };
+
+  const handleFileChange = (e:React.FormEvent<HTMLFormElement>) => {
+    if (e.currentTarget.files && e.currentTarget.files.length > 0) {
+      setSelectedFile(e.currentTarget.files[0]);
+    } else {
+      setSelectedFile(null);
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -1269,6 +1295,7 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
         <Label htmlFor="name">{t("Product Name")} <span className="text-red-600">*</span></Label>
         <Input
           id="name"
+          name="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="e.g., Title"
@@ -1280,6 +1307,7 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
         <Label htmlFor="description">{t("Description")}</Label>
         <Textarea
           id="description"
+          name="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="e.g., Description"
@@ -1288,7 +1316,7 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
 
       <div>
         <Label htmlFor="category">{t("Category")} <span className="text-red-600">*</span></Label>
-        <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
+        <Select name="categoryId" value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
@@ -1303,7 +1331,7 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
       </div>
 
       {/* <div>
-        <Label htmlFor="subcategory">{t("Sub Category")} <span className="text-red-600">*</span></Label>
+        <Label htmlFor="subcategory">{t("Sub Category")}</Label>
         <Select value={formData.subcategoryId} onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select subcategory" />
@@ -1322,6 +1350,7 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
         <Label htmlFor="basePrice">{t("Price (€)")} <span className="text-red-600">*</span></Label>
         <Input
           id="basePrice"
+          name="basePrice"
           type="number"
           step="0.01"
           value={formData.basePrice}
@@ -1332,15 +1361,31 @@ function ProductForm({ categories, product, onSubmit, isLoading }: {
       </div>
 
       <div>
-        <Label htmlFor="imageUrl">{t("Image URL")} <span className="text-red-600">*</span></Label>
-        <Input
-          id="imageUrl"
-          type="url"
-          value={formData.imageUrl}
-          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-          placeholder="e.g., Image Url"
-          required
-        />
+        <Label htmlFor="image-url">{t("Image URL")} <span className="text-red-600">*</span></Label>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <input
+            name="existingProductImage"
+            type="hidden"
+            className="hidden"
+            value={formData?.imageUrl}
+          />
+          <input
+              id="image-url"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          {formData.imageUrl && formData.imageUrl !== "" && (
+            <img src={formData.imageUrl} alt="Existing Profile Image" className="h-16 w-16" />
+          )}
+          <label htmlFor="image-url" className="cursor-pointer">
+            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600">
+              {selectedFile ? selectedFile.name : t("profileUserImagePlaceholder")}
+            </p>
+          </label>  
+        </div>
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
@@ -1778,11 +1823,24 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
 
   const createCategoryMutation = useMutation({
     mutationFn: async (categoryData: any) => {
-      return await apiRequest("/api/admin/categories", {
+      for (let [key, value] of categoryData.entries()) {
+            console.log(`${key}: ${value}`);
+      }
+
+      const response = await fetch('/api/admin/categories',{
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(categoryData),
+        body: categoryData,
+        credentials: "include",
       });
+      // if (!response.ok) throw new Error(t(""));
+      // return response.json();
+      
+      // return await apiRequest("/api/admin/categories", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(categoryData),
+      // });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
@@ -1800,12 +1858,24 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, ...categoryData }: any) => {
-      return await apiRequest(`/api/admin/categories/${id}`, {
+    mutationFn: async (categoryData : any) => {
+
+       for (let [key, value] of categoryData.entries()) {
+            console.log(`${key}: ${value}`);
+      }
+
+      const response = await fetch(`/api/admin/categories/${editingCategory.id}`,{
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(categoryData),
+        body: categoryData,
+        credentials: "include",
       });
+
+      // return await apiRequest(`/api/admin/categories/${id}`, {
+      //   method: "PUT",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(categoryData),
+      // });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
@@ -1888,7 +1958,7 @@ function CategoriesTab({ categories }: { categories?: any[] }) {
             {editingCategory && (
               <CategoryForm 
                 category={editingCategory}
-                onSubmit={(data) => updateCategoryMutation.mutate({id : editingCategory.id , ...data})}
+                onSubmit={(data) => updateCategoryMutation.mutate(data)}
                 isLoading={updateCategoryMutation.isPending}
               />
             )}
@@ -1960,7 +2030,10 @@ function CategoryForm({ category, onSubmit, isLoading }: {
   isLoading: boolean;
 }) {
 
+  const {toast} = useToast();
   const { t, i18n } = useTranslation();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const [formData, setFormData] = useState({
     name: category?.name || "",
     description: category?.description || "",
@@ -1969,13 +2042,32 @@ function CategoryForm({ category, onSubmit, isLoading }: {
     sortOrder: category?.sortOrder || "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-    });
+    if(!selectedFile && formData.imageUrl === ""){
+      toast({
+        title: t('categoryFormImageMissingTitle'),
+        description: t('categoryFormImageMissingMessage'),
+        variant: "destructive",
+      });
+    return; 
+    }
+    
+    const categoryFormData = new FormData(e.currentTarget);
+    categoryFormData.append("image", selectedFile); 
+    categoryFormData.append("slug",formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+    onSubmit(categoryFormData);
+
   };
+
+  const handleFileChange = (e:React.FormEvent<HTMLFormElement>) => {
+    if (e.currentTarget.files && e.currentTarget.files.length > 0) {
+      setSelectedFile(e.currentTarget.files[0]);
+    } else {
+      setSelectedFile(null);
+    }
+  }
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1993,6 +2085,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
         <Label htmlFor="name">{t("Category Name")} <span className="text-red-600">*</span></Label>
         <Input
           id="name"
+          name="name"
           value={formData.name}
           onChange={handleNameChange}
           placeholder="e.g., Custom T-Shirts"
@@ -2004,6 +2097,7 @@ function CategoryForm({ category, onSubmit, isLoading }: {
         <Label htmlFor="description">{t("Description")}</Label>
         <Textarea
           id="description"
+          name="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Brief description of this category"
@@ -2022,18 +2116,37 @@ function CategoryForm({ category, onSubmit, isLoading }: {
       </div>
        <div>
         <Label htmlFor="imageUrl">{t("Image Url")} <span className="text-red-600">*</span></Label>
-        <Input
-          id="imageUrl"
-          value={formData.imageUrl}
-          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-          placeholder="e.g., Image Url"
-          required
-        />
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <input
+            name="existingCategoryImage"
+            type="hidden"
+            className="hidden"
+            value={formData?.imageUrl}
+          />
+          <input
+              id="image-url"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          {formData.imageUrl && formData.imageUrl !== "" && (
+            <img src={formData.imageUrl} alt="Existing Profile Image" className="h-16 w-16" />
+          )}
+          <label htmlFor="image-url" className="cursor-pointer">
+            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600">
+              {selectedFile ? selectedFile.name : t("categoryUploadPlaceholder")}
+            </p>
+          </label>  
+        </div>
+        
       </div>
        <div>
         <Label htmlFor="sortOrder">{t("Sort Order (Optional)")}</Label>
         <Input
           id="sortOrder"
+          name="sortOrder"
           value={formData.sortOrder}
           onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
           placeholder="e.g., Sort Order"
@@ -2348,12 +2461,16 @@ function SubCategoryForm({ categories,subcategory, onSubmit, isLoading }: {
 
 function SettingsTab() {
 
-  const { toast } = useToast();
-  const [selectedFaviconFile, setSelectedFaviconFile] = useState<File | null>(null);
-  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
-  const { t, i18n } = useTranslation();
+    const { toast } = useToast();
+    const [selectedFaviconFile, setSelectedFaviconFile] = useState<File | null>(null);
+    const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+    const { t, i18n } = useTranslation();
 
-  const createSaveSettingsMutation = useMutation({
+    // const {formData,setFormData} = useState({
+
+    // });
+
+    const createSaveSettingsMutation = useMutation({
         
         mutationFn: async (formData: any) => {
          
@@ -2416,7 +2533,6 @@ function SettingsTab() {
                       className="hidden"
                       accept="image/*"
                       onChange={(e) => setSelectedFaviconFile(e.target.files?.[0] || null)}
-                      required
                     />
                     <label htmlFor="favicon" className="cursor-pointer">
                       <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
@@ -2437,7 +2553,6 @@ function SettingsTab() {
                     className="hidden"
                     accept="image/*"
                     onChange={(e) => setSelectedLogoFile(e.target.files?.[0] || null)}
-                    required
                   />
                   <label htmlFor="logo" className="cursor-pointer">
                     <Upload className="h-8 w-8 text-gray-400 mx-auto mb-3" />
@@ -2498,9 +2613,9 @@ function SettingsTab() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
+                    {/* <SelectItem value="USD">USD ($)</SelectItem> */}
                     <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
+                    {/* <SelectItem value="GBP">GBP (£)</SelectItem> */}
                   </SelectContent>
                 </Select>
               </div>
@@ -2549,4 +2664,5 @@ function SettingsTab() {
       </Card>
     </div>
   );
+
 }
