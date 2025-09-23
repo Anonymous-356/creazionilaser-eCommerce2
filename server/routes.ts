@@ -163,6 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-checkout-session', async (req, res) => {
     try {
 
+      console.log('functioning...');
       const { cartItems } = req.body;
 
       const line_items = cartItems.map((item: any) => ({
@@ -224,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
    app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('functioning..webhook');
+    console.log('functioningWebhook...');
     
     const sig = req.headers['stripe-signature'];
     let event;
@@ -239,6 +240,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Handle the event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      console.log(session);
+
       const userId = session.metadata!.userId;
       const cartItems = JSON.parse(session.metadata!.cartItems);
 
