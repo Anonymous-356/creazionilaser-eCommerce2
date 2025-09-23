@@ -34,7 +34,7 @@ dotenv.config({path : "./.env"});
 
 import Stripe from 'stripe';
 
-const stripe = new Stripe("", {
+const stripe = new Stripe("sk_test_51RdqmFAJosTY6SBe3nh6nKuUDeol0ETTtCQA4RDSMt4AoxcM66P0nizSdOEcMV4o3o12s2Sa8WcnWwjTtgSeSFeY00rqw0spTy", {
   //apiVersion: '2024-04-10.basil',
 });
 
@@ -163,7 +163,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-checkout-session', async (req, res) => {
     try {
 
-      console.log('functioning..checkout');
       const { cartItems } = req.body;
 
       const line_items = cartItems.map((item: any) => ({
@@ -180,6 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
+        allow_promotion_codes: true,
         shipping_address_collection: {
           allowed_countries: ['US', 'CA', 'GB', 'AU', 'IT'],
         },
@@ -225,6 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
     console.log('functioning..webhook');
+    
     const sig = req.headers['stripe-signature'];
     let event;
 

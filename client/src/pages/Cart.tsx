@@ -57,8 +57,6 @@ export default function Cart() {
 
   const handleCheckout = async () => {
 
-    alert('Hello');
-
     const stripe = await loadStripe("pk_test_51RdqmFAJosTY6SBe08dhnZGa7oEl7EMoohCpp3sZsbJQKPKnHHwEmmfGnVWEcFQRcAORMHTj2fsDVPL9zMqiz9vl00dSY6I6tx");
 
     if (!stripe) {
