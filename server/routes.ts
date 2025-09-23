@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { Express } from "express";
 import { createServer, request, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -29,6 +29,14 @@ import connectPg from "connect-pg-simple";
 import { useTranslation } from 'react-i18next';
 import { Description } from "@radix-ui/react-toast";
 import { Console } from "console";
+import * as dotenv from 'dotenv';
+dotenv.config({path : "./.env"});
+
+import Stripe from 'stripe';
+
+const stripe = new Stripe("", {
+  //apiVersion: '2024-04-10.basil',
+});
 
 
 // Configure multer for file uploads
@@ -150,6 +158,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error(req.t("signUpFormFailureMessage"), error);
       res.status(500).json({ message: req.t("signUpFormFailureMessage") });
     }
+  });
+
+  app.post('/api/create-checkout-session', async (req, res) => {
+    try {
+
+      console.log('functioning..checkout');
+      const { cartItems } = req.body;
+
+      const line_items = cartItems.map((item: any) => ({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: item.product.name,
+            images: [item.product.imageUrl],
+          },
+          unit_amount: Math.round(parseFloat(item.price) * 100),
+        },
+        quantity: item.quantity,
+      }));
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        shipping_address_collection: {
+          allowed_countries: ['US', 'CA', 'GB', 'AU', 'IT'],
+        },
+        line_items: [
+          ...cartItems.map((item: any) => ({
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: item.product.name,
+                images: [item.product.imageUrl],
+              },
+              unit_amount: Math.round(parseFloat(item.price) * 100),
+            },
+            quantity: item.quantity,
+          })),
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: 'Shipping',
+              },
+              unit_amount: 999, // 9.99 EUR
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: 'https://creazionilaser.com/success',
+        cancel_url: 'https://creazionilaser.com/cancel',
+        metadata: {
+          userId: req.session.id,
+          //cartItems: JSON.stringify(cartItems),
+        },
+      });
+
+      res.json({ id: session.id });
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ message: "Failed to create checkout session" });
+    }
+  });
+
+   app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    
+    console.log('functioning..webhook');
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig!, "whsec_ardTC6a2P2mLwoxVnWY8GrK6n9mN8KKg");
+    } catch (err: any) {
+      console.error(`Webhook signature verification failed.`, err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata!.userId;
+      const cartItems = JSON.parse(session.metadata!.cartItems);
+
+      const shippingDetails = session!.shipping_details;
+      const orderData = {
+        userId: parseInt(userId),
+        orderNumber: uuidv4(),
+        totalAmount: (session.amount_total! / 100).toString(),
+        shippingAddress: {
+          name: shippingDetails?.name,
+          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+          city: shippingDetails?.address?.city,
+          zipCode: shippingDetails?.address?.postal_code,
+          country: shippingDetails?.address?.country,
+        },
+        notes: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const items = cartItems.map((item: any) => ({
+        orderId: 0, // This will be set by the storage layer
+        productId: item.product.id,
+        designId: item.design?.id,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        customization: item.customization,
+      }));
+
+      try {
+        const order = await storage.createOrder(orderData, items);
+        console.log(order);
+        console.log(`Order created for user ${userId}`);
+      } catch (error) {
+        console.error(`Error creating order for user ${userId}:`, error);
+      }
+    }
+
+    res.json({received: true});
   });
 
   app.post('/api/auth/login', async (req, res) => {

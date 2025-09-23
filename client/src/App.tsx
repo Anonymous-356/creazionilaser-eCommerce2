@@ -21,6 +21,8 @@ import PrivacyAndPolicy from "@/pages/PrivacyAndPolicy";
 import TermsAndCondition from "@/pages/TermsAndCondition";
 import HowITworks from "@/pages/HowITworks";
 import GiftIdeas from "@/pages/GiftIdeas";
+import Success from "@/pages/Success";
+import Cancel from "@/pages/Cancel";
 import Quotes from "@/pages/Quotes";
 import Contact from "@/pages/Contact";
 import Profile from "@/pages/Profile";
@@ -50,7 +52,7 @@ function Router() {
   const paths = [ "/" ,"home" , "artists","product","portfolio","designs",
                   "become-an-artist","shop","cart","create",
                   "profile","contact","gifts","how-it-works",
-                  "custom-quotes","faqs","privacy-policy","terms-&-condition"];  
+                  "custom-quotes","faqs","privacy-policy","terms-&-condition","success","cancel"];  
 
   // Debug logging removed for production
 
@@ -121,6 +123,8 @@ function AuthenticatedApp({ user }: { user: any }) {
           <Route path="/custom-quotes" component={Quotes} />
           <Route path="/privacy-policy" component={PrivacyAndPolicy} />
           <Route path="/terms-&-condition" component={TermsAndCondition} /> 
+          <Route path="/success" component={Success} />
+          <Route path="/cancel" component={Cancel} />
           <Route component={NotFound} />
         </Switch>
       </main>

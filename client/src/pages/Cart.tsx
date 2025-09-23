@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { ShoppingCart, Minus, Plus, Trash2, Package } from "lucide-react";
 import { useState } from "react";
+import { loadStripe } from '@stripe/stripe-js';
 import { json } from "stream/consumers";
 import { useTranslation } from 'react-i18next';
 
@@ -54,27 +55,64 @@ export default function Cart() {
     },
   });
 
-  const handleCheckout = (e: React.FormEvent<HTMLFormElement>) => {
-    
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const handleCheckout = async () => {
 
-    const orderData = {
-      shippingAddress : {
-        name: formData.get("name"),
-        email: formData.get("email"),
-        address: formData.get("address"),
-        city: formData.get("city"),
-        zipCode: formData.get("zipCode"),
-        country: formData.get("country"),
+    alert('Hello');
+
+    const stripe = await loadStripe("pk_test_51RdqmFAJosTY6SBe08dhnZGa7oEl7EMoohCpp3sZsbJQKPKnHHwEmmfGnVWEcFQRcAORMHTj2fsDVPL9zMqiz9vl00dSY6I6tx");
+
+    if (!stripe) {
+      console.error("Stripe.js has not loaded yet.");
+      return;
+    }
+
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      cartItems : cartItems,
-      totalAmount : getTotalPrice,
-      notes : formData.get("additionalNotes")
-    } 
+      body: JSON.stringify({ cartItems }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to create checkout session");
+      return;
+    }
+
+    const session = await response.json();
     
-    createOrderMutation.mutate(orderData);
+    console.log(session);
+
+    const result = await stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
+
+    if (result.error) {
+      console.error(result.error.message);
+    }
   };
+  
+  // const handleCheckout = (e: React.FormEvent<HTMLFormElement>) => {
+    
+  //   e.preventDefault();
+  //   const formData = new FormData(e.currentTarget);
+
+  //   const orderData = {
+  //     shippingAddress : {
+  //       name: formData.get("name"),
+  //       email: formData.get("email"),
+  //       address: formData.get("address"),
+  //       city: formData.get("city"),
+  //       zipCode: formData.get("zipCode"),
+  //       country: formData.get("country"),
+  //     },
+  //     cartItems : cartItems,
+  //     totalAmount : getTotalPrice,
+  //     notes : formData.get("additionalNotes")
+  //   } 
+    
+  //   createOrderMutation.mutate(orderData);
+  // };
 
   if (!isAuthenticated) {
     return (
@@ -209,7 +247,8 @@ export default function Cart() {
               </div>
               <Button 
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                onClick={() => setIsCheckingOut(true)}
+                // onClick={() => setIsCheckingOut(true)}
+                onClick={handleCheckout}
               >
                 {t("cartPageProceedBtnCTA")}
               </Button>
