@@ -54,7 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex items-center justify-center">
-          {user &&(
+          
             <Button
               size="sm"
               className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -66,7 +66,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <ShoppingCart className="h-4 w-4 mr-2" />
               {t("productCardQuickAddCTA")}
             </Button>
-          )}
+          
           </div>
         </div>
         
@@ -119,46 +119,28 @@ export default function ProductCard({ product }: ProductCardProps) {
               </div>
             )}
           </div>
-          {user ?(
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  className="w-full mt-3 bg-primary hover:bg-primary/90 text-[0.8rem]"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart();
-                  }}
-                >
-                  {t("productCardAddToCartCTA")}
-                  <ShoppingCart className="h-4 w-4" />
-                </Button>
-                <Button 
-                  className="w-full mt-3 bg-primary hover:bg-primary/90"
-                  onClick={() => setLocation('/create')}
-                >
-                  {t("productCardCustomizeCTA")}
-                  <ImagePlus className="h-4 w-4 mr-2" />
-                </Button>
-              </div>
-          ) : (
-              <div className="grid grid-cols-2 gap-2 text-center">
-               <Button 
-                  className="w-full mt-3 bg-primary hover:bg-primary/90 text-[0.8rem]"
-                  onClick={() => setLocation('/signup')}
-                >
-                  {t("productCardAddToCartCTA")}
-                  <ShoppingCart className="h-4 w-4" />
-                </Button>
-                <Button 
-                  className="w-full mt-3 bg-primary hover:bg-primary/90"
-                  onClick={() => setLocation('/signup')}
-                >
-                  {t("productCardCustomizeCTA")}
-                  <ImagePlus className="h-4 w-4 mr-2" />
-                </Button>
-              </div>
-
-          )}
           
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              className="w-full mt-3 bg-primary hover:bg-primary/90 text-[0.8rem]"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+            >
+              {t("productCardAddToCartCTA")}
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
+            <Button 
+              className="w-full mt-3 bg-primary hover:bg-primary/90"
+              onClick={() => setLocation('/create')}
+            >
+              {t("productCardCustomizeCTA")}
+              <ImagePlus className="h-4 w-4 mr-2" />
+            </Button>
+          </div>
+          
+         
         </div>
       </CardContent>
     </Card>

@@ -101,7 +101,7 @@ export default function Navbar() {
 
   return (
 
-    isAuthenticated ? 
+    //isAuthenticated ? 
 
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="flex justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -210,7 +210,7 @@ export default function Navbar() {
 
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="sm" className="relative">
+              <Button variant="ghost" size="sm" className="relative mr-2">
                 <ShoppingCart className="h-5 w-5" />
                 {getItemCount() > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -219,8 +219,6 @@ export default function Navbar() {
                 )}
               </Button>
             </Link>
-
-
 
             {/* User Menu */}
             {isAuthenticated ? (
@@ -276,17 +274,7 @@ export default function Navbar() {
             ) : (
 
               <div className="hidden sm:flex items-center space-x-2">
-                <Link href="/login">
-                  <Button variant="ghost" size="sm">
-                    {t("headerNavLinkLogin")}
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button size="sm">
-                    {t("headerNavLinkSignup")}
-                  </Button>
-                </Link>
-                <DropdownMenu>
+                <DropdownMenu className="mr-2">
                   <DropdownMenuTrigger asChild>
                     <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
                       <Languages />
@@ -305,6 +293,17 @@ export default function Navbar() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    {t("headerNavLinkLogin")}
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm">
+                    {t("headerNavLinkSignup")}
+                  </Button>
+                </Link>
+                
               </div>
               
             )}
@@ -351,117 +350,118 @@ export default function Navbar() {
       </nav>
     </header>
 
-    :
+    //:
 
-    <header className="container mx-auto px-4 py-6">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    // <header className="container mx-auto px-4 py-6">
+    //   <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="flex justify-between items-center h-16">
+    //     <div className="flex justify-between items-center h-16">
 
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <img
-                src="/uploads/86c865afac2283f69423030f427ef09a"
-                alt="Logo Image"
-                className="h-32 w-auto"
-            />
-          </div>
+    //       {/* Logo */}
+    //       <div className="flex items-center space-x-2">
+    //         <img
+    //             src="/uploads/86c865afac2283f69423030f427ef09a"
+    //             alt="Logo Image"
+    //             className="h-32 w-auto"
+    //         />
+    //       </div>
           
-          {/* Desktop Navigation */}
-          <div className="flex items-center space-x-4">
+    //       {/* Desktop Navigation */}
+    //       <div className="flex items-center space-x-4">
 
-            {navigation.map((item) => (
+    //         {navigation.map((item) => (
 
               
-              (item.href === '/' || item.href === '/how-it-works') ?
+    //           (item.href === '/' || item.href === '/how-it-works') ?
 
-              <Link key={item.name} href={item.href}>
-                <span
-                  className={`px-3 py-2 text-sm font-medium inline-flex transition-colors cursor-pointer ${
-                    location === item.href
-                      ? "text-primary"
-                      : "text-gray-700 hover:text-primary"
-                  }`}
-                >
-                  {item.name}
-                </span>
-              </Link>
+    //           <Link key={item.name} href={item.href}>
+    //             <span
+    //               className={`px-3 py-2 text-sm font-medium inline-flex transition-colors cursor-pointer ${
+    //                 location === item.href
+    //                   ? "text-primary"
+    //                   : "text-gray-700 hover:text-primary"
+    //               }`}
+    //             >
+    //               {item.name}
+    //             </span>
+    //           </Link>
 
-              :
+    //           :
               
-              (item.name === "Services" || item.name === 'Servizi') ?
+    //           (item.name === "Services" || item.name === 'Servizi') ?
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="primary" size="sm">
-                    <List className="h-5 w-5 mr-0" />
-                    <span className={`ml-0 hidden sm:inline ${location === item.href ? "text-primary" : "text-gray-700 hover:text-primary" }`}>
-                      {item.name}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+    //           <DropdownMenu>
+    //             <DropdownMenuTrigger asChild>
+    //               <Button variant="primary" size="sm">
+    //                 <List className="h-5 w-5 mr-0" />
+    //                 <span className={`ml-0 hidden sm:inline ${location === item.href ? "text-primary" : "text-gray-700 hover:text-primary" }`}>
+    //                   {item.name}
+    //                 </span>
+    //               </Button>
+    //             </DropdownMenuTrigger>
+    //             <DropdownMenuContent align="end">
                 
-                {item.listItems?.map((litems) => (
-                    <DropdownMenuItem asChild>
-                      <Link href={litems.href} className="cursor-pointer">
-                        { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
-                        { litems.href == '/gifts' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
-                        { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
-                        { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
-                        { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 
-                        { litems.name }
-                      </Link>
-                    </DropdownMenuItem>
+    //             {item.listItems?.map((litems) => (
+    //                 <DropdownMenuItem asChild>
+    //                   <Link href={litems.href} className="cursor-pointer">
+    //                     { litems.href == '/faqs' ? <Users className="h-5 w-5 mr-2" /> : ''}
+    //                     { litems.href == '/gifts' ? <GiftIcon className="h-5 w-5 mr-2" /> : ''}
+    //                     { litems.href == '/contact' ? <Contact2Icon className="h-5 w-5 mr-2" /> : ''} 
+    //                     { litems.href == '/how-it-works' ? <Handshake className="h-5 w-5 mr-2" /> : ''} 
+    //                     { litems.href == '/custom-quotes' ? <Quote className="h-5 w-5 mr-2" /> : ''} 
+    //                     { litems.name }
+    //                   </Link>
+    //                 </DropdownMenuItem>
                     
-                ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+    //             ))}
+    //             </DropdownMenuContent>
+    //           </DropdownMenu>
 
-                :
+    //             :
 
-              ''
+    //           ''
 
-            ))}
+    //         ))}
 
-            <Link href="/login">
-              <Button variant="primary" size="sm">
-                {t("headerNavLinkLogin")}
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">
-                {t("headerNavBtnSignup")}
-              </Button>
-            </Link>
+    //         <Link href="/login">
+    //           <Button variant="primary" size="sm">
+    //             {t("headerNavLinkLogin")}
+    //           </Button>
+    //         </Link>
+    //         <Link href="/signup">
+    //           <Button size="sm">
+    //             {t("headerNavBtnSignup")}
+    //           </Button>
+    //         </Link>
 
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
-                    <Languages />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[4rem]">
-                  <DropdownMenuItem asChild>
-                    <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
-                      En
-                    </button>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
-                      It
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+    //         <DropdownMenu>
+    //             <DropdownMenuTrigger asChild>
+    //               <Button className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 px-4 py-1.5" variant="outline" size="md">
+    //                 <Languages />
+    //               </Button>
+    //             </DropdownMenuTrigger>
+    //             <DropdownMenuContent align="end" className="min-w-[4rem]">
+    //               <DropdownMenuItem asChild>
+    //                 <button onClick={() => changeLanguage('en')} className="mx-2 px-3 py-2 bg-blue-500 text-white rounded">
+    //                   En
+    //                 </button>
+    //               </DropdownMenuItem>
+    //               <DropdownMenuItem asChild>
+    //                 <button onClick={() => changeLanguage('it')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded mt-2">
+    //                   It
+    //                 </button>
+    //               </DropdownMenuItem>
+    //             </DropdownMenuContent>
+    //         </DropdownMenu>
             
-          </div>
+    //       </div>
 
           
-        </div>  
+    //     </div>  
 
-      </nav>
-    </header>
+    //   </nav>
+    // </header>
 
   );
+
 }

@@ -345,6 +345,14 @@ export default function Profile() {
                   <ChartLine className="h-4 w-4 mr-2" />
                   {t("myAccountArtistTabThird")}
                 </TabsTrigger>  
+                <TabsTrigger  value="wishlist">
+                  <HeartPlus className="h-4 w-4 mr-2" />
+                  {t("myAccountUserTabThird")} 
+                </TabsTrigger>
+                <TabsTrigger value="orders">
+                  <Package className="h-4 w-4 mr-2" />
+                  {t("myAccountUserTabForth")}
+                </TabsTrigger>
             </TabsList>
             
           )}
@@ -437,6 +445,42 @@ export default function Profile() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="shipping" className="w-full">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("profileUserShippingTitle")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {orders.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileUserShippingNoRecordTagline")}</h3>
+                        <p className="text-gray-600">{t("profileUserShippingNoRecordElaborate")}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {orders.map((order: any) => (
+                          <div key={order.id} className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-medium">Order #{order.orderNumber}</p>
+                                <p className="text-sm text-gray-600">
+                                  {new Date(order.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">${order.totalAmount}</p>
+                                <p className="text-sm text-gray-600 capitalize">{order.status}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent> 
+
               <TabsContent value="orders" className="w-full">
                 <Card>
                   <CardHeader>
@@ -519,42 +563,6 @@ export default function Profile() {
                 </Card>
 
               </TabsContent>
-
-              <TabsContent value="shipping" className="w-full">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t("profileUserShippingTitle")}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {orders.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileUserShippingNoRecordTagline")}</h3>
-                        <p className="text-gray-600">{t("profileUserShippingNoRecordElaborate")}</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {orders.map((order: any) => (
-                          <div key={order.id} className="border rounded-lg p-4">
-                            <div className="flex justify-between items-start mb-2">
-                              <div>
-                                <p className="font-medium">Order #{order.orderNumber}</p>
-                                <p className="text-sm text-gray-600">
-                                  {new Date(order.createdAt).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-medium">${order.totalAmount}</p>
-                                <p className="text-sm text-gray-600 capitalize">{order.status}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent> 
 
             </>  
         
@@ -928,6 +936,89 @@ export default function Profile() {
                   
                 </div>
               </TabsContent>  
+
+              <TabsContent value="orders" className="w-full">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("profileUserOrdersTitle")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {orders.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileUserOrdersNoRecordTagline")}</h3>
+                        <p className="text-gray-600">{t("profileUserOrdersNoRecordElaborate")}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {orders.map((order: any) => (
+                          <div key={order.id} className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-medium">Order #{order.orderNumber}</p>
+                                <p className="text-sm text-gray-600">
+                                  {new Date(order.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">${order.totalAmount}</p>
+                                <p className="text-sm text-gray-600 capitalize">{order.status}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="wishlist" className="w-full">
+
+                {/* My Wishlist */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("profileMyWishlistMainTitle")} ({wishlist.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {wishlist.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("profileMyDesignNoRecordTitle")}</h3>
+                        <p className="text-gray-600">{t("profileMyDesignNoRecordDesc")}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+                        {wishlist.map((design: any) => (
+                          <div key={design.id} className="relative border rounded-lg overflow-hidden">
+                            <img src={design.imageUrl} alt={design.title} className="w-full h-32 object-cover" />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-start">
+                                <Button 
+                                  size="sm"
+                                  className="bg-red-500 group-hover:opacity-100 transition-opacity duration-300 rounded-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteWishlistDesignMutation.mutate(design.id);
+                                  }}
+                                >
+                                <Trash2 className="h-4 w-4 items-center" />  
+                                </Button>
+                              </div>
+                              <div className={`absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 ${ design.isPublic === true ? ('bg-green-600') : ('bg-red-600' )} text-white px-6 py-1 font-semibold shadow-lg right-5 top-[16%]`}>
+                                {design.isPublic === true ? ('Approved') : ('Pending')}                              
+                              </div>
+                            <div className="p-3 flex justify-between">
+                              <h4 className="font-medium">{design.title} </h4>
+                              <Badge variant="secondary" className="ml-2"> €{design.price} </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+              </TabsContent>
 
             </>
           

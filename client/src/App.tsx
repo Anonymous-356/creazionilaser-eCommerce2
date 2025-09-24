@@ -145,8 +145,14 @@ function InAuthenticatedApp() {
         <Switch>
           <Route path="/" component={Landing} />
           <Route path="/home" component={Landing} />
+          <Route path="/shop" component={Shop} />
+          <Route path="/create" component={Create} />
           <Route path="/artists" component={Artists} />
+          <Route path="/designs" component={Designs} />
+          <Route path="/product" component={Product} />
           <Route path="/portfolio" component={Portfolio} />
+          <Route path="/become-an-artist" component={BecomeAnArtist} />
+          <Route path="/cart" component={Cart} />
           <Route path="/faqs" component={Faqs} />
           <Route path="/contact" component={Contact} />
           <Route path="/gifts" component={GiftIdeas} />

@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import { useCart } from "@/hooks/useCart";
 import { useEffect } from "react";
 
 export default function Success() {
 
+  const { t, i18n } = useTranslation();
   const { clearCart } = useCart();
 
   useEffect(() => {
@@ -17,12 +19,12 @@ export default function Success() {
       <Card>
         <CardContent className="p-8 text-center">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-4">Payment Successful!</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("cartCheckoutSucceededTitle")}</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for your purchase. Your order is being processed.
+            {t("cartCheckoutSucceededDescription")}
           </p>
           <Button onClick={() => window.location.href = "/shop"}>
-            Continue Shopping
+            {t("cartPageContinueBtn")}
           </Button>
         </CardContent>
       </Card>

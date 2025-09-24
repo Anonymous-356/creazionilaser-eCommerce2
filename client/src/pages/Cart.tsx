@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle,CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,9 +7,10 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { ShoppingCart, Minus, Plus, Trash2, Package } from "lucide-react";
-import { useState } from "react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ShoppingCart, Minus, Plus, Trash2, Package,EyeOff,Eye } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { loadStripe } from '@stripe/stripe-js';
 import { json } from "stream/consumers";
 import { useTranslation } from 'react-i18next';
@@ -21,7 +22,27 @@ export default function Cart() {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(false);
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+
+    // Code to run on each render (or when dependencies change)
+
+    return () => {
+      // Optional cleanup function
+      // This runs before the component unmounts
+      // or before the effect re-runs due to dependency changes
+    };
+  }, [isAuthenticated]);
   
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: any) => {
@@ -79,8 +100,6 @@ export default function Cart() {
 
     const session = await response.json();
     
-    console.log(session);
-
     const result = await stripe.redirectToCheckout({
       sessionId: session.id,
     });
@@ -90,6 +109,111 @@ export default function Cart() {
     }
   };
   
+   const signupMutation = useMutation({
+    mutationFn: async (data: { 
+      firstName: string; 
+      lastName: string; 
+      email: string; 
+      password: string; 
+    }) => {
+      return await apiRequest("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: t('signUpFormSuccessMessageTitle'),
+        description: t('signUpFormSuccessMessage'),
+      });
+      
+      // Invalidate auth query and redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      // setTimeout(() => {
+      //   if (data?.message?.includes("Admin")) {
+      //     window.location.href = "/admin";
+      //   } else {
+      //     window.location.href = "/";
+      //   }
+      // }, 100);
+
+    },
+    onError: (error: any) => {
+      toast({
+        title: t('signUpFormFailureMessageTitle'),
+        description: error.message || t('signUpFormFailureMessage'),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSignUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: t('signUpFormConfirmPassMessageTitle'),
+        description: t('signUpFormConfirmPassMessage'),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: t('signUpFormShortPassMessageTitle'),
+        description: t('signUpFormShortPassMessage'),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    signupMutation.mutate({ firstName, lastName, email, password });
+  };
+
+  const loginMutation = useMutation({
+    mutationFn: async (data: { email: string; password: string }) => {
+      return await apiRequest("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: (data: any) => {
+      // Invalidate the auth query to refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      toast({
+        title: t("signInFormSuccessMessageTitle"),
+        description: t("signInFormSuccessMessage"),
+      });
+      
+      // Small delay to ensure query invalidation completes
+      // setTimeout(() => {
+      //   if (data?.userType === 'admin') {
+      //     window.location.href = "/admin";
+      //   } else {
+      //     window.location.href = "/";
+      //   }
+      // }, 100);
+
+    },
+    onError: (error: any) => {
+      toast({
+        title: t("signInFormFailureMessageTitle"),
+        description: error.message || t("signInFormAdminFailureMessage"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
+  };
+
   // const handleCheckout = (e: React.FormEvent<HTMLFormElement>) => {
     
   //   e.preventDefault();
@@ -112,24 +236,24 @@ export default function Cart() {
   //   createOrderMutation.mutate(orderData);
   // };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Please Sign In</h2>
-            <p className="text-gray-600 mb-6">
-              You need to be signed in to view your cart.
-            </p>
-            <Button onClick={() => window.location.href = "/api/login"}>
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  //       <Card>
+  //         <CardContent className="p-8 text-center">
+  //           <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+  //           <h2 className="text-2xl font-bold mb-4">Please Sign In</h2>
+  //           <p className="text-gray-600 mb-6">
+  //             You need to be signed in to view your cart.
+  //           </p>
+  //           <Button onClick={setLoc()}>
+  //             Sign In
+  //           </Button>
+  //         </CardContent>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   if (cartItems.length === 0) {
     return (
@@ -243,13 +367,23 @@ export default function Cart() {
                   <span>€{(getTotalPrice() + 9.99).toFixed(2)}</span>
                 </div>
               </div>
-              <Button 
+              {isAuthenticated ? (
+                <Button 
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                 // onClick={() => setIsCheckingOut(true)}
                 onClick={handleCheckout}
               >
                 {t("cartPageProceedBtnCTA")}
               </Button>
+              ):(
+              <Button 
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                onClick={() => setIsSignUp(true)}
+              >
+                {t("cartPageProceedBtnCTA")}
+              </Button>
+              )}
+             
             </CardContent>
           </Card>
 
@@ -340,6 +474,204 @@ export default function Cart() {
           </Card>
         </div>
       )}
+
+      {isSignUp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">{t("signUpFormTitle")}</CardTitle>
+              <CardDescription className="text-center">
+                {t("signUpFormDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSignUp} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">{t("signUpFormInputFirstName")} <span className="text-red-600">*</span></Label>
+                <Input
+                  id="firstName"
+                  placeholder={t("signUpFormPlaceholderFirstName")}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">{t("signUpFormInputLastName")} <span className="text-red-600">*</span></Label>
+                <Input
+                  id="lastName"
+                  placeholder={t("signUpFormPlaceholderLastName")}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">{t("signUpFormInputEmail")} <span className="text-red-600">*</span></Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder={t("signUpFormPlaceholderEmail")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <small className="text-gray-400">Email address must be unique.</small>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("signUpFormInputPassword")} <span className="text-red-600">*</span></Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t("signUpFormPlaceholderPassword")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">{t("signUpFormInputConfirmPass")} <span className="text-red-600">*</span></Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder={t("signUpFormPlaceholderConfirmPass")}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={signupMutation.isPending}
+            >
+              {signupMutation.isPending ? t("signUpFormBtnBefore") : t("signUpFormBtn")}
+            </Button>
+              </form>
+              <div className="mt-4 text-center text-sm">
+                {t("signUpFormExistAccount")}{" "}
+                <Link href="#">
+                  <Button variant="link" className="p-0 h-auto font-semibold"
+                  onClick={() => {
+                    setIsSignUp(false);  
+                    setIsSignIn(true);
+                  }}
+                  >
+                    {t("signUpFormLink")}
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {isSignIn && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">{t("signInFormTitle")}</CardTitle>
+              <CardDescription className="text-center">
+                {t("signInFormDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("signInFormInputEmail")} <span className="text-red-600">*</span></Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t("signInFormPlaceholderEmail")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t("signInFormInputPassword")} <span className="text-red-600">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("signInFormPlaceholderPassword")}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loginMutation.isPending}
+                >
+                  {loginMutation.isPending ? t("signInFormBtnBefore") : t("signInFormBtn")}
+                </Button>
+              </form>
+            <div className="mt-4 text-center text-sm">
+              {t("signInFormExistAccount")}{" "}
+              <Link href="#">
+                  <Button variant="link" className="p-0 h-auto font-semibold"
+                  onClick={() => {
+                    setIsSignIn(false);  
+                    setIsSignUp(true);
+                  }}
+                  >
+                    {t("signInFormLink")}
+                  </Button>
+                </Link>
+            </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
     </div>
   );
 }

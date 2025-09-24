@@ -225,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
    app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('functioningWebhook...');
+    console.log('Functioning-webhook...');
     
     const sig = req.headers['stripe-signature'];
     let event;

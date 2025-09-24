@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery,useMutation } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
+import { useLocation } from "wouter";
 
 
 interface DesignCardProps {
@@ -30,6 +31,7 @@ export default function DesignCard({ design }: DesignCardProps) {
 
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
 
   const createWishListMutation = useMutation({
@@ -81,7 +83,7 @@ export default function DesignCard({ design }: DesignCardProps) {
           { design.isPublic === true ? ( 'Approved' ) : ( 'Pending' ) }                                
           </div>
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex justify-center top-[50%]">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <Button 
                 size="sm"
                 className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -89,6 +91,16 @@ export default function DesignCard({ design }: DesignCardProps) {
                   e.stopPropagation();
                   handleWishlist(design.id);
                 }}
+              >
+                <HeartPlus className="h-4 w-4 items-center" />
+              </Button>
+            )
+            : 
+            (
+               <Button 
+                size="sm"
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={() => setLocation("/signup")}
               >
                 <HeartPlus className="h-4 w-4 items-center" />
               </Button>

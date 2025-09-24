@@ -89,6 +89,7 @@ export default function Landing() {
               <Card 
                 key={category.id} 
                 className="group cursor-pointer card-hover"
+                onClick={() => setLocation(`/shop?category=${category.slug}`)}
               >
                 <CardContent className="p-6 text-center">
                   <img 
