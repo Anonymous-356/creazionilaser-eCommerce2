@@ -163,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-checkout-session', async (req, res) => {
     try {
 
-      console.log('functioning...');
+      console.log('checkout...');
       const { cartItems } = req.body;
 
       const line_items = cartItems.map((item: any) => ({
@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cancel_url: 'https://creazionilaser.com/cancel',
         metadata: {
           userId: req.session.id,
-          //cartItems: JSON.stringify(cartItems),
+          cartItems: JSON.stringify(cartItems),
         },
       });
 
@@ -223,15 +223,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-   app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
     console.log('Functioning-webhook...');
     
-    const sig = req.headers['stripe-signature'];
+    const signature = req.headers['stripe-signature'];
+    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig!, "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI");
+      event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
     } catch (err: any) {
       console.error(`Webhook signature verification failed.`, err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);

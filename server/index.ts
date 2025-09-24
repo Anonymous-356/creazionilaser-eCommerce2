@@ -103,7 +103,7 @@ app.use((req, res, next) => {
 
 app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('Functioning-webhook...');
+    console.log('Webhook...');
     
     const signature = req.headers['stripe-signature'];
     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
@@ -118,14 +118,14 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
 
     // Handle the event
     if (event.type === 'checkout.session.completed') {
+      
       const session = event.data.object as Stripe.Checkout.Session;
-
       console.log(session);
 
       const userId = session.metadata!.userId;
       const cartItems = JSON.parse(session.metadata!.cartItems);
 
-      const shippingDetails = session!.shipping_details;
+      const shippingDetails = session!.customer_details;
       const orderData = {
         userId: parseInt(userId),
         orderNumber: uuidv4(),
