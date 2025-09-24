@@ -144,8 +144,8 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
 
       const items = cartItems.map((item: any) => ({
         orderId: 0, // This will be set by the storage layer
-        productId: item.product.id,
-        designId: item.design?.id,
+        productId: item.productId,
+        // designId: item.design?.id,
         quantity: item.quantity,
         unitPrice: item.price,
         customization: item.customization,
