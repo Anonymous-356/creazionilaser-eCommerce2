@@ -231,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig!, "whsec_ardTC6a2P2mLwoxVnWY8GrK6n9mN8KKg");
+      event = stripe.webhooks.constructEvent(req.body, sig!, "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI");
     } catch (err: any) {
       console.error(`Webhook signature verification failed.`, err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
