@@ -20,7 +20,7 @@ import { EnquiryForm } from "@/components/email-templates/EnquiryForm";
 import { db,pool } from "./db";
 import { v4 as uuidv4 } from 'uuid'
 import transporter from "./mailer";
-import { sql, eq, gt,count,and,sum } from "drizzle-orm";
+import { sql, eq, gt,count,and,sum, ConsoleLogWriter } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
@@ -163,7 +163,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-checkout-session', async (req, res) => {
     try {
 
-      console.log('checkout...');
       const { cartItems } = req.body;
 
       const line_items = cartItems.map((item: any) => ({
@@ -185,7 +184,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           allowed_countries: ['US', 'CA', 'GB', 'AU', 'IT'],
         },
         line_items: [
-          ...cartItems.map((item: any) => ({
+          ...cartItems
+          .map((item: any) => ({
             price_data: {
               currency: 'eur',
               product_data: {
@@ -212,7 +212,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cancel_url: 'https://creazionilaser.com/cancel',
         metadata: {
           userId: req.session.id,
-          cartItems: JSON.stringify(cartItems),
+          cartItems: JSON.stringify(
+            cartItems.map((item: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { product, design, ...rest } = item;
+              return rest;
+            }),
+          ),
         },
       });
 
