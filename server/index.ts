@@ -26,7 +26,6 @@ i18next
 });
 
 const app = express();
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(handle(i18next));
 
@@ -93,3 +92,5 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 })();
+
+app.use(express.json());
