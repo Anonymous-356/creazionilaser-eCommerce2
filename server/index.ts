@@ -1,14 +1,22 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { v4 as uuidv4 } from 'uuid'
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
+import { storage } from "./storage";
 import {LanguageDetector,handle} from 'i18next-http-middleware';
 import path from 'path';
 
+import Stripe from 'stripe';
 
 import * as dotenv from 'dotenv';
 dotenv.config({path : "../.env"});
+
+const stripe = new Stripe("sk_test_51RdqmFAJosTY6SBe3nh6nKuUDeol0ETTtCQA4RDSMt4AoxcM66P0nizSdOEcMV4o3o12s2Sa8WcnWwjTtgSeSFeY00rqw0spTy", {
+  //apiVersion: '2024-04-10.basil',
+});
+
 
 i18next
   .use(Backend)                     // Connects the file system backend
@@ -92,5 +100,67 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 })();
+
+app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    
+    console.log('Functioning-webhook...');
+    
+    const signature = req.headers['stripe-signature'];
+    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
+    } catch (err: any) {
+      console.error(`Webhook signature verification failed.`, err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      console.log(session);
+
+      const userId = session.metadata!.userId;
+      const cartItems = JSON.parse(session.metadata!.cartItems);
+
+      const shippingDetails = session!.shipping_details;
+      const orderData = {
+        userId: parseInt(userId),
+        orderNumber: uuidv4(),
+        totalAmount: (session.amount_total! / 100).toString(),
+        shippingAddress: {
+          name: shippingDetails?.name,
+          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+          city: shippingDetails?.address?.city,
+          zipCode: shippingDetails?.address?.postal_code,
+          country: shippingDetails?.address?.country,
+        },
+        notes: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const items = cartItems.map((item: any) => ({
+        orderId: 0, // This will be set by the storage layer
+        productId: item.product.id,
+        designId: item.design?.id,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        customization: item.customization,
+      }));
+
+      try {
+        const order = await storage.createOrder(orderData, items);
+        console.log(order);
+        console.log(`Order created for user ${userId}`);
+      } catch (error) {
+        console.error(`Error creating order for user ${userId}:`, error);
+      }
+    }
+
+    res.json({received: true});
+  });
 
 app.use(express.json());
