@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { storage } from "./storage";
+import { unless }  from 'express-unless'; // You would need to install this: npm install express-unless
+
 import {LanguageDetector,handle} from 'i18next-http-middleware';
 import path from 'path';
 
@@ -34,6 +36,13 @@ i18next
 });
 
 const app = express();
+
+// Apply express.json() globally but exclude specific paths
+// let jsonMiddleware = express.json();
+// jsonMiddleware = unless({ path: ['/api/webhook'] }); // Add the unless method to your middleware
+
+// app.use(express.json().unless({ path: ['/api/webhook'] })); // Exclude /api/upload from JSON parsing
+
 app.use(express.urlencoded({ extended: false }));
 app.use(handle(i18next));
 
@@ -144,10 +153,10 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
 
       const items = cartItems.map((item: any) => ({
         orderId: 0, // This will be set by the storage layer
-        productId: item.productId,
+        productId: parseInt(item.productId),
         // designId: item.design?.id,
-        quantity: item.quantity,
-        unitPrice: item.price,
+        quantity: parseInt(item.quantity),
+        unitPrice: parseFloat(item.price),
         customization: item.customization,
       }));
 
