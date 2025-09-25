@@ -125,7 +125,7 @@ app.use((req, res, next) => {
 app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
     const signature = req.headers['stripe-signature'];
-    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
+    const endpointSignature = "whsec_ardTC6a2P2mLwoxVnWY8GrK6n9mN8KKg";
     let event;
 
     try {
