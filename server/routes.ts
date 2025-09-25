@@ -229,9 +229,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/webhook',  async (req, res) => {
+  app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('webhook...');
+    console.log('webhook....');
     
     const signature = req.headers['stripe-signature'];
     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
@@ -246,36 +246,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Handle the event
     if (event.type === 'checkout.session.completed') {
-    //if (req.body ) {
-
+      
       const session = event.data.object as Stripe.Checkout.Session;
+      //console.log(session);
 
-      const userId = session.metadata!.userId;
+      const userId = parseInt(session.metadata!.userId);
       const cartItems = JSON.parse(session.metadata!.cartItems);
 
-      const shippingDetails = session!.shipping_details;
-
+      const shippingDetails = session!.customer_details;
       const orderData = {
-        userId: 1, //parseInt(userId),
+        userId: userId,
         orderNumber: uuidv4(),
-        totalAmount: 45.64, //(session.amount_total! / 100).toString(),
+        totalAmount: parseInt((session.amount_total! / 100).toString()),
+        paymentStatus : "processed",
         shippingAddress: {
-          name: 'Hassan',  //shippingDetails?.name,
-          address:  'Abc', //`${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
-          city:  'Rwp', //shippingDetails?.address?.city,
-          zipCode: '978997', //shippingDetails?.address?.postal_code,
-          country: 'Pakistan', //shippingDetails?.address?.country,
+          name: shippingDetails?.name,
+          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+          city: shippingDetails?.address?.city,
+          zipCode: shippingDetails?.address?.postal_code,
+          country: shippingDetails?.address?.country,
         },
         notes: '',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-
-      // const cartItems = [
-      //   {productId : 13,price : 34.50,quantity : 4},
-      //   {productId : 14,price : 10.40,quantity : 6},
-      //   {productId : 15,price : 50.60,quantity : 2},
-      // ]
 
       const items = cartItems.map((item: any) => ({
         orderId: 0, // This will be set by the storage layer
@@ -287,8 +281,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
 
       try {
+
         const order = await storage.createOrder(orderData, items);
-        console.log(order);
+
+        const subject = "We've Received Your Order"
+        const to = shippingDetails?.email;
+        //const to = 'noreply@creazionilaser.com';
+        const messageBody = `<h3>Hi ${shippingDetails?.name},</h3>
+                              <p>We have successfully received your order,Following are the order details for your info:</p>
+                              <ul style="list-style:none !important;">
+                                <li><b>Order# : </b>${uuidv4()}</li>
+                                <li><b>Order Total : </b>${parseInt((session.amount_total! / 100).toString())}</li>
+                                <li><b>Payment Status : </b>Processed</li>
+                            </ul>`;
+
+        await sendEmailHtmlTemplate(to,subject,messageBody);
+
         console.log(`Order created for user ${userId}`);
       } catch (error) {
         console.error(`Error creating order for user ${userId}:`, error);

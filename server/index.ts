@@ -1,4 +1,4 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { type Request, Response, NextFunction,RequestHandler } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { v4 as uuidv4 } from 'uuid'
@@ -35,13 +35,24 @@ i18next
     preload: ['en', 'it'],               // Preload these languages at startup
 });
 
+
+   
 const app = express();
+const myMiddleware: RequestHandler = (req, res, next) => {
+    // ... middleware logic
+  next();
+}
+    
+(myMiddleware as any).unless = unless; 
 
-// Apply express.json() globally but exclude specific paths
-// let jsonMiddleware = express.json();
-// jsonMiddleware = unless({ path: ['/api/webhook'] }); // Add the unless method to your middleware
+// Or, if using a custom type for middleware with unless:
+interface MiddlewareWithUnless extends RequestHandler {
+  unless: typeof unless;
+}
 
-// app.use(express.json().unless({ path: ['/api/webhook'] })); // Exclude /api/upload from JSON parsing
+let jsonBodyParser: MiddlewareWithUnless = Object.assign(myMiddleware, { unless: unless });
+jsonBodyParser = unless({ path: ['/api/webhook'] })
+
 
 app.use(express.urlencoded({ extended: false }));
 app.use(handle(i18next));
@@ -110,68 +121,65 @@ app.use((req, res, next) => {
   });
 })();
 
-app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+// app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('Webhook...');
-    
-    const signature = req.headers['stripe-signature'];
-    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
-    let event;
+//     const signature = req.headers['stripe-signature'];
+//     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
+//     let event;
 
-    try {
-      event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
-    } catch (err: any) {
-      console.error(`Webhook signature verification failed.`, err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+//     try {
+//       event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
+//     } catch (err: any) {
+//       console.error(`Webhook signature verification failed.`, err.message);
+//       return res.status(400).send(`Webhook Error: ${err.message}`);
+//     }
 
-    // Handle the event
-    if (event.type === 'checkout.session.completed') {
+//     // Handle the event
+//     if (event.type === 'checkout.session.completed') {
       
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.log(session);
+//       const session = event.data.object as Stripe.Checkout.Session;
+//       //console.log(session);
 
-      //return;
+//       const userId = parseInt(session.metadata!.userId);
+//       const cartItems = JSON.parse(session.metadata!.cartItems);
 
-      const userId = parseInt(session.metadata!.userId);
-      const cartItems = JSON.parse(session.metadata!.cartItems);
+//       const shippingDetails = session!.customer_details;
+//       const orderData = {
+//         userId: userId,
+//         orderNumber: uuidv4(),
+//         totalAmount: parseInt((session.amount_total! / 100).toString()),
+//         paymentStatus : "processed",
+//         shippingAddress: {
+//           name: shippingDetails?.name,
+//           address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+//           city: shippingDetails?.address?.city,
+//           zipCode: shippingDetails?.address?.postal_code,
+//           country: shippingDetails?.address?.country,
+//         },
+//         notes: '',
+//         createdAt: new Date(),
+//         updatedAt: new Date(),
+//       };
 
-      const shippingDetails = session!.customer_details;
-      const orderData = {
-        userId: userId,
-        orderNumber: uuidv4(),
-        totalAmount: parseInt((session.amount_total! / 100).toString()),
-        shippingAddress: {
-          name: shippingDetails?.name,
-          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
-          city: shippingDetails?.address?.city,
-          zipCode: shippingDetails?.address?.postal_code,
-          country: shippingDetails?.address?.country,
-        },
-        notes: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+//       const items = cartItems.map((item: any) => ({
+//         orderId: 0, // This will be set by the storage layer
+//         productId: parseInt(item.productId),
+//         // designId: item.design?.id,
+//         quantity: parseInt(item.quantity),
+//         unitPrice: parseInt(item.price),
+//         customization: item.customization,
+//       }));
 
-      const items = cartItems.map((item: any) => ({
-        orderId: 0, // This will be set by the storage layer
-        productId: parseInt(item.productId),
-        // designId: item.design?.id,
-        quantity: parseInt(item.quantity),
-        unitPrice: parseInt(item.price),
-        customization: item.customization,
-      }));
+//       try {
+//         const order = await storage.createOrder(orderData, items);
+//         console.log(order);
+//         console.log(`Order created for user ${userId}`);
+//       } catch (error) {
+//         console.error(`Error creating order for user ${userId}:`, error);
+//       }
+//     }
 
-      try {
-        const order = await storage.createOrder(orderData, items);
-        console.log(order);
-        console.log(`Order created for user ${userId}`);
-      } catch (error) {
-        console.error(`Error creating order for user ${userId}:`, error);
-      }
-    }
-
-    res.json({received: true});
-});
+//     res.json({received: true});
+// });
 
 app.use(express.json());

@@ -221,7 +221,7 @@ export default function Create() {
                     className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                     disabled={!selectedProduct || (!selectedDesign && !uploadedFile)}
                   >
-                    Add to Cart - €{totalPrice.toFixed(2)}
+                    {t("productCardAddToCartCTA")} - €{totalPrice.toFixed(2)}
                   </Button>
                 </div>
               )}
