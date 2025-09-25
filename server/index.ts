@@ -131,7 +131,7 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(session);
 
-      return;
+      //return;
 
       const userId = parseInt(session.metadata!.userId);
       const cartItems = JSON.parse(session.metadata!.cartItems);

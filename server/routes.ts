@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/create-checkout-session', async (req, res) => {
+  app.post('/api/create-checkout-session', async (req : any, res) => {
     try {
 
       const { cartItems } = req.body;
@@ -211,7 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success_url: 'https://creazionilaser.com/success',
         cancel_url: 'https://creazionilaser.com/cancel',
         metadata: {
-          userId: req.session.id,
+          userId: req.session?.userId,
           cartItems: JSON.stringify(
             cartItems.map((item: any) => {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
