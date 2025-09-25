@@ -124,7 +124,6 @@ app.use((req, res, next) => {
 
 app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('webhook');
     const signature = req.headers['stripe-signature'];
     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
     let event;
@@ -181,8 +180,8 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
         const messageBody = `<h3>Hi ${shippingDetails?.name},</h3>
                               <p>We have successfully received your order,Following are the order details for your info:</p>
                               <ul style="list-style:none !important;">
-                                <li><b>Order# : </b>${uuidv4()}</li>
-                                <li><b>Order Total : </b>${parseInt((session.amount_total! / 100).toString())}</li>
+                                <li><b>Order# : </b>ORD-${order.id}</li>
+                                <li><b>Order Total : </b>€${parseInt((session.amount_total! / 100).toString())}</li>
                                 <li><b>Payment Status : </b>Processed</li>
                             </ul>`;
 

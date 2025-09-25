@@ -10,7 +10,31 @@ import ProductCustomizer from "@/components/ProductCustomizer";
 import { Upload, Palette, Type, Eye } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+
+import { ShoppingCart, Star,ImagePlus } from "lucide-react";
+import { useLocation , Link} from "wouter";
+
+interface ProductCardProps {
+
+  product: {
+    id: number;
+    name: string;
+    description?: string;
+    basePrice: string;
+    imageUrl?: string;
+    customizationOptions?: any;
+  };
+}
+
 export default function Create() {
+  
+  const { user,isAuthenticated } = useAuth();
+  const [ , setLocation] = useLocation();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   
   const { t, i18n } = useTranslation();
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -40,6 +64,22 @@ export default function Create() {
   const basePrice = selectedProduct ? parseFloat(selectedProduct.basePrice) : 0;
   const designPrice = selectedDesign ? parseFloat(selectedDesign.price) : 0;
   const totalPrice = basePrice + designPrice;
+
+  const handleAddToCart = (product : any,design : any) => {
+    addToCart({
+      productId: product.id,
+      product : product,
+      design : design,
+      quantity: 1,
+      price: product.basePrice,
+      customization: {},
+    });
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -219,6 +259,10 @@ export default function Create() {
 
                   <Button 
                     className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(selectedProduct,selectedDesign);
+                    }}
                     disabled={!selectedProduct || (!selectedDesign && !uploadedFile)}
                   >
                     {t("productCardAddToCartCTA")} - €{totalPrice.toFixed(2)}

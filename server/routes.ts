@@ -11,6 +11,7 @@ import {
   artists,
   wishlist,
   quotes,
+  orders,
   enquiries,
   settings, 
   designs
@@ -935,6 +936,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to place new orders" });
     }
   });
+
+  // Order/Checkout routes (authenticated)
+  app.get('/api/orders', async (req, res) => {
+     try {
+      const orders = await storage.getAllOrders();
+      res.status(201).json(orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
   
   // Admin routes (protected)
   const isAdmin = async (req: any, res: any, next: any) => {
@@ -963,6 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalCategories = await db.select({ count: sql`count(*)` }).from(categories);
       const totalArtists = await db.select({ count: sql`count(*)` }).from(artists);
       const totalDesigns = await db.select({ count: sql`count(*)` }).from(designs);
+      const totalOrders = await db.select({ count: sql`count(*)` }).from(orders);
       
       res.json({
         totalUsers: totalUsers[0]?.count || 0,
@@ -970,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalCategories: totalCategories[0]?.count || 0,
         totalDesigns: totalDesigns[0]?.count || 0,
         totalArtists: totalArtists[0]?.count || 0,
-        totalOrders: 0,
+        totalOrders: totalOrders[0]?.count || 0,
         totalRevenue: 0,
         newUsersThisWeek: 0,
       });
@@ -1548,8 +1561,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get Orders for admin
   app.get('/api/admin/orders', isAdmin, async (req, res) => {
     try {
-      // For now return empty array since orders table might not have data
-      res.json([]);
+
+      const orders = await storage.getAllOrders();
+      res.status(201).json(orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).json({ message: "Failed to fetch orders" });

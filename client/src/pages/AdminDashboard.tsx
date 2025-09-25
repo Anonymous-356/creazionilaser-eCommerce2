@@ -1786,11 +1786,11 @@ function OrdersTab({ orders }: { orders?: any[] }) {
             <TableBody>
               {orders?.length ? orders.map((order: any) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.orderNumber}</TableCell>
-                  <TableCell>{order.customerName}</TableCell>
+                  <TableCell className="font-medium">ORD-{order.id}</TableCell>
+                  <TableCell>{order.shippingAddress?.name}</TableCell>
                   <TableCell>€{order.totalAmount}</TableCell>
                   <TableCell>
-                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
+                    <Badge variant={order.status === 'pending' ? 'default' : 'secondary'}>
                       {order.status}
                     </Badge>
                   </TableCell>

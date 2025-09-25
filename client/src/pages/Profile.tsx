@@ -955,7 +955,7 @@ export default function Profile() {
                           <div key={order.id} className="border rounded-lg p-4">
                             <div className="flex justify-between items-start mb-2">
                               <div>
-                                <p className="font-medium">Order #{order.orderNumber}</p>
+                                <p className="font-medium">Order# ORD-{order.id}</p>
                                 <p className="text-sm text-gray-600">
                                   {new Date(order.createdAt).toLocaleDateString()}
                                 </p>
