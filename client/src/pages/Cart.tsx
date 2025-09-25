@@ -47,7 +47,7 @@ export default function Cart() {
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: any) => {
 
-      const response = await fetch('/api/orders', {
+      const response = await fetch('/api/webhook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,6 +98,14 @@ export default function Cart() {
       return;
     }
 
+
+    // const orderData = [
+    //         {productId : 4,price : 35.50,quantity : 3},
+    //         {productId : 2,price : 15.50,quantity : 2},
+    // ]
+
+    //createOrderMutation.mutate(orderData);
+
     const session = await response.json();
     
     const result = await stripe.redirectToCheckout({
@@ -107,6 +115,7 @@ export default function Cart() {
     if (result.error) {
       console.error(result.error.message);
     }
+
   };
   
    const signupMutation = useMutation({

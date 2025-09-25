@@ -131,12 +131,14 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(session);
 
-      const userId = session.metadata!.userId;
+      return;
+
+      const userId = parseInt(session.metadata!.userId);
       const cartItems = JSON.parse(session.metadata!.cartItems);
 
       const shippingDetails = session!.customer_details;
       const orderData = {
-        userId: parseInt(userId),
+        userId: userId,
         orderNumber: uuidv4(),
         totalAmount: parseInt((session.amount_total! / 100).toString()),
         shippingAddress: {
@@ -170,6 +172,6 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
     }
 
     res.json({received: true});
-  });
+});
 
 app.use(express.json());

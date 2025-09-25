@@ -229,9 +229,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  app.post('/api/webhook',  async (req, res) => {
     
-    console.log('Functioning-webhook...');
+    console.log('webhook...');
     
     const signature = req.headers['stripe-signature'];
     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
@@ -246,36 +246,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Handle the event
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
+    //if (req.body ) {
 
-      console.log(session);
+      const session = event.data.object as Stripe.Checkout.Session;
 
       const userId = session.metadata!.userId;
       const cartItems = JSON.parse(session.metadata!.cartItems);
 
       const shippingDetails = session!.shipping_details;
+
       const orderData = {
-        userId: parseInt(userId),
+        userId: 1, //parseInt(userId),
         orderNumber: uuidv4(),
-        totalAmount: (session.amount_total! / 100).toString(),
+        totalAmount: 45.64, //(session.amount_total! / 100).toString(),
         shippingAddress: {
-          name: shippingDetails?.name,
-          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
-          city: shippingDetails?.address?.city,
-          zipCode: shippingDetails?.address?.postal_code,
-          country: shippingDetails?.address?.country,
+          name: 'Hassan',  //shippingDetails?.name,
+          address:  'Abc', //`${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+          city:  'Rwp', //shippingDetails?.address?.city,
+          zipCode: '978997', //shippingDetails?.address?.postal_code,
+          country: 'Pakistan', //shippingDetails?.address?.country,
         },
         notes: '',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
+      // const cartItems = [
+      //   {productId : 13,price : 34.50,quantity : 4},
+      //   {productId : 14,price : 10.40,quantity : 6},
+      //   {productId : 15,price : 50.60,quantity : 2},
+      // ]
+
       const items = cartItems.map((item: any) => ({
         orderId: 0, // This will be set by the storage layer
-        productId: item.product.id,
-        designId: item.design?.id,
-        quantity: item.quantity,
-        unitPrice: item.price,
+        productId: parseInt(item.productId),
+        // designId: item.design?.id,
+        quantity: parseInt(item.quantity),
+        unitPrice: parseInt(item.price),
         customization: item.customization,
       }));
 

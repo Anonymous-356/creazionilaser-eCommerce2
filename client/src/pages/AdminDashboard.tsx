@@ -39,6 +39,7 @@ import {
   Ban,
   Eye,
   EyeOff,
+  Power,
   Upload,
   CheckCheck,
   Languages,
@@ -153,7 +154,7 @@ export default function AdminDashboard() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-          <h1 className="text-xl font-bold text-white">{t("Admin Panel")}</h1>
+          <h1 className="text-xl font-bold text-white">{t("Dashboard")}</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -241,8 +242,8 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="absolute bottom-6 left-4 right-4">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center space-x-3">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 flex justify-center">
+            {/* <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-bold">
                   {(user as any)?.firstName?.[0]}{(user as any)?.lastName?.[0]}
@@ -254,12 +255,13 @@ export default function AdminDashboard() {
                 </p>
                 <p className="text-xs text-gray-600 truncate">{(user as any)?.email}</p>
               </div>
-            </div>
-            <Badge variant="default" className="mt-3 w-full justify-center bg-blue-600 hover:bg-blue-700">
+            </div> */}
+            <Badge variant="default" className="w-3/4 justify-center bg-blue-600 hover:bg-blue-700">
               {t("Administrator")}
             </Badge>
           </div>
         </div>
+
       </div>
 
       {/* Main content */}
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
               disabled={logoutMutation.isPending}
               className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
             >
-              {t("Logout")}
+              <Power className="h-5 w-5" />
             </Button>
             <div className="">
               <DropdownMenu>
