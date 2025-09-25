@@ -74,7 +74,7 @@ export default function Create() {
                   <SelectContent>
                     {products.map((product: any) => (
                       <SelectItem key={product.id} value={product.id.toString()}>
-                        {product.name} - ${product.basePrice}
+                        {product.name} - €{product.basePrice}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -124,7 +124,7 @@ export default function Create() {
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-opacity flex items-center justify-center">
                         <span className="text-white text-xs font-medium opacity-0 hover:opacity-100">
-                          ${design.price}
+                          €{design.price}
                         </span>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ export default function Create() {
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">{selectedProduct.name}</span>
                     <span className="text-2xl font-bold text-primary">
-                      ${totalPrice.toFixed(2)}
+                      €{totalPrice.toFixed(2)}
                     </span>
                   </div>
 
@@ -221,7 +221,7 @@ export default function Create() {
                     className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                     disabled={!selectedProduct || (!selectedDesign && !uploadedFile)}
                   >
-                    Add to Cart - ${totalPrice.toFixed(2)}
+                    Add to Cart - €{totalPrice.toFixed(2)}
                   </Button>
                 </div>
               )}

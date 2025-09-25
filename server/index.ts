@@ -138,7 +138,7 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
       const orderData = {
         userId: parseInt(userId),
         orderNumber: uuidv4(),
-        totalAmount: (session.amount_total! / 100).toString(),
+        totalAmount: parseInt((session.amount_total! / 100).toString()),
         shippingAddress: {
           name: shippingDetails?.name,
           address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
@@ -156,7 +156,7 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, re
         productId: parseInt(item.productId),
         // designId: item.design?.id,
         quantity: parseInt(item.quantity),
-        unitPrice: parseFloat(item.price),
+        unitPrice: parseInt(item.price),
         customization: item.customization,
       }));
 

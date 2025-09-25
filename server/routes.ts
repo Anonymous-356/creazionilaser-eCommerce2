@@ -1193,6 +1193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.put('/api/admin/designs/:id/:type',isAdmin, async (req, res) => {
+  
     try {
       
       const currentDate = new Date();
@@ -1227,7 +1228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                               <li><b>Artwork Img : </b><a href=${design?.imageUrl} target="blank" className="text-blue-700 underline" download=${design?.imageUrl}>Download</a></li>
                               <li><b>Date Updated : </b>${currentDate}</li>
                           </ul>`;
-
+                                                        
       await sendEmailHtmlTemplate(to,subject,messageBody);
 
       console.log("Successfully updated design",updatedDesign);
@@ -1237,6 +1238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching designs:", error);
       res.status(500).json({ message: "Failed to fetch designs" });
     }
+
   });
   
   app.get('/api/admin/products', isAdmin, async (req, res) => {

@@ -113,7 +113,7 @@ export const cartItems = pgTable("cart_items", {
   designId: integer("design_id").references(() => designs.id),
   quantity: integer("quantity").notNull().default(1),
   customization: jsonb("customization"), // size, color, text, etc.
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).$type<number>().notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -123,7 +123,7 @@ export const orders = pgTable("orders", {
   userId: integer("user_id").notNull().references(() => users.id),
   orderNumber: varchar("order_number").notNull().unique(),
   status: varchar("status").notNull().default("pending"), // pending, processing, shipped, delivered, cancelled
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).$type<number>().notNull(),
   shippingAddress: jsonb("shipping_address").notNull(),
   paymentStatus: varchar("payment_status").default("pending"), // pending, processed
   notes: text("notes"),

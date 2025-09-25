@@ -378,7 +378,7 @@ function OverviewTab({ stats }: { stats?: any }) {
           <CardContent className="pt-4">
             <div className="text-3xl font-bold text-purple-700">{stats?.totalOrders || 0}</div>
             <p className="text-xs text-gray-600 mt-1">
-              ${stats?.totalRevenue || 0} revenue
+              €{stats?.totalRevenue || 0} revenue
             </p>
           </CardContent>
         </Card>
@@ -1201,7 +1201,7 @@ function ProductsTab({ products, categories }: { products?: any[]; categories?: 
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.categoryName}</TableCell>
-                  <TableCell>${product.basePrice}</TableCell>
+                  <TableCell>€{product.basePrice}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button 
@@ -1786,7 +1786,7 @@ function OrdersTab({ orders }: { orders?: any[] }) {
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.orderNumber}</TableCell>
                   <TableCell>{order.customerName}</TableCell>
-                  <TableCell>${order.totalAmount}</TableCell>
+                  <TableCell>€{order.totalAmount}</TableCell>
                   <TableCell>
                     <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
                       {order.status}
@@ -2596,7 +2596,7 @@ function SettingsTab() {
               </div>
 
               <div>
-                <Label htmlFor="shipping">{t("Default Shipping")} ($)</Label>
+                <Label htmlFor="shipping">{t("Default Shipping")} (€)</Label>
                 <Input 
                   id="shipping" 
                   name="shipping" 
