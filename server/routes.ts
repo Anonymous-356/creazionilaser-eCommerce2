@@ -229,82 +229,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  // app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-    console.log('webhook....');
-    
-    const signature = req.headers['stripe-signature'];
-    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
-    let event;
+  //   const signature = req.headers['stripe-signature'];
+  //   const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
+  //   let event;
 
-    try {
-      event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
-    } catch (err: any) {
-      console.error(`Webhook signature verification failed.`, err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+  //   try {
+  //     event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
+  //   } catch (err: any) {
+  //     console.error(`Webhook signature verification failed.`, err.message);
+  //     return res.status(400).send(`Webhook Error: ${err.message}`);
+  //   }
 
-    // Handle the event
-    if (event.type === 'checkout.session.completed') {
+  //   // Handle the event
+  //   if (event.type === 'checkout.session.completed') {
       
-      const session = event.data.object as Stripe.Checkout.Session;
-      //console.log(session);
+  //     const session = event.data.object as Stripe.Checkout.Session;
+  //     //console.log(session);
 
-      const userId = parseInt(session.metadata!.userId);
-      const cartItems = JSON.parse(session.metadata!.cartItems);
+  //     const userId = parseInt(session.metadata!.userId);
+  //     const cartItems = JSON.parse(session.metadata!.cartItems);
 
-      const shippingDetails = session!.customer_details;
-      const orderData = {
-        userId: userId,
-        orderNumber: uuidv4(),
-        totalAmount: parseInt((session.amount_total! / 100).toString()),
-        paymentStatus : "processed",
-        shippingAddress: {
-          name: shippingDetails?.name,
-          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
-          city: shippingDetails?.address?.city,
-          zipCode: shippingDetails?.address?.postal_code,
-          country: shippingDetails?.address?.country,
-        },
-        notes: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+  //     const shippingDetails = session!.customer_details;
+  //     const orderData = {
+  //       userId: userId,
+  //       orderNumber: uuidv4(),
+  //       totalAmount: parseInt((session.amount_total! / 100).toString()),
+  //       paymentStatus : "processed",
+  //       shippingAddress: {
+  //         name: shippingDetails?.name,
+  //         address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+  //         city: shippingDetails?.address?.city,
+  //         zipCode: shippingDetails?.address?.postal_code,
+  //         country: shippingDetails?.address?.country,
+  //       },
+  //       notes: '',
+  //       createdAt: new Date(),
+  //       updatedAt: new Date(),
+  //     };
 
-      const items = cartItems.map((item: any) => ({
-        orderId: 0, // This will be set by the storage layer
-        productId: parseInt(item.productId),
-        // designId: item.design?.id,
-        quantity: parseInt(item.quantity),
-        unitPrice: parseInt(item.price),
-        customization: item.customization,
-      }));
+  //     const items = cartItems.map((item: any) => ({
+  //       orderId: 0, // This will be set by the storage layer
+  //       productId: parseInt(item.productId),
+  //       // designId: item.design?.id,
+  //       quantity: parseInt(item.quantity),
+  //       unitPrice: parseInt(item.price),
+  //       customization: item.customization,
+  //     }));
 
-      try {
+  //     try {
 
-        const order = await storage.createOrder(orderData, items);
+  //       const order = await storage.createOrder(orderData, items);
 
-        const subject = "We've Received Your Order"
-        const to = shippingDetails?.email;
-        //const to = 'noreply@creazionilaser.com';
-        const messageBody = `<h3>Hi ${shippingDetails?.name},</h3>
-                              <p>We have successfully received your order,Following are the order details for your info:</p>
-                              <ul style="list-style:none !important;">
-                                <li><b>Order# : </b>${uuidv4()}</li>
-                                <li><b>Order Total : </b>${parseInt((session.amount_total! / 100).toString())}</li>
-                                <li><b>Payment Status : </b>Processed</li>
-                            </ul>`;
+  //       const subject = "We've Received Your Order"
+  //       const to = shippingDetails?.email;
+  //       //const to = 'noreply@creazionilaser.com';
+  //       const messageBody = `<h3>Hi ${shippingDetails?.name},</h3>
+  //                             <p>We have successfully received your order,Following are the order details for your info:</p>
+  //                             <ul style="list-style:none !important;">
+  //                               <li><b>Order# : </b>${uuidv4()}</li>
+  //                               <li><b>Order Total : </b>${parseInt((session.amount_total! / 100).toString())}</li>
+  //                               <li><b>Payment Status : </b>Processed</li>
+  //                           </ul>`;
 
-        await sendEmailHtmlTemplate(to,subject,messageBody);
+  //       await sendEmailHtmlTemplate(to,subject,messageBody);
 
-        console.log(`Order created for user ${userId}`);
-      } catch (error) {
-        console.error(`Error creating order for user ${userId}:`, error);
-      }
-    }
+  //       console.log(`Order created for user ${userId}`);
+  //     } catch (error) {
+  //       console.error(`Error creating order for user ${userId}:`, error);
+  //     }
+  //   }
 
-    res.json({received: true});
-  });
+  //   res.json({received: true});
+  // });
 
   app.post('/api/auth/login', async (req, res) => {
     try {

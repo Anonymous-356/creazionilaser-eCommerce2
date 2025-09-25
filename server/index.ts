@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { storage } from "./storage";
+import transporter from "./mailer";
 import { unless }  from 'express-unless'; // You would need to install this: npm install express-unless
 
 import {LanguageDetector,handle} from 'i18next-http-middleware';
@@ -121,65 +122,126 @@ app.use((req, res, next) => {
   });
 })();
 
-// app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     
-//     const signature = req.headers['stripe-signature'];
-//     const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
-//     let event;
+    console.log('webhook');
+    const signature = req.headers['stripe-signature'];
+    const endpointSignature = "whsec_kgjRih569Y6uUpkXrAFY8Vd10RIAK0uI";
+    let event;
 
-//     try {
-//       event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
-//     } catch (err: any) {
-//       console.error(`Webhook signature verification failed.`, err.message);
-//       return res.status(400).send(`Webhook Error: ${err.message}`);
-//     }
+    try {
+      event = stripe.webhooks.constructEvent(req.body, signature!,endpointSignature);
+    } catch (err: any) {
+      console.error(`Webhook signature verification failed.`, err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-//     // Handle the event
-//     if (event.type === 'checkout.session.completed') {
+    // Handle the event
+    if (event.type === 'checkout.session.completed') {
       
-//       const session = event.data.object as Stripe.Checkout.Session;
-//       //console.log(session);
+      const session = event.data.object as Stripe.Checkout.Session;
+      //console.log(session);
 
-//       const userId = parseInt(session.metadata!.userId);
-//       const cartItems = JSON.parse(session.metadata!.cartItems);
+      const userId = parseInt(session.metadata!.userId);
+      const cartItems = JSON.parse(session.metadata!.cartItems);
 
-//       const shippingDetails = session!.customer_details;
-//       const orderData = {
-//         userId: userId,
-//         orderNumber: uuidv4(),
-//         totalAmount: parseInt((session.amount_total! / 100).toString()),
-//         paymentStatus : "processed",
-//         shippingAddress: {
-//           name: shippingDetails?.name,
-//           address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
-//           city: shippingDetails?.address?.city,
-//           zipCode: shippingDetails?.address?.postal_code,
-//           country: shippingDetails?.address?.country,
-//         },
-//         notes: '',
-//         createdAt: new Date(),
-//         updatedAt: new Date(),
-//       };
+      const shippingDetails = session!.customer_details;
+      const orderData = {
+        userId: userId,
+        orderNumber: uuidv4(),
+        totalAmount: parseInt((session.amount_total! / 100).toString()),
+        paymentStatus : "processed",
+        shippingAddress: {
+          name: shippingDetails?.name,
+          address: `${shippingDetails?.address?.line1} ${shippingDetails?.address?.line2 || ''}`,
+          city: shippingDetails?.address?.city,
+          zipCode: shippingDetails?.address?.postal_code,
+          country: shippingDetails?.address?.country,
+        },
+        notes: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-//       const items = cartItems.map((item: any) => ({
-//         orderId: 0, // This will be set by the storage layer
-//         productId: parseInt(item.productId),
-//         // designId: item.design?.id,
-//         quantity: parseInt(item.quantity),
-//         unitPrice: parseInt(item.price),
-//         customization: item.customization,
-//       }));
+      const items = cartItems.map((item: any) => ({
+        orderId: 0, // This will be set by the storage layer
+        productId: parseInt(item.productId),
+        // designId: item.design?.id,
+        quantity: parseInt(item.quantity),
+        unitPrice: parseInt(item.price),
+        customization: item.customization,
+      }));
 
-//       try {
-//         const order = await storage.createOrder(orderData, items);
-//         console.log(order);
-//         console.log(`Order created for user ${userId}`);
-//       } catch (error) {
-//         console.error(`Error creating order for user ${userId}:`, error);
-//       }
-//     }
+      try {
+        const order = await storage.createOrder(orderData, items);
+        console.log(order);
+        const subject = "We've Received Your Order"
+        const to = shippingDetails?.email;
+        //const to = 'noreply@creazionilaser.com';
+        const messageBody = `<h3>Hi ${shippingDetails?.name},</h3>
+                              <p>We have successfully received your order,Following are the order details for your info:</p>
+                              <ul style="list-style:none !important;">
+                                <li><b>Order# : </b>${uuidv4()}</li>
+                                <li><b>Order Total : </b>${parseInt((session.amount_total! / 100).toString())}</li>
+                                <li><b>Payment Status : </b>Processed</li>
+                            </ul>`;
 
-//     res.json({received: true});
-// });
+        await sendEmailHtmlTemplate(to,subject,messageBody);
+        console.log(`Order created for user ${userId}`);
+      } catch (error) {
+        console.error(`Error creating order for user ${userId}:`, error);
+      }
+    }
+
+    res.json({received: true});
+});
 
 app.use(express.json());
+
+
+
+async function sendEmailHtmlTemplate(to : any,subject : any,messageBody : any){
+  
+  // Define Message Body with HTML
+  const htmlBody = ` <div style="background: #f5f5f5;">
+                      <table border="0" cellspacing="0" cellpadding="0" width="602" align="center" style=" width: 97%;margin: 0 auto; max-width:600px;">
+                          <tbody>
+                          <tr>
+                              <td align="left" style="font-family:Arial;font-size:12px;color:#000000;display:flex;justify-content:center;">
+                                <img src='https://ci3.googleusercontent.com/meips/ADKq_NaaWlXYZ84iHXOhdcCjlvS-ORWqLTJZOSvy7Ny4_tZpG_O-P4THqJYp297V5Bf1yJHJvQog2n9r5dmBtU4YN8XYxWGEkJdh2V1OggWEd5kd7yW9AXFMXKVu=s0-d-e1-ft#https://creazionilaser.com/uploads/86c865afac2283f69423030f427ef09a' alt='Logo Image' target='_blank' style='height:150px;width:auto;' />
+                              </td>
+                          </tr>
+
+                          <tr>
+                              <td align="left"
+                                  style="font-family:Arial;font-size:12px;color:#37404a;border: solid 1px #c8c8c8;border-right:solid 1px #c8c8c8;
+                                  padding:40px 40px 50px 40px; line-height:18px;background: #fff;">
+                                  ${messageBody}
+                              </td>
+                          </tr>
+                          <td align="left" style="font-family:Arial;font-size:12px;color:#000000">
+                              <br><br><br><br>
+                          </td>
+                          
+
+                          </tbody>
+                      </table>
+                    </div>`;
+
+  // Define email options
+  let mailOptions = {
+      from: 'admin@efficientitconsulting.com', // Sender
+      to: to, // Recipient(s)
+      subject: subject, // Subject
+      html: `${htmlBody}` // Message Body
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions,(error,info)=>{
+    if (error) {
+        console.log('Error sending email:', error);
+    } else {
+        console.log('Email sent successfully: %s', info.response);
+    }
+  });
+}
