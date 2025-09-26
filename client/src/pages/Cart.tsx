@@ -78,7 +78,7 @@ export default function Cart() {
 
   const handleCheckout = async () => {
 
-    const stripe = await loadStripe("pk_test_51RdqmFAJosTY6SBe08dhnZGa7oEl7EMoohCpp3sZsbJQKPKnHHwEmmfGnVWEcFQRcAORMHTj2fsDVPL9zMqiz9vl00dSY6I6tx");
+    const stripe = await loadStripe("pk_live_51RdqmFAJosTY6SBeGtrKbHfRNQYJdvejjCQye6HhzUDOCbrPWBrW1KUTmuxzdWQzSSNqU7ojjiunzaDaV1aIYiYU00Cf0L90nn");
 
     if (!stripe) {
       console.error("Stripe.js has not loaded yet.");
