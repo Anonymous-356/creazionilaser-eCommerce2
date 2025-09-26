@@ -98,14 +98,6 @@ export default function Cart() {
       return;
     }
 
-
-    // const orderData = [
-    //         {productId : 4,price : 35.50,quantity : 3},
-    //         {productId : 2,price : 15.50,quantity : 2},
-    // ]
-
-    //createOrderMutation.mutate(orderData);
-
     const session = await response.json();
     
     const result = await stripe.redirectToCheckout({
