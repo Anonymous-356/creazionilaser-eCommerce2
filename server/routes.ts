@@ -35,10 +35,9 @@ dotenv.config({path : "./.env"});
 
 import Stripe from 'stripe';
 
-const stripe = new Stripe("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", {
+const stripe = new Stripe("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", {
   //apiVersion: '2024-04-10.basil',
 });
-
 
 // Configure multer for file uploads
 const upload = multer({

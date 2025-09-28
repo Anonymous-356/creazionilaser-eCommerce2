@@ -1,22 +1,19 @@
 import express, { type Request, Response, NextFunction,RequestHandler } from "express";
 import { registerRoutes } from "./routes";
+import {LanguageDetector,handle} from 'i18next-http-middleware';
 import { setupVite, serveStatic, log } from "./vite";
 import { v4 as uuidv4 } from 'uuid'
+import path from 'path';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { storage } from "./storage";
 import transporter from "./mailer";
 import { unless }  from 'express-unless'; // You would need to install this: npm install express-unless
-
-import {LanguageDetector,handle} from 'i18next-http-middleware';
-import path from 'path';
-
 import Stripe from 'stripe';
-
 import * as dotenv from 'dotenv';
-dotenv.config({path : "../.env"});
+dotenv.config({path : "./.env"});
 
-const stripe = new Stripe("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", {
+const stripe = new Stripe("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", {
   //apiVersion: '2024-04-10.basil',
 });
 
