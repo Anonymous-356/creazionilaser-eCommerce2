@@ -13,10 +13,16 @@ import Stripe from 'stripe';
 import * as dotenv from 'dotenv';
 dotenv.config({path : "./.env"});
 
-const stripe = new Stripe("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", {
+// Ensure the secret key is defined and then initialize Stripe
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  console.error('STRIPE_SECRET_KEY is not defined in environment variables.');
+  process.exit(1); // Exit if the key is missing
+}
+  
+const stripe = new Stripe(stripeSecretKey, {
   //apiVersion: '2024-04-10.basil',
 });
-
 
 i18next
   .use(Backend)                     // Connects the file system backend
@@ -36,6 +42,12 @@ i18next
 
    
 const app = express();
+
+// Or, if using a custom type for middleware with unless:
+interface MiddlewareWithUnless extends RequestHandler {
+  unless: typeof unless;
+}
+
 const myMiddleware: RequestHandler = (req, res, next) => {
     // ... middleware logic
   next();
@@ -43,14 +55,8 @@ const myMiddleware: RequestHandler = (req, res, next) => {
     
 (myMiddleware as any).unless = unless; 
 
-// Or, if using a custom type for middleware with unless:
-interface MiddlewareWithUnless extends RequestHandler {
-  unless: typeof unless;
-}
-
 let jsonBodyParser: MiddlewareWithUnless = Object.assign(myMiddleware, { unless: unless });
 jsonBodyParser = unless({ path: ['/api/webhook'] })
-
 
 app.use(express.urlencoded({ extended: false }));
 app.use(handle(i18next));

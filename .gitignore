@@ -5,4 +5,5 @@ server/public
 server/index.ts
 server/routes.ts
 vite.config.ts.*
+.env
 *.tar.gz
