@@ -16,7 +16,7 @@ import Stripe from 'stripe';
 import * as dotenv from 'dotenv';
 dotenv.config({path : "../.env"});
 
-const stripe = new Stripe("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", {
+const stripe = new Stripe("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", {
   //apiVersion: '2024-04-10.basil',
 });
 
