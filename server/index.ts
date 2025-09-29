@@ -37,10 +37,8 @@ i18next
     },
     fallbackLng: 'en',                   // Default language when no language is detected
     preload: ['en', 'it'],               // Preload these languages at startup
-});
-
-
-   
+})
+  
 const app = express();
 
 // Or, if using a custom type for middleware with unless:

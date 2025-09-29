@@ -2,12 +2,12 @@
     import  nodemailer  from "nodemailer";
 
     const transporter =  nodemailer.createTransport({
-        host: 'mail.efficientitconsulting.com',
+        host: 'Creazionilaser.com',
         port: 587, // or 465 for SSL
         secure: false, // true for 465, false for other ports
         auth: {
-            user: 'admin@efficientitconsulting.com',
-            pass: 'Admin*&^786'
+            user: 'noreply@creazionilaser.com',
+            pass: 'Z6sRdpdzkWfWTPhjuEeB'
         }
     });
 
